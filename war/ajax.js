@@ -1,4 +1,19 @@
-// AJAX makeRequest
+/**
+ * Browser-independent AJAX call
+ *
+ * @param {String} locationURL an URL to call, without parameters
+ * @param {String} [parameters=null] a parameters list, in the form
+ *        'param1=value1&param2=value2&param3=value3'
+ * @param {Function(XHMLHTTPRequest, Object)} [onComplete=null] a function that
+ *        will be called when the response (responseText or responseXML of
+ *        XHMLHTTPRequest) will be received
+ * @param {Boolean} [doSynchronous=false] make a synchronous request (onComplete
+ *        will /not/ be called)        
+ * @param {Boolean} [doPost=false] make a POST request instead of GET        
+ * @param {Object} [dataPackage=null] any object to transfer to the onComplete
+ *        listener
+ * @return {XHMLHTTPRequest} request object, if no exceptions occured
+ */
 
 function makeRequest(locationURL, parameters, onComplete, doPost, dataPackage) {
 

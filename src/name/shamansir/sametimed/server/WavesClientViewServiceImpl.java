@@ -22,8 +22,7 @@ IWavesClientViewService {
 	private static final String CONNECTION_ERR_STR = "Connection to the Wave Server (as user %s) is failed";  
 
 	@Override
-	public WavesClientViewContainer getClientView(String user, AWavesClientRedrawEventsHandler eventsHandler, String redrawJSFuncName) throws IOException {
-		WavesClient.setRedrawJSFuncName(redrawJSFuncName);
+	public WavesClientViewContainer getClientView(String user, AWavesClientRedrawEventsHandler eventsHandler) throws IOException {
 		WavesClient newClient = new WavesClient(eventsHandler);
 		
 		try {

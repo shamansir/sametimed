@@ -9,7 +9,6 @@ import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.WaveletOperationListener;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
-import org.waveprotocol.wave.model.operation.wave.WaveletOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 import org.waveprotocol.wave.model.wave.data.WaveletData;
 
@@ -33,20 +32,11 @@ public class WavesClient implements WaveletOperationListener {
 	private ClientWaveView openedWave = null;	
 	private List<String> participants = null;	 
 	
-	private List<String> errors = new ArrayList<String>();	
-
-	private static final String AJAX_REQUEST_JS_FUNC = "makeRequest";
-	private static final String CMD_EXECUTOR_URL = "/same_timed/cmd_exec";
-	
-	private static String REDRAW_JS_FUNC_NAME = null;
+	private List<String> errors = new ArrayList<String>();
 	
 	public WavesClient(AWavesClientRedrawEventsHandler redrawEventsHandler) {
 		this.VIEW_ID = generateViewId();
 		this.renderer = new WavesClientHTMLRenderer(this.VIEW_ID, redrawEventsHandler);
-		if (REDRAW_JS_FUNC_NAME == null) {
-			LOG.severe("REDRAW_JS_FUNC_NAME for WavesClient is not set, please " +
-					"call static setRedrawJSFuncName before calling constructor");
-		}
 	}	
 	
 	protected int generateViewId() {
@@ -170,27 +160,5 @@ public class WavesClient implements WaveletOperationListener {
 	private boolean isWaveOpen() {
 		return isConnected() && openedWave != null;
 	}	
-	
-	public static final void setRedrawJSFuncName(String redrawJSFuncName) {
-		REDRAW_JS_FUNC_NAME = redrawJSFuncName;
-	}
-	
-	public static final String generateCmdExecutionJavascript(int clientId, String holderElementId, WaveletOperation command) {
-		String redrawJSFuncCaller = "null";
-		if (REDRAW_JS_FUNC_NAME != null) {
-			redrawJSFuncCaller = "function(request, response){" +
-					REDRAW_JS_FUNC_NAME + "(" + 
-						holderElementId + "," +
-						"response" +
-					")" +
-				"}";
-		}
-		return AJAX_REQUEST_JS_FUNC + "('" +
-			CMD_EXECUTOR_URL + "','" + 
-				"clientId=" + String.valueOf(clientId) + "&" +
-				"cmd=test&" + 
-				"args={}" +
-			"'," + redrawJSFuncCaller + ",true);";
-	}
 
 }

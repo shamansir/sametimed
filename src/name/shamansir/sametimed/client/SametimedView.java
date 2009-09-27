@@ -21,10 +21,7 @@ public class SametimedView implements EntryPoint {
 	
 	private final String ADD_CLIENT_FORM_ID = "add-client-form";
 	private final String VIEWS_CONTAINER_ID = "client-views";
-	private final String ERROR_BOX_ID       = "error";
-	
-	// it must to be identical to the function, described in initRedrawJSFunc() method
-	private final String REDRAW_JS_FUNC_NAME = "redrawPanel"; 
+	private final String ERROR_BOX_ID       = "error"; 
 	
 	/**
 	 * Create a remote service proxy to talk to the server-side Client View service.
@@ -76,7 +73,6 @@ public class SametimedView implements EntryPoint {
 				addViewButton.setEnabled(false);
 				String username = usernameField.getText();
 				clientViewService.getClientView(username, redrawHandler,
-						REDRAW_JS_FUNC_NAME,
 						new AsyncCallback<WavesClientViewContainer>() {
 							public void onFailure(Throwable caught) {
 								// Show the RPC error message to the user

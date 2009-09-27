@@ -21,7 +21,7 @@ public interface IWavesClientRenderer {
 	//        when updatePanel is called
 	public void updatePanel(PanelID panelID); 
 	
-	public void setPanelModel(PanelID panelID, List<String> modelData);
+	public <SourceType> void setPanelModel(PanelID panelID, SourceType modelData);
 
 	public AWavesClientRedrawEventsHandler getRedrawEventsHandler();	
 	

@@ -13,6 +13,5 @@ import name.shamansir.sametimed.client.WavesClientViewContainer;
 @RemoteServiceRelativePath("get_client_view")
 public interface IWavesClientViewService extends RemoteService {
 	WavesClientViewContainer getClientView(String forUser, 
-			AWavesClientRedrawEventsHandler eventsHandler, 
-			String redrawJSFuncName) throws IOException;
+			AWavesClientRedrawEventsHandler eventsHandler) throws IOException;
 }

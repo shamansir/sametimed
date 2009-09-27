@@ -14,6 +14,7 @@ import org.dom4j.io.HTMLWriter;
 import org.dom4j.io.OutputFormat;
 
 import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
+import name.shamansir.sametimed.wave.Command;
 import name.shamansir.sametimed.wave.render.InfoLineModel;
 import name.shamansir.sametimed.wave.render.PanelID;
 import name.shamansir.sametimed.wave.render.PanelModelFactory;
@@ -30,8 +31,19 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 
 	private final int currentViewId;
 	private final String holderElementId;
-	 
-	private Map<PanelID, IClientPanelRenderer> panelsRenderers = new HashMap<PanelID, IClientPanelRenderer>();	
+	
+	private final static String SEND_BTN_ONCLICK_JSFUNC_NAME = "sendButtonOnClick";
+	private final static String CMD_BTN_ONCLICK_JSFUNC_NAME = "cmdButtonOnClick";
+	 	
+	@SuppressWarnings("unchecked")
+	private Map<PanelID, IClientPanelRenderer> panelsRenderers = new HashMap<PanelID, IClientPanelRenderer>() {
+
+		private static final long serialVersionUID = 1108763838937694456L;
+
+		public <PanelModelType> IClientPanelRenderer<PanelModelType> get(PanelID panelID) {
+			return get(panelID);
+		};
+	};
 	private Map<PanelID, Element> panelsElements = new HashMap<PanelID, Element>();
 	
 	private Element wrapperDiv = null;
@@ -135,12 +147,14 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 	}
 	
 	@Override
-	public void setPanelModel(PanelID panelID, List<String> modelData) {
+	@SuppressWarnings("unchecked")	
+	public <SourceType> void setPanelModel(PanelID panelID, SourceType modelData) {
 		panelsRenderers.get(panelID).setModel(
 				PanelModelFactory.createModel(panelID, modelData));
 		
 	}	
 	
+	@SuppressWarnings("unchecked")
 	public void updatePanel(PanelID panelID) {
 		IClientPanelRenderer panelRenderer = panelsRenderers.get(panelID);
 		redrawEventsHandler.redrawClientPanel(
@@ -162,5 +176,17 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 	public AWavesClientRedrawEventsHandler getRedrawEventsHandler() {
 		return redrawEventsHandler;
 	}
+	
+	public static final String getSendButtonOnClickJS(int clientId, String holderElementId, String commandLineSourceId) {
+		return SEND_BTN_ONCLICK_JSFUNC_NAME + "('" + holderElementId + "'," 
+					+ String.valueOf(clientId) + ",'" 
+					+ commandLineSourceId + "');";	
+	}
+	
+	public static final String getCmdButtonOnClickJS(int clientId, String holderElementId, Command command) {
+		return CMD_BTN_ONCLICK_JSFUNC_NAME + "('" + holderElementId + "'," 
+					+ String.valueOf(clientId) + ",'" 
+					+ Command.toXMLString(command) + "');";		
+	}	
 	
 }

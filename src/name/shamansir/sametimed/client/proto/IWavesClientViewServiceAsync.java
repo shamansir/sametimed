@@ -10,8 +10,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface IWavesClientViewServiceAsync {
 
 	void getClientView(String forUser, 
-			AWavesClientRedrawEventsHandler eventsHandler, 
-			String redrawJSFuncName, 
+			AWavesClientRedrawEventsHandler eventsHandler,
 			AsyncCallback<WavesClientViewContainer> callback);
 
 }
