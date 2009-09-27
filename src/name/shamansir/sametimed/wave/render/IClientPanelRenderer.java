@@ -7,6 +7,8 @@ public interface IClientPanelRenderer {
 	public String getHolderId();
 
 	public Element createPanel();
-	public Element createPanel(PanelModel model);
+	
+	public APanelModel getModel();
+	public void setModel(APanelModel model);	
 	
 }

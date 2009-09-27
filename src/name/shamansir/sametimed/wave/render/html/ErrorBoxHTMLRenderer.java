@@ -4,16 +4,22 @@ import java.util.List;
 
 import org.dom4j.Element;
 
-import name.shamansir.sametimed.wave.render.PanelModel;
+import name.shamansir.sametimed.wave.render.ErrorBoxModel;
+import name.shamansir.sametimed.wave.render.PanelID;
+import name.shamansir.sametimed.wave.render.APanelModel;
 
 public class ErrorBoxHTMLRenderer extends AHTMLPanelRenderer {
 	
 	public static final String PANEL_ID_PREFIX = "client-errorbox-";
 	public static final String PANEL_CLASS = "errorbox";
-
+	
+	public ErrorBoxHTMLRenderer(int clientID, ErrorBoxModel model) {
+		super(clientID, PanelID.ERROR_BOX_PANEL, model, PANEL_ID_PREFIX);
+		setWrapperClass(PANEL_CLASS);		
+	}
+	
 	public ErrorBoxHTMLRenderer(int clientID) {
-		super(PANEL_ID_PREFIX, clientID);
-		setWrapperClass(PANEL_CLASS);
+		this(clientID, null);
 	}
 
 	@Override
@@ -23,8 +29,9 @@ public class ErrorBoxHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, PanelModel model) {
-		for (String errorText: (List<String>)model.get("errors")) {
+	protected void addElements(Element wrapper, APanelModel model) {
+		List<String> errorsList = ((ErrorBoxModel)model).getErrors();
+		for (String errorText: errorsList) {
 			Element errorSpan = createElement("span");
 			errorSpan.setText(errorText);
 			wrapper.add(errorSpan);

@@ -1,9 +1,5 @@
 package name.shamansir.sametimed.client;
 
-import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
-import name.shamansir.sametimed.client.proto.IWavesClientViewService;
-import name.shamansir.sametimed.client.proto.IWavesClientViewServiceAsync;
-
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -13,6 +9,10 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
+
+import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
+import name.shamansir.sametimed.client.proto.IWavesClientViewService;
+import name.shamansir.sametimed.client.proto.IWavesClientViewServiceAsync;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.

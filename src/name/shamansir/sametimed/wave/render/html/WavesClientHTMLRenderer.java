@@ -3,20 +3,22 @@ package name.shamansir.sametimed.wave.render.html;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
-import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
-import name.shamansir.sametimed.wave.render.IClientPanelRenderer;
-import name.shamansir.sametimed.wave.render.IWavesClientRenderer;
-import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.PanelModel;
 
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.HTMLWriter;
 import org.dom4j.io.OutputFormat;
+
+import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
+import name.shamansir.sametimed.wave.render.IClientPanelRenderer;
+import name.shamansir.sametimed.wave.render.IWavesClientRenderer;
+import name.shamansir.sametimed.wave.render.PanelID;
+import name.shamansir.sametimed.wave.render.PanelModelFactory;
 
 public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 	
@@ -28,7 +30,7 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 
 	private final int currentViewId;
 	private final String holderElementId;
-	
+	 
 	private Map<PanelID, IClientPanelRenderer> panelsRenderers = new HashMap<PanelID, IClientPanelRenderer>();	
 	private Map<PanelID, Element> panelsElements = new HashMap<PanelID, Element>();
 	
@@ -50,15 +52,9 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 		this.currentViewId = viewId;
 		this.holderElementId = VIEWS_ID_PREFIX + String.valueOf(viewId);
 		
-		panelsRenderers.put(PanelID.INFOLINE_PANEL,   new InfoLineHTMLRenderer(this.currentViewId));
-		panelsRenderers.put(PanelID.INBOX_PANEL,      new InboxHTMLRenderer(this.currentViewId));
-		panelsRenderers.put(PanelID.USERS_LIST_PANEL, new ParticipantsListHTMLRenderer(this.currentViewId));
-		panelsRenderers.put(PanelID.CHAT_PANEL,       new ChatHTMLRenderer(this.currentViewId));
-		panelsRenderers.put(PanelID.EDITOR_PANEL,     new EditorHTMLRenderer(this.currentViewId));
-		panelsRenderers.put(PanelID.CONSOLE_PANEL,    new ConsoleHTMLRenderer(this.currentViewId));
-		panelsRenderers.put(PanelID.ERROR_BOX_PANEL,  new ErrorBoxHTMLRenderer(this.currentViewId));
+		this.redrawEventsHandler = redrawEventsHandler;		
 		
-		this.redrawEventsHandler = redrawEventsHandler;
+		initPanelsRenderers();
 	}
 	
 	public void initialize(String userAtDomain, String waveServer) {
@@ -66,18 +62,32 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 		wrapperDiv.addAttribute("id", this.holderElementId);	
 		wrapperDiv.addAttribute("class", VIEW_CSS_CLASS);
 		
+		addPanelsElements(wrapperDiv, userAtDomain, waveServer);
+	}	
+	
+	protected void initPanelsRenderers() {	// static?
+		panelsRenderers.put(PanelID.INFOLINE_PANEL,   new InfoLineHTMLRenderer(this.currentViewId));
+		panelsRenderers.put(PanelID.INBOX_PANEL,      new InboxHTMLRenderer(this.currentViewId));
+		panelsRenderers.put(PanelID.USERS_LIST_PANEL, new ParticipantsListHTMLRenderer(this.currentViewId));
+		panelsRenderers.put(PanelID.CHAT_PANEL,       new ChatHTMLRenderer(this.currentViewId));
+		panelsRenderers.put(PanelID.EDITOR_PANEL,     new EditorHTMLRenderer(this.currentViewId));
+		panelsRenderers.put(PanelID.CONSOLE_PANEL,    new ConsoleHTMLRenderer(this.currentViewId));
+		panelsRenderers.put(PanelID.ERROR_BOX_PANEL,  new ErrorBoxHTMLRenderer(this.currentViewId));		
+	}	
+	
+	protected void addPanelsElements(Element wrapper, String userAtDomain, String waveServer) {		
 		for (PanelID panelID: PanelID.values()) {
 			if (panelID != PanelID.INFOLINE_PANEL) { 
 				panelsElements.put(panelID, panelsRenderers.get(panelID).createPanel());
 			} else {
-				PanelModel infoPanelModel = new PanelModel();
-				infoPanelModel.put("info", "connected as " + userAtDomain + "; waveserver: " + waveServer);
-				panelsElements.put(panelID, panelsRenderers.get(panelID).createPanel(infoPanelModel));
+				List<String> infoLineHolder = new ArrayList<String>();
+				infoLineHolder.add("connected as " + userAtDomain + "; waveserver: " + waveServer);
+				panelsRenderers.get(panelID).setModel(PanelModelFactory.createModel(panelID, infoLineHolder));
+				panelsElements.put(panelID, panelsRenderers.get(panelID).createPanel());
 			}
-			wrapperDiv.add(panelsElements.get(panelID));
-		}
-				
-	}
+			wrapper.add(panelsElements.get(panelID));
+		}		
+	}	
 	
 	public String getCompleteView() {
 		return getElementAsString(wrapperDiv);
@@ -124,18 +134,25 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 		return getElementAsString(
 				panelsRenderers.get(panelID).createPanel());
 	}
-
+	
 	@Override
-	public String getPanelContent(PanelID panelID, PanelModel model) {
-		return getElementAsString(
-				panelsRenderers.get(panelID).createPanel(model));
+	public void setPanelModel(PanelID panelID, List<String> modelData) {
+		panelsRenderers.get(panelID).setModel(
+				PanelModelFactory.createModel(panelID, modelData));
+		
+	}	
+	
+	public void updatePanel(PanelID panelID) {
+		IClientPanelRenderer panelRenderer = panelsRenderers.get(panelID);
+		redrawEventsHandler.redrawClientPanel(
+				panelRenderer.getHolderId(),
+				getElementAsString(panelRenderer.createPanel()));
 	}
 	
-	public void updatePanel(PanelID panelID, PanelModel model) {
-		IClientPanelRenderer panelRenderer = panelsRenderers.get(panelID);
-		redrawEventsHandler.redrawClientPanel(panelRenderer.getHolderId(),
-				getElementAsString(panelRenderer.createPanel(model)));
-	}
+	public void updatePanel(PanelID panelID, List<String> withModel) {
+		setPanelModel(panelID, withModel);
+		updatePanel(panelID);
+	}	
 
 	@Override
 	public String getPanelElementId(PanelID panelID) {
@@ -145,6 +162,6 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 	@Override
 	public AWavesClientRedrawEventsHandler getRedrawEventsHandler() {
 		return redrawEventsHandler;
-	}	
+	}
 	
 }

@@ -1,5 +1,7 @@
 package name.shamansir.sametimed.wave.render;
 
+import java.util.List;
+
 import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
 
 public interface IWavesClientRenderer {
@@ -13,8 +15,12 @@ public interface IWavesClientRenderer {
 	public String getCompleteView();
 	public String getErrorView(String errorString);	
 	public String getPanelContent(PanelID panelID);
-	public String getPanelContent(PanelID panelID, PanelModel model);
-	public void updatePanel(PanelID panelID, PanelModel model);
+	public void updatePanel(PanelID panelID, List<String> withModel); 
+	// FIXME: panels must to update their models on events and just rerender 
+	//        when updatePanel is called
+	public void updatePanel(PanelID panelID); 
+	
+	public void setPanelModel(PanelID panelID, List<String> modelData);
 
 	public AWavesClientRedrawEventsHandler getRedrawEventsHandler();	
 	

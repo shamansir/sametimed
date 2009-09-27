@@ -2,32 +2,37 @@ package name.shamansir.sametimed.wave.render.html;
 
 import java.util.List;
 
-import name.shamansir.sametimed.wave.render.PanelModel;
+import name.shamansir.sametimed.wave.render.PanelID;
+import name.shamansir.sametimed.wave.render.APanelModel;
+import name.shamansir.sametimed.wave.render.ParticipantsModel;
 
 import org.dom4j.Element;
 
 public class ParticipantsListHTMLRenderer extends AHTMLPanelRenderer {
 	
 	public static final String PANEL_ID_PREFIX = "client-userlist-";
-	public static final String PANEL_CLASS     = "userlist";		
-
-	public ParticipantsListHTMLRenderer(int clientID) {
-		super(PANEL_ID_PREFIX, clientID);
+	public static final String PANEL_CLASS     = "userlist";
+	
+	public ParticipantsListHTMLRenderer(int clientID, ParticipantsModel model) {
+		super(clientID, PanelID.USERS_LIST_PANEL, model, PANEL_ID_PREFIX);
 		setWrapperTagName("ul");
-		setWrapperClass(PANEL_CLASS);
+		setWrapperClass(PANEL_CLASS);	
 	}
+	
+	public ParticipantsListHTMLRenderer(int clientID) {
+		this(clientID, null);
+	}	
 
 	@Override
 	protected void addElements(Element wrapper) {
-		// TODO Auto-generated method stub
 		Element liElement = createElement("li");
 		wrapper.add(liElement);
 	}
 
 	@Override
-	protected void addElements(Element wrapper, PanelModel model) {
-		// TODO Auto-generated method stub
-		for (String participantName: (List<String>)model.get("participants")) {
+	protected void addElements(Element wrapper, APanelModel model) {
+		List<String> participants = ((ParticipantsModel)model).getParticipants();
+		for (String participantName: participants) {
 			Element liElement = createElement("li");
 			liElement.setText(participantName);
 			wrapper.add(liElement);

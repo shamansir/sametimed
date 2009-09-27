@@ -23,7 +23,8 @@ IWavesClientViewService {
 
 	@Override
 	public WavesClientViewContainer getClientView(String user, AWavesClientRedrawEventsHandler eventsHandler, String redrawJSFuncName) throws IOException {
-		WavesClient newClient = new WavesClient(eventsHandler, redrawJSFuncName);
+		WavesClient.setRedrawJSFuncName(redrawJSFuncName);
+		WavesClient newClient = new WavesClient(eventsHandler);
 		
 		try {
 			newClient.connect(user);
