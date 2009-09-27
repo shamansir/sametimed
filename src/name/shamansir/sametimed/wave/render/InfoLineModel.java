@@ -1,43 +1,28 @@
 package name.shamansir.sametimed.wave.render;
 
-import java.util.List;
+import name.shamansir.sametimed.wave.model.InfoLine;
+import name.shamansir.sametimed.wave.render.proto.APanelModel;
 
-public class InfoLineModel extends APanelModel {
+public class InfoLineModel extends APanelModel<String, InfoLine> {	
 
-	protected class InfoLineModelValue implements IModelValue {
-		
-		private String infoLine;
-		
-		private InfoLineModelValue(String infoLine) {
-			this.infoLine = infoLine; 
-		}
-		
-		private InfoLineModelValue() {
-			this.infoLine = ""; 
-		}		
-		
-		public String getInfoLine() {
-			return infoLine;
-		}
-		
-	}	
-
-	protected InfoLineModel(List<String> model) {
+	public InfoLineModel(String model) {
 		super(model);
 	}
 	
 	public String getInfoLine() {
-		return ((InfoLineModelValue)getValue()).getInfoLine();
+		return getValue().getLine();
 	}
 
 	@Override
-	protected IModelValue extractModel(List<String> fromList) {
-		return new InfoLineModelValue(fromList.get(0));
+	protected InfoLine createEmptyValue() {
+		return new InfoLine();
 	}
 
 	@Override
-	protected IModelValue createEmptyValue() {
-		return new InfoLineModelValue();
-	}		
+	protected InfoLine extractValue(String fromSource) {
+		return new InfoLine(fromSource);
+	}
+
+	
 	
 }

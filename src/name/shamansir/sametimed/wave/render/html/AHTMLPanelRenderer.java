@@ -3,12 +3,13 @@ package name.shamansir.sametimed.wave.render.html;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
-import name.shamansir.sametimed.wave.render.IClientPanelRenderer;
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 import name.shamansir.sametimed.wave.render.PanelModelFactory;
+import name.shamansir.sametimed.wave.render.proto.APanelModel;
+import name.shamansir.sametimed.wave.render.proto.IClientPanelRenderer;
 
-public abstract class AHTMLPanelRenderer implements IClientPanelRenderer {
+@SuppressWarnings("unchecked")
+public abstract class AHTMLPanelRenderer<PanelModelType extends APanelModel> implements IClientPanelRenderer<PanelModelType> {
 	
 	private static final String DEFAULT_WRAPPER_TAGNAME = "div";
 	
@@ -20,13 +21,13 @@ public abstract class AHTMLPanelRenderer implements IClientPanelRenderer {
 	private String wrapperTagName = DEFAULT_WRAPPER_TAGNAME;
 	private String wrapperClass = null;
 	
-	private APanelModel model = null;
+	private PanelModelType model = null;
 	
-	public AHTMLPanelRenderer(int clientID, PanelID panelID, APanelModel panelModel, String panelIdPrefix) {
+	public AHTMLPanelRenderer(int clientID, PanelID panelID, PanelModelType panelModel, String panelIdPrefix) {
 		this.PANEL_ID = panelID;
 		this.holderElementId = panelIdPrefix + String.valueOf(clientID);
 		this.currentClientId = clientID;
-		this.model = panelModel != null ? PanelModelFactory.createModel(panelID) : panelModel;
+		this.model = panelModel != null ? (PanelModelType)PanelModelFactory.createModel(panelID) : panelModel;
 	}	
 	
 	public AHTMLPanelRenderer(int clientID, PanelID panelID, String panelIdPrefix) {
@@ -36,7 +37,7 @@ public abstract class AHTMLPanelRenderer implements IClientPanelRenderer {
 	protected void configureWrapper(Element wrapper) { }
 	
 	protected abstract void addElements(Element wrapper);
-	protected abstract void addElements(Element wrapper, APanelModel model);
+	protected abstract void addElements(Element wrapper, PanelModelType model);
 	
 	@Override
 	public Element createPanel() {
@@ -81,11 +82,11 @@ public abstract class AHTMLPanelRenderer implements IClientPanelRenderer {
 		return PANEL_ID;
 	}
 	
-	public APanelModel getModel() {
+	public PanelModelType getModel() {
 		return this.model;
 	}
 	
-	public void setModel(APanelModel model) {
+	public void setModel(PanelModelType model) {
 		this.model = model;
 	}
 	

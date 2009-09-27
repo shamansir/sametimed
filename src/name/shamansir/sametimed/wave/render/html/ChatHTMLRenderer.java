@@ -2,16 +2,15 @@ package name.shamansir.sametimed.wave.render.html;
 
 import org.dom4j.Element;
 
-import name.shamansir.sametimed.wave.render.ChatModel;
+import name.shamansir.sametimed.wave.render.ChatPanelModel;
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 
-public class ChatHTMLRenderer extends AHTMLPanelRenderer {
+public class ChatHTMLRenderer extends AHTMLPanelRenderer<ChatPanelModel> {
 	
 	public static final String PANEL_ID_PREFIX = "client-chat-";
 	public static final String PANEL_CLASS     = "chat";
 	
-	public ChatHTMLRenderer(int clientID, ChatModel model) {
+	public ChatHTMLRenderer(int clientID, ChatPanelModel model) {
 		super(clientID, PanelID.CHAT_PANEL, model, PANEL_ID_PREFIX);
 		setWrapperClass(PANEL_CLASS);
 	}	
@@ -26,7 +25,7 @@ public class ChatHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, APanelModel model) {
+	protected void addElements(Element wrapper, ChatPanelModel model) {
 		// TODO Auto-generated method stub
 		addElements(wrapper);
 	}

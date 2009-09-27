@@ -6,9 +6,8 @@ import org.dom4j.Element;
 
 import name.shamansir.sametimed.wave.render.InboxModel;
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 
-public class InboxHTMLRenderer extends AHTMLPanelRenderer {
+public class InboxHTMLRenderer extends AHTMLPanelRenderer<InboxModel> {
 	
 	public static final String PANEL_ID_PREFIX = "client-inbox-";
 	public static final String PANEL_CLASS     = "inbox";	
@@ -29,8 +28,8 @@ public class InboxHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, APanelModel model) {
-		List<String> waves = ((InboxModel)model).getWaves();
+	protected void addElements(Element wrapper, InboxModel model) {
+		List<String> waves = model.getWaves();
 		for (String waveName: waves) {
 			Element waveNameSpan = createElement("span");
 			waveNameSpan.setText(waveName);

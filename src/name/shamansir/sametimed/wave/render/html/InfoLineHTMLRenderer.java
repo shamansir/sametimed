@@ -4,9 +4,8 @@ import org.dom4j.Element;
 
 import name.shamansir.sametimed.wave.render.InfoLineModel;
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 
-public class InfoLineHTMLRenderer extends AHTMLPanelRenderer {
+public class InfoLineHTMLRenderer extends AHTMLPanelRenderer<InfoLineModel> {
 
 	public static final String PANEL_ID_PREFIX = "client-infoline-";
 	public static final String PANEL_CLASS     = "infoline";		
@@ -28,8 +27,8 @@ public class InfoLineHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, APanelModel model) {		
-		wrapper.setText(((InfoLineModel)model).getInfoLine());
+	protected void addElements(Element wrapper, InfoLineModel model) {		
+		wrapper.setText(model.getInfoLine());
 	}
 
 }

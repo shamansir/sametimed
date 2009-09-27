@@ -3,12 +3,11 @@ package name.shamansir.sametimed.wave.render.html;
 import java.util.List;
 
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 import name.shamansir.sametimed.wave.render.ParticipantsModel;
 
 import org.dom4j.Element;
 
-public class ParticipantsListHTMLRenderer extends AHTMLPanelRenderer {
+public class ParticipantsListHTMLRenderer extends AHTMLPanelRenderer<ParticipantsModel> {
 	
 	public static final String PANEL_ID_PREFIX = "client-userlist-";
 	public static final String PANEL_CLASS     = "userlist";
@@ -30,8 +29,8 @@ public class ParticipantsListHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, APanelModel model) {
-		List<String> participants = ((ParticipantsModel)model).getParticipants();
+	protected void addElements(Element wrapper, ParticipantsModel model) {
+		List<String> participants = model.getParticipants();
 		for (String participantName: participants) {
 			Element liElement = createElement("li");
 			liElement.setText(participantName);

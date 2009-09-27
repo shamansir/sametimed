@@ -1,8 +1,9 @@
-package name.shamansir.sametimed.wave.render;
+package name.shamansir.sametimed.wave.render.proto;
 
 import java.util.List;
 
 import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
+import name.shamansir.sametimed.wave.render.PanelID;
 
 public interface IWavesClientRenderer {
 	

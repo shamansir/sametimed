@@ -14,9 +14,10 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 import org.waveprotocol.wave.model.wave.data.WaveletData;
 
 import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
-import name.shamansir.sametimed.wave.render.IWavesClientRenderer;
+import name.shamansir.sametimed.wave.model.InboxWaveView;
 import name.shamansir.sametimed.wave.render.PanelID;
 import name.shamansir.sametimed.wave.render.html.WavesClientHTMLRenderer;
+import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public class WavesClient implements WaveletOperationListener {
 	

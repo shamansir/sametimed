@@ -2,27 +2,27 @@ package name.shamansir.sametimed.wave.render;
 
 import java.util.List;
 
-// TODO: make a possibility to create model in the way like 
-//       InfoLineModel.create(<T>), where T is a type of model value,
-//		 also in PanelModelFactory
+import name.shamansir.sametimed.wave.render.proto.APanelModel;
 
 public class PanelModelFactory {
 	
-	public static final APanelModel createModel(PanelID forPanel, List<String> modelData) {
-		switch (forPanel) {
-			case CHAT_PANEL:       return new ChatModel(modelData);
-			case CONSOLE_PANEL:    return new ConsoleModel(modelData);
-			case EDITOR_PANEL:     return new EditorModel(modelData);
-			case ERROR_BOX_PANEL:  return new ErrorBoxModel(modelData);
-			case INBOX_PANEL:      return new InboxModel(modelData);
-			case INFOLINE_PANEL:   return new InfoLineModel(modelData);
-			case USERS_LIST_PANEL: return new ParticipantsModel(modelData);
+	@SuppressWarnings("unchecked")
+	public static <PanelModelType extends APanelModel, SourceType> PanelModelType createModel(PanelID panelID, SourceType model) {
+		switch (panelID) {
+			case CHAT_PANEL:       return (PanelModelType) new ChatPanelModel((List<String>)model);
+			case CONSOLE_PANEL:    return (PanelModelType) new ConsolePanelModel((List<String>) model);
+			case EDITOR_PANEL:     return (PanelModelType) new EditorPanelModel((List<String>) model);
+			case ERROR_BOX_PANEL:  return (PanelModelType) new ErrorBoxModel((List<String>) model);
+			case INBOX_PANEL:      return (PanelModelType) new InboxModel((List<String>) model);
+			case INFOLINE_PANEL:   return (PanelModelType) new InfoLineModel((String)model);
+			case USERS_LIST_PANEL: return (PanelModelType) new ParticipantsModel((List<String>) model);
 			default: return null;
 		}
 	}
 	
-	public static final APanelModel createModel(PanelID forPanel) {
-		return createModel(forPanel, null);
+	@SuppressWarnings("unchecked")
+	public static <PanelModelType extends APanelModel> PanelModelType createModel(PanelID panelID) {
+		return createModel(panelID, null);
 	}
-
+	
 }

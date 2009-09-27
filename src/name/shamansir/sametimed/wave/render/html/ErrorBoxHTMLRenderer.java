@@ -6,9 +6,8 @@ import org.dom4j.Element;
 
 import name.shamansir.sametimed.wave.render.ErrorBoxModel;
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 
-public class ErrorBoxHTMLRenderer extends AHTMLPanelRenderer {
+public class ErrorBoxHTMLRenderer extends AHTMLPanelRenderer<ErrorBoxModel> {
 	
 	public static final String PANEL_ID_PREFIX = "client-errorbox-";
 	public static final String PANEL_CLASS = "errorbox";
@@ -29,8 +28,8 @@ public class ErrorBoxHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, APanelModel model) {
-		List<String> errorsList = ((ErrorBoxModel)model).getErrors();
+	protected void addElements(Element wrapper, ErrorBoxModel model) {
+		List<String> errorsList = model.getErrors();
 		for (String errorText: errorsList) {
 			Element errorSpan = createElement("span");
 			errorSpan.setText(errorText);

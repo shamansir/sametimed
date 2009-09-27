@@ -2,16 +2,15 @@ package name.shamansir.sametimed.wave.render.html;
 
 import org.dom4j.Element;
 
-import name.shamansir.sametimed.wave.render.EditorModel;
+import name.shamansir.sametimed.wave.render.EditorPanelModel;
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 
-public class EditorHTMLRenderer extends AHTMLPanelRenderer {
+public class EditorHTMLRenderer extends AHTMLPanelRenderer<EditorPanelModel> {
 	
 	public static final String PANEL_ID_PREFIX = "client-editor-";		
 	public static final String PANEL_CLASS     = "editor";	
 	
-	public EditorHTMLRenderer(int clientID, EditorModel model) {
+	public EditorHTMLRenderer(int clientID, EditorPanelModel model) {
 		super(clientID, PanelID.EDITOR_PANEL, model, PANEL_ID_PREFIX);
 		setWrapperClass(PANEL_CLASS);		
 	}
@@ -26,7 +25,7 @@ public class EditorHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, APanelModel model) {
+	protected void addElements(Element wrapper, EditorPanelModel model) {
 		// TODO Auto-generated method stub		
 	}
 

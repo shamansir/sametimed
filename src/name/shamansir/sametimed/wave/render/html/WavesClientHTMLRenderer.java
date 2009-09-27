@@ -3,7 +3,6 @@ package name.shamansir.sametimed.wave.render.html;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +14,11 @@ import org.dom4j.io.HTMLWriter;
 import org.dom4j.io.OutputFormat;
 
 import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
-import name.shamansir.sametimed.wave.render.IClientPanelRenderer;
-import name.shamansir.sametimed.wave.render.IWavesClientRenderer;
+import name.shamansir.sametimed.wave.render.InfoLineModel;
 import name.shamansir.sametimed.wave.render.PanelID;
 import name.shamansir.sametimed.wave.render.PanelModelFactory;
+import name.shamansir.sametimed.wave.render.proto.IClientPanelRenderer;
+import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 	
@@ -80,9 +80,8 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 			if (panelID != PanelID.INFOLINE_PANEL) { 
 				panelsElements.put(panelID, panelsRenderers.get(panelID).createPanel());
 			} else {
-				List<String> infoLineHolder = new ArrayList<String>();
-				infoLineHolder.add("connected as " + userAtDomain + "; waveserver: " + waveServer);
-				panelsRenderers.get(panelID).setModel(PanelModelFactory.createModel(panelID, infoLineHolder));
+				InfoLineModel lineModel = PanelModelFactory.createModel(panelID, "connected as " + userAtDomain + "; waveserver: " + waveServer);
+				((InfoLineHTMLRenderer)panelsRenderers.get(panelID)).setModel(lineModel);
 				panelsElements.put(panelID, panelsRenderers.get(panelID).createPanel());
 			}
 			wrapper.add(panelsElements.get(panelID));

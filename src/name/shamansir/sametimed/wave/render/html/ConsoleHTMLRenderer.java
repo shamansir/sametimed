@@ -3,16 +3,15 @@ package name.shamansir.sametimed.wave.render.html;
 import org.dom4j.Element;
 
 import name.shamansir.sametimed.wave.WavesClient;
-import name.shamansir.sametimed.wave.render.ConsoleModel;
+import name.shamansir.sametimed.wave.render.ConsolePanelModel;
 import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.APanelModel;
 
-public class ConsoleHTMLRenderer extends AHTMLPanelRenderer {
+public class ConsoleHTMLRenderer extends AHTMLPanelRenderer<ConsolePanelModel> {
 	
 	public static final String PANEL_ID_PREFIX = "client-console-";	
 	public static final String PANEL_CLASS     = "console";
 	
-	public ConsoleHTMLRenderer(int clientID, ConsoleModel model) {
+	public ConsoleHTMLRenderer(int clientID, ConsolePanelModel model) {
 		super(clientID, PanelID.CONSOLE_PANEL, model, PANEL_ID_PREFIX);
 		setWrapperTagName("form");
 		setWrapperClass(PANEL_CLASS);		
@@ -47,7 +46,7 @@ public class ConsoleHTMLRenderer extends AHTMLPanelRenderer {
 	}
 
 	@Override
-	protected void addElements(Element wrapper, APanelModel model) {
+	protected void addElements(Element wrapper, ConsolePanelModel model) {
 		// TODO Auto-generated method stub
 		addElements(wrapper);
 	}
