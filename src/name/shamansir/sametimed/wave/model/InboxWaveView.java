@@ -17,6 +17,11 @@ public class InboxWaveView implements IModelValue {
 	
 	public List<String> getWaves() {
 		return inboxWaves;
+	}
+
+	public void updateHashedVersions() {
+		// FIXME: implement (see InboxWaveView)
+		
 	}	
 
 }

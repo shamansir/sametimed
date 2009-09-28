@@ -2,6 +2,8 @@ package name.shamansir.sametimed.wave.render.proto;
 
 import java.util.List;
 
+import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
+
 import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
 import name.shamansir.sametimed.wave.render.PanelID;
 
@@ -23,6 +25,8 @@ public interface IWavesClientRenderer {
 	
 	public <SourceType> void setPanelModel(PanelID panelID, SourceType modelData);
 
-	public AWavesClientRedrawEventsHandler getRedrawEventsHandler();	
+	public AWavesClientRedrawEventsHandler getRedrawEventsHandler();
+
+	public void setRenderingMode(RenderMode renderMode);	
 	
 }

@@ -25,8 +25,11 @@ function parseCommandLine(line) {
 function createCommandXML(commandName, arguments) {
 	var xml = '<command><name>' + commandName + '</name>'; 
 	for (argumentName in arguments) {
-		xml += '<argument name="' + argumentName + '">' +
-			arguments[argumentName] + "</argument>";
+		var argument = arguments[argumentName];
+		if (argument !== undefined) {
+			xml += '<argument name="' + argumentName + '">' +
+				arguments[argumentName] + "</argument>";
+		}
 	}
 	xml += '</command>';
 	return xml;
@@ -74,15 +77,18 @@ function cmdButtonOnClick(holderElementId, clientId, commandXML) {
 function sendButtonOnClick(holderElementId, clientId, inputId) {
 	var consoleInputElm = document.getElementById(inputId);
 	if (consoleInputElm) {
-		var cmdXML = parseCommandLine(consoleInputElm.value);
-		if (cmdXML != '?') {
-			var redrawJSFunc = function(request, response) {
-					// FIXME: it is required to pass all panels ids to rerender
-					redrawPanel(holderElementId, response);
-				}
-			makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + escape(cmdXML), redrawJSFunc, true);
-		} else {
-			alert('console command cannot be parsed')
+		var consoleLine = consoleInputElm.value;
+		if (consoleLine.length > 0) {
+			var cmdXML = parseCommandLine(consoleLine);
+			if (cmdXML != '?') {
+				/* var redrawJSFunc = function(request, response) {
+						// FIXME: it is required to pass all panels ids to rerender
+						redrawPanel(holderElementId, response);
+					} */
+				makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + escape(cmdXML), null /*redrawJSFunc*/, true);
+			} else {
+				alert('console command cannot be parsed')
+			}
 		}
 	} else {
 		alert('console input element is not found by id ' + inputId);

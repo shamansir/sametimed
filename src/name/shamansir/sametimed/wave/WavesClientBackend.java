@@ -20,6 +20,12 @@ public class WavesClientBackend extends ClientBackend {
 		this.userAtDomain = username + "@" + WAVE_SRV_PROPS.getWaveDomain();
 		this.waveServerHostData = WAVE_SRV_PROPS.getWaveServerHost() + ":" + WAVE_SRV_PROPS.getWaveServerPort();
 	}
+	
+	public WavesClientBackend(String userAtDomain, String server, int port) throws IOException {
+		super(userAtDomain, server, port);
+		this.userAtDomain = userAtDomain;
+		this.waveServerHostData = server + ":" + port;
+	}
 
 	public String getWaveServerHostData() {
 		return waveServerHostData;

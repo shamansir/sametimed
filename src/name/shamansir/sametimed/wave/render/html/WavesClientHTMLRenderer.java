@@ -12,6 +12,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.HTMLWriter;
 import org.dom4j.io.OutputFormat;
+import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 
 import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
 import name.shamansir.sametimed.wave.Command;
@@ -187,6 +188,12 @@ public class WavesClientHTMLRenderer implements IWavesClientRenderer {
 		return CMD_BTN_ONCLICK_JSFUNC_NAME + "('" + holderElementId + "'," 
 					+ String.valueOf(clientId) + ",'" 
 					+ Command.toXMLString(command) + "');";		
+	}
+
+	@Override
+	public void setRenderingMode(RenderMode renderMode) {
+		// FIXME: implement
+		
 	}	
 	
 }
