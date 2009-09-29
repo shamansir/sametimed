@@ -32,8 +32,8 @@ import com.google.common.collect.ImmutableMap;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.model.WaveModel;
 import name.shamansir.sametimed.wave.model.base.InboxWaveView;
-import name.shamansir.sametimed.wave.render_.IWavesClientRenderer;
-import name.shamansir.sametimed.wave.render_.NullRenderer;
+import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
+import name.shamansir.sametimed.wave.render.proto.NullRenderer;
 
 // FIXME: Javadoc
 
