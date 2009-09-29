@@ -1,6 +1,13 @@
 package name.shamansir.sametimed.wave.model;
 
 import java.util.List;
+import java.util.Map;
+
+import org.waveprotocol.wave.model.wave.ParticipantId;
+
+import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
+import name.shamansir.sametimed.wave.model.base.atom.InboxElement;
+import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 
 public class ModelFactory {
 	
@@ -9,10 +16,10 @@ public class ModelFactory {
 		switch (modelID) {
 			// FIXME: source casting must not be hardcoded
 			case INFOLINE_MODEL:  return new InfoLineModel((String)source);
-			case INBOX_MODEL:     return new InboxModel((List<String>)source);
-			case USERSLIST_MODEL: return new ParticipantsModel((List<String>)source);
-			case CHAT_MODEL:      return new ChatModel((List<String>)source);
-			case EDITOR_MODEL:    return new DocumentModel((List<String>)source);
+			case INBOX_MODEL:     return new InboxModel((Map<Integer, InboxElement>)source);
+			case USERSLIST_MODEL: return new ParticipantsModel((List<ParticipantId>)source);
+			case CHAT_MODEL:      return new ChatModel((List<ChatLine>)source);
+			case EDITOR_MODEL:    return new DocumentModel((List<TextChunk>)source);
 			case CONSOLE_MODEL:   return new ConsoleModel((List<String>)source);
 			case ERRORBOX_MODEL:  return new ErrorsModel((List<String>)source);
 			default: return null;

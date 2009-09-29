@@ -1,6 +1,7 @@
 package name.shamansir.sametimed.wave.model.base;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class ErrorsLines implements IModelValue {
@@ -21,8 +22,12 @@ public class ErrorsLines implements IModelValue {
 	
 	@Override
 	public String asJSON() {
-		// FIXME: implement
-		return null;
+		String jsonString = "[";
+		for (Iterator<String> iter = errors.iterator(); iter.hasNext(); ) {
+			jsonString += "'" + iter.next() + "'";
+			if (iter.hasNext()) jsonString += ",";
+		}
+		return jsonString + "]";
 	}	
 	
 	

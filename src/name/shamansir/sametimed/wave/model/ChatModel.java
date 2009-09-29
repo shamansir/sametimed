@@ -3,14 +3,15 @@ package name.shamansir.sametimed.wave.model;
 import java.util.List;
 
 import name.shamansir.sametimed.wave.model.base.ChatLines;
+import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 
-public class ChatModel extends AModel<List<String>, ChatLines> {
+public class ChatModel extends AModel<List<ChatLine>, ChatLines> {
 	
 	protected ChatModel() {
 		super(ModelID.CHAT_MODEL);
 	}
 	
-	protected ChatModel(List<String> source) {
+	protected ChatModel(List<ChatLine> source) {
 		super(ModelID.CHAT_MODEL, source);
 	}	
 
@@ -20,7 +21,7 @@ public class ChatModel extends AModel<List<String>, ChatLines> {
 	}
 
 	@Override
-	public ChatLines extractValue(List<String> source) {
+	public ChatLines extractValue(List<ChatLine> source) {
 		return new ChatLines(source);
 	}	
 

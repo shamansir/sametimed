@@ -14,7 +14,7 @@ public class WaveModel extends AModel<String, EmptyModelValue> {
 	public WaveModel(int clientID) {
 		super(ModelID.FULLWAVE_MODEL);
 		this.currentClientID = clientID;
-		for (ModelID modelID: ModelID.values()) {
+		for (ModelID modelID: ModelID.allInner()) { 
 			innerModels.put(modelID, ModelFactory.createModel(modelID));
 		}
 	}
@@ -43,8 +43,15 @@ public class WaveModel extends AModel<String, EmptyModelValue> {
 	
 	@Override
 	public String asJSON() {
-		// FIXME: implement
-		return "";
+		String jsonString = "{";
+		
+		for (ModelID modelID: ModelID.allInner()) {   
+			jsonString += "'" + modelID.getAlias() + "':" + innerModels.get(modelID).asJSON() + ",";
+		}
+		
+		jsonString += "'clientId': " + Integer.valueOf(currentClientID);
+		
+		return jsonString + "}";
 	}	
 
 }

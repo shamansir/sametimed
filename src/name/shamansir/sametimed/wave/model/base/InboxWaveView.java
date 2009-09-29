@@ -1,21 +1,24 @@
 package name.shamansir.sametimed.wave.model.base;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.TreeMap;
+
+import name.shamansir.sametimed.wave.model.base.atom.InboxElement;
 
 public class InboxWaveView implements IModelValue {
 	
-	private List<String> inboxWaves;
+	private Map<Integer, InboxElement> inboxWaves;
 	
-	public InboxWaveView(List<String> inboxWaves) {
+	public InboxWaveView(Map<Integer, InboxElement> inboxWaves) {
 		this.inboxWaves = inboxWaves; 
 	}
 	
 	public InboxWaveView() {
-		this.inboxWaves = new ArrayList<String>(); 
+		this.inboxWaves = new TreeMap<Integer, InboxElement>(); 
 	}		
 	
-	public List<String> getWaves() {
+	public Map<Integer, InboxElement> getWaves() {
 		return inboxWaves;
 	}
 
@@ -26,8 +29,15 @@ public class InboxWaveView implements IModelValue {
 	
 	@Override
 	public String asJSON() {
-		// FIXME: implement
-		return null;
+		String jsonString = "{";
+		Iterator<Map.Entry<Integer, InboxElement>> iter = inboxWaves.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<Integer, InboxElement> wavesEntry = iter.next();
+			jsonString += wavesEntry.getKey().toString() + ":" +
+						  "'" + wavesEntry.getValue().getWaveID() + "'";
+			if (iter.hasNext()) jsonString += ","; 
+		}
+		return jsonString + "}";
 	}	
 	
 

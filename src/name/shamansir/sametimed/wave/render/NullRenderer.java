@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.render.proto;
+package name.shamansir.sametimed.wave.render;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveVi
 
 import name.shamansir.sametimed.wave.model.AModel;
 import name.shamansir.sametimed.wave.model.WaveModel;
+import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public class NullRenderer implements IWavesClientRenderer { 
 	

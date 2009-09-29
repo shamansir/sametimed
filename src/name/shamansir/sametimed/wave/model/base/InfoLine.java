@@ -18,8 +18,7 @@ public class InfoLine implements IModelValue {
 	
 	@Override
 	public String asJSON() {
-		// FIXME: implement
-		return null;
+		return "'" + infoLine + "'";
 	}	
 	
 

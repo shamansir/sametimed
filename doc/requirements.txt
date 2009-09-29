@@ -32,6 +32,8 @@ cd ./wave-protocol
 
 sametimed -> Run As -> Web Application
 
+Compile/Browse
+
 Build Path:
     JRE 1.6.0.16
     Google Web Toolkit 1.7.1 SDK
