@@ -6,7 +6,6 @@ import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveVi
 
 import name.shamansir.sametimed.wave.model.AModel;
 import name.shamansir.sametimed.wave.model.WaveModel;
-import name.shamansir.sametimed.wave.render_.proto_.IWavesClientRenderer;
 
 public class NullRenderer implements IWavesClientRenderer { 
 	

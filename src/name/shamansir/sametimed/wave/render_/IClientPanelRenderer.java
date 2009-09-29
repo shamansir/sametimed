@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.render.proto;
+package name.shamansir.sametimed.wave.render_;
 
 import org.dom4j.Element;
 
