@@ -1,0 +1,127 @@
+/* ============================== PAGE STYLE ================================ */
+
+body.sametimed {
+	margin: 20px 6%;
+    font-family: corbel, 'lucida bright', 'dejavu sans', 'arial unicode ms', arial, sans-serif;	
+}
+
+h1 {
+   font-family: unbatang, 'bitstream charter', 'dejavu sans', garamond, serif; 
+   color: #666;
+   margin: 40px 0px 50px;
+   text-align: center;
+   font-weight: bold;
+   /* text-decoration: overline */
+   border-bottom: 1px solid #000;
+   padding-bottom: 7px;
+}
+
+.addButton {
+  display: block;
+  font-size: 16pt;
+}
+
+.serverResponseLabelError {
+  color: red;
+}
+
+form#add-client-form {
+	border: 1px solid #ddd;
+	background-color: #eee;
+    margin: 5px;
+	padding: 5px;
+}
+
+form#add-client-form * {
+	display: inline;
+}
+
+form#add-client-form button {
+	margin-left: 10px;
+}
+
+/* #client-views {
+	background-color: #ddd;
+} */
+
+/*div#error*/ .no-errors {	
+    display: none;
+}
+
+/*div#error*/ .have-errors {
+    margin: 5px;
+    padding: 5px;
+    background-color: #fee;
+    border: 1px solid #c00;	
+}
+
+/* ============================== WAVE CLIENT =============================== */
+
+.wave-client {
+    float: left;	
+	border: 1px solid #ccc;
+	background-color: #eee;
+	margin: 5px;
+	padding: 5px;
+}
+
+.wave-client .infoline,
+.wave-client .inbox, 
+.wave-client .userlist,
+.wave-client .chat,
+.wave-client .editor,
+.wave-client .console,
+.wave-client .errorbox {
+	border: 1px dashed #ddd;
+	margin: 3px;
+	padding: 3px;
+    background-color: #eed;
+}
+
+/* display, floats and width/height */
+
+.wave-client .infoline {
+	display: block;
+}
+
+.wave-client .inbox,
+.wave-client .userlist,
+.wave-client .chat {
+    float: left;	
+	height: 150px;
+}
+
+.wave-client .inbox, .wave-client .userlist {
+    width: 100px;	
+}
+
+.wave-client .chat {
+    width: 292px;
+}
+
+.wave-client .editor {
+    clear: left;
+    width: 520px;	
+	height: 150px;
+}
+
+.wave-client .console {
+    clear: both;
+}
+
+/* other styles */
+
+.wave-client .infoline {
+	color: #666;
+}
+
+.wave-client ul.userlist {
+	list-style-type: none;
+}
+
+.wave-client .console input[type=text] {
+	width: 80%;
+}
+
+.wave-client .errorbox {
+}
