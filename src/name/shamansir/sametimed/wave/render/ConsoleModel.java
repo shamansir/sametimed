@@ -1,15 +1,18 @@
-package name.shamansir.sametimed.wave.render;
+package name.shamansir.sametimed.wave.model;
 
 import java.util.List;
 
-import name.shamansir.sametimed.wave.model.ConsoleLines;
-import name.shamansir.sametimed.wave.render.proto.APanelModel;
+import name.shamansir.sametimed.wave.model.base.ConsoleLines;
 
-public class ConsolePanelModel extends APanelModel<List<String>, ConsoleLines> {	
+public class ConsoleModel extends AModel<List<String>, ConsoleLines> {	
 
-	protected ConsolePanelModel(List<String> model) {
-		super(model);
+	protected ConsoleModel(List<String> model) {
+		super(ModelID.CONSOLE_MODEL, model);
 	}
+	
+	protected ConsoleModel() {
+		super(ModelID.CONSOLE_MODEL);
+	}	
 	
 	public List<String> getConsoleLines() {
 		return ((ConsoleLines)getValue()).getConsoleLines();

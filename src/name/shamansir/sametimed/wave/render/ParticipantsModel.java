@@ -1,15 +1,18 @@
-package name.shamansir.sametimed.wave.render;
+package name.shamansir.sametimed.wave.model;
 
 import java.util.List;
 
-import name.shamansir.sametimed.wave.model.Participants;
-import name.shamansir.sametimed.wave.render.proto.APanelModel;
+import name.shamansir.sametimed.wave.model.base.Participants;
 
-public class ParticipantsModel extends APanelModel<List<String>, Participants> {
+public class ParticipantsModel extends AModel<List<String>, Participants> {
 	
 	protected ParticipantsModel(List<String> model) {
-		super(model);
+		super(ModelID.USERS_LIST_MODEL, model);
 	}
+	
+	protected ParticipantsModel() {
+		super(ModelID.USERS_LIST_MODEL);
+	}	
 	
 	public List<String> getParticipants() {
 		return getValue().getParticipants();

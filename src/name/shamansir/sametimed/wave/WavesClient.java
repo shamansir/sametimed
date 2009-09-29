@@ -29,11 +29,11 @@ import org.waveprotocol.wave.model.wave.data.WaveletData;
 
 import com.google.common.collect.ImmutableMap;
 
-import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
-import name.shamansir.sametimed.wave.model.InboxWaveView;
-import name.shamansir.sametimed.wave.render.PanelID;
-import name.shamansir.sametimed.wave.render.html.WavesClientHTMLRenderer;
-import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
+import name.shamansir.sametimed.wave.model.ModelID;
+import name.shamansir.sametimed.wave.model.WaveModel;
+import name.shamansir.sametimed.wave.model.base.InboxWaveView;
+import name.shamansir.sametimed.wave.render_.NullRenderer;
+import name.shamansir.sametimed.wave.render_.proto_.IWavesClientRenderer;
 
 // FIXME: Javadoc
 
@@ -49,7 +49,7 @@ public class WavesClient implements WaveletOperationListener {
 	private static final String MAIN_DOCUMENT_ID = "main"; // FIXME: means all command done for the single document	
 	
 	private WavesClientBackend backend = null;
-	private IWavesClientRenderer renderer = null;
+	private WaveModel waveModel = null;
 	
 	private InboxWaveView inbox = null;
 	private ClientWaveView openedWave = null;	
@@ -57,9 +57,16 @@ public class WavesClient implements WaveletOperationListener {
 	
 	private List<String> errors = new ArrayList<String>();
 	
-	public WavesClient(AWavesClientRedrawEventsHandler redrawEventsHandler) {
+	private final IWavesClientRenderer renderer; 
+	
+	public WavesClient() {
+		this(null);
+	}
+	
+	public WavesClient(IWavesClientRenderer renderer) {
 		this.VIEW_ID = generateViewId();
-		this.renderer = new WavesClientHTMLRenderer(this.VIEW_ID, redrawEventsHandler);
+		this.waveModel = new WaveModel(this.VIEW_ID);
+		this.renderer = (renderer != null) ? renderer : getDefaultRenderer(this.VIEW_ID);
 		
 		registerClient(this.VIEW_ID, this);
 	}	
@@ -68,6 +75,10 @@ public class WavesClient implements WaveletOperationListener {
 		int newId = LAST_VIEW_ID + 1;
 		LAST_VIEW_ID = newId;
 		return newId;
+	}
+	
+	public WaveModel getWaveModel() {
+		return this.waveModel;
 	}
 			
 	/* private void connectToWaveServer(String waveServer) {
@@ -96,11 +107,11 @@ public class WavesClient implements WaveletOperationListener {
 	public void participantAdded(String name, WaveletData arg1,
 			ParticipantId arg2) {
 		if (isWaveOpen()) {
-			// FIXME: add participant to list, not reinit 
+			// FIXME: add participant to list, not recreate model 
 			participants = extractParticipantsData(getOpenWavelet().getParticipants());
-			if (participants != null) {
-				renderer.setPanelModel(PanelID.USERS_LIST_PANEL, participants);
-				renderer.updatePanel(PanelID.USERS_LIST_PANEL);
+			if (participants != null) { 
+				waveModel.setModel(ModelID.USERS_LIST_MODEL, participants);
+				renderer.renderByModel(waveModel.getModel(ModelID.USERS_LIST_MODEL));
 			}
 		} else {
 			sendErrorToUser("No waves opened now");
@@ -209,28 +220,38 @@ public class WavesClient implements WaveletOperationListener {
 		LOG.warning("Client Error: " + errorText);
 		// FIXME: implement
 		errors.add(errorText);
-		renderer.setPanelModel(PanelID.ERROR_BOX_PANEL, errors);
-		renderer.updatePanel(PanelID.ERROR_BOX_PANEL);		
+		waveModel.setModel(ModelID.ERRORBOX_MODEL, errors);
+		renderer.renderByModel(waveModel.getModel(ModelID.ERRORBOX_MODEL));
+		// renderer.updatePanel(PanelID.ERROR_BOX_PANEL);
 	}
 	
-	protected void renderOpenedWave() {
-		// FIXME: implement		
-		renderer.setPanelModel(PanelID.ERROR_BOX_PANEL, errors);		
+	protected void updateRendererFromOpenedWave() {
+		waveModel.setModel(ModelID.ERRORBOX_MODEL, errors);
+		renderer.renderByModel(waveModel.getModel(ModelID.ERRORBOX_MODEL));
+		// FIXME: implement				
 		
+		/*
 		renderer.updatePanel(PanelID.INBOX_PANEL);
 		renderer.updatePanel(PanelID.CHAT_PANEL);
 		renderer.updatePanel(PanelID.EDITOR_PANEL);
 		renderer.updatePanel(PanelID.INFOLINE_PANEL);
-		renderer.updatePanel(PanelID.USERS_LIST_PANEL);		
+		renderer.updatePanel(PanelID.USERS_LIST_PANEL);
+		*/		
 	}
 	
-	protected void renderInboxChanges() {
-		// FIXME: implement	
-		renderer.setPanelModel(PanelID.ERROR_BOX_PANEL, errors);		
+	protected void updateRendererFromUpdatedInbox() {
+		waveModel.setModel(ModelID.ERRORBOX_MODEL, errors);
+		renderer.renderByModel(waveModel.getModel(ModelID.ERRORBOX_MODEL));
+		// FIXME: implement			
 		
+		/*
 		renderer.updatePanel(PanelID.INBOX_PANEL);
 		renderer.updatePanel(PanelID.CHAT_PANEL);
-		renderer.updatePanel(PanelID.EDITOR_PANEL);		
+		renderer.updatePanel(PanelID.EDITOR_PANEL); */		
+	}
+	
+	public IWavesClientRenderer getDefaultRenderer(int clientID) {
+		return new NullRenderer(clientID);
 	}
 	
 	/* =========================================================================================== */
@@ -261,7 +282,7 @@ public class WavesClient implements WaveletOperationListener {
 		
 		LOG.info("Connected ok");
 				
-		renderer.initialize(backend.getUserAtDomain(), backend.getWaveServerHostData());
+		renderer.initialize();
 		
 		return true;
 	}
@@ -285,7 +306,7 @@ public class WavesClient implements WaveletOperationListener {
 		
 		LOG.info("Connected ok");
 				
-		renderer.initialize(backend.getUserAtDomain(), backend.getWaveServerHostData());
+		renderer.initialize();
 		
 		return true;		
 	}
@@ -350,7 +371,7 @@ public class WavesClient implements WaveletOperationListener {
 		}
 
 		openedWave = wave;		
-		renderOpenedWave();
+		updateRendererFromOpenedWave();
 	}
 	
 	private boolean undo(String userId) {
@@ -423,7 +444,7 @@ public class WavesClient implements WaveletOperationListener {
 	private boolean readAllWaves() {
 		if (isConnected()) {
 			inbox.updateHashedVersions();
-			renderInboxChanges();
+			updateRendererFromUpdatedInbox();
 			return true;
 		} else {
 			errorNotConnected();
@@ -485,11 +506,11 @@ public class WavesClient implements WaveletOperationListener {
 		if (isWaveOpen()) {
 			if (mode.equals("normal")) {
 				renderer.setRenderingMode(RenderMode.NORMAL);
-				renderOpenedWave();
+				updateRendererFromOpenedWave();
 				return true;
 			} else if (mode.equals("xml")) {
 				renderer.setRenderingMode(RenderMode.NORMAL);
-				renderOpenedWave();
+				updateRendererFromOpenedWave();
 				return true;
 			} else {
 				sendErrorToUser("Error: unsupported rendering, run \"?\"");

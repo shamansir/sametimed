@@ -6,35 +6,25 @@ public class WavesClientViewContainer implements IsSerializable {
 	
 	/* Empty constructor required for Serializable classes */
 	public WavesClientViewContainer() {
-		this(INVALID_ID, null, null);
+		this(INVALID_ID, "");
 	}	
 	
 	public static final int INVALID_ID = -1;
 	
 	private int clientId;
-	private String holderElementId; 
-	private String clientContent; 	
+	private String modelAsJSON; 
 	
-	public WavesClientViewContainer(int clientId, String holderElementId, String clientContent) {
+	public WavesClientViewContainer(int clientId, String modelAsJSON) {
 		this.clientId = clientId;
-		this.holderElementId = holderElementId;		
-		this.clientContent = clientContent;
-	}
-	
-	public WavesClientViewContainer(int clientId, String clientContent) {
-		this(clientId, null, clientContent);
+		this.modelAsJSON = modelAsJSON;
 	}	
 	
 	public int getClientId() {
 		return clientId;
 	}
 	
-	public String getClientContent() {
-		return clientContent;
-	}
-	
-	public String getHolderElementId() {
-		return holderElementId;
-	}		
+	public String getModelAsJSON() {
+		return modelAsJSON;
+	}	
 	
 }

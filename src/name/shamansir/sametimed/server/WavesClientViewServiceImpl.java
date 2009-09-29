@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import name.shamansir.sametimed.client.WavesClientViewContainer;
-import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
 import name.shamansir.sametimed.client.proto.IWavesClientViewService;
 import name.shamansir.sametimed.wave.WavesClient;
 
@@ -22,8 +21,8 @@ IWavesClientViewService {
 	private static final String CONNECTION_ERR_STR = "Connection to the Wave Server (as user %s) is failed";  
 
 	@Override
-	public WavesClientViewContainer getClientView(String user, AWavesClientRedrawEventsHandler eventsHandler) throws IOException {
-		WavesClient newClient = new WavesClient(eventsHandler);
+	public WavesClientViewContainer getClientView(String user) throws IOException {
+		WavesClient newClient = new WavesClient();
 		
 		try {
 			newClient.connect(user);
@@ -31,7 +30,8 @@ IWavesClientViewService {
 			LOG.severe(String.format(CONNECTION_ERR_STR + "; Exception thrown: %s, caused by %s", user, e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "nothing"));
 			return new WavesClientViewContainer(
 					newClient.getViewId(),
-					newClient.getRenderer().getErrorView(String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", user, e.getMessage()))
+					// FIXME: create ErrorModel class
+					"{error: '" + String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", user, e.getMessage()) + "'}"
 				);
 		}
 		
@@ -42,8 +42,7 @@ IWavesClientViewService {
 		
 		return new WavesClientViewContainer(
 				newClient.getViewId(),
-				newClient.getRenderer().getHolderElementId(),
-				newClient.getRenderer().getCompleteView()
+				newClient.getWaveModel().toJSON()
 			);
 	}
 

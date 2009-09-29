@@ -1,15 +1,18 @@
-package name.shamansir.sametimed.wave.render;
+package name.shamansir.sametimed.wave.model;
 
 import java.util.List;
 
-import name.shamansir.sametimed.wave.model.Document;
-import name.shamansir.sametimed.wave.render.proto.APanelModel;
+import name.shamansir.sametimed.wave.model.base.Document;
 
-public class EditorPanelModel extends APanelModel<List<String>, Document> {
+public class EditorModel extends AModel<List<String>, Document> {
 
-	protected EditorPanelModel(List<String> model) {
-		super(model);
+	protected EditorModel(List<String> model) {
+		super(ModelID.EDITOR_MODEL, model);
 	}
+	
+	protected EditorModel() {
+		super(ModelID.EDITOR_MODEL);
+	}	
 	
 	public List<String> getDocumentContent() {
 		return getValue().getDocumentContent();

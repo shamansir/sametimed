@@ -1,15 +1,18 @@
-package name.shamansir.sametimed.wave.render;
+package name.shamansir.sametimed.wave.model;
 
 import java.util.List;
 
-import name.shamansir.sametimed.wave.model.ErrorsLines;
-import name.shamansir.sametimed.wave.render.proto.APanelModel;
+import name.shamansir.sametimed.wave.model.base.ErrorsLines;
 
-public class ErrorBoxModel extends APanelModel<List<String>, ErrorsLines> {
+public class ErrorBoxModel extends AModel<List<String>, ErrorsLines> {
 
 	protected ErrorBoxModel(List<String> model) {
-		super(model);
+		super(ModelID.ERRORBOX_MODEL, model);
 	}
+	
+	protected ErrorBoxModel() {
+		super(ModelID.ERRORBOX_MODEL);
+	}	
 	
 	public List<String> getErrors() {
 		return getValue().getErrors();

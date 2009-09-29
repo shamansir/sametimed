@@ -10,7 +10,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 
-import name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler;
 import name.shamansir.sametimed.client.proto.IWavesClientViewService;
 import name.shamansir.sametimed.client.proto.IWavesClientViewServiceAsync;
 
@@ -23,20 +22,18 @@ public class SametimedView implements EntryPoint {
 	private final String VIEWS_CONTAINER_ID = "client-views";
 	private final String ERROR_BOX_ID       = "error"; 
 	
+	private final String CLIENT_RENDER_JS_FUNC = "renderClient";
+	
 	/**
 	 * Create a remote service proxy to talk to the server-side Client View service.
 	 */
 	private final IWavesClientViewServiceAsync clientViewService = GWT
 			.create(IWavesClientViewService.class);
 	
-	private final AWavesClientRedrawEventsHandler redrawHandler = new SametimedWavesClientRedrawEventsHandler();
-
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		
-		initRedrawJSFunc(redrawHandler);
 		
 		final Button addViewButton = new Button("Add client");
 		final TextBox usernameField = new TextBox();
@@ -72,7 +69,7 @@ public class SametimedView implements EntryPoint {
 			private void tryToGetView() {
 				addViewButton.setEnabled(false);
 				String username = usernameField.getText();
-				clientViewService.getClientView(username, redrawHandler,
+				clientViewService.getClientView(username, 
 						new AsyncCallback<WavesClientViewContainer>() {
 							public void onFailure(Throwable caught) {
 								// Show the RPC error message to the user
@@ -91,7 +88,11 @@ public class SametimedView implements EntryPoint {
 							public void onSuccess(WavesClientViewContainer clientView) {
 								/* clientIdToHolder.put(Integer.valueOf(clientView.getClientId()), 
 												     clientView.getHolderElementId()); */
-								viewsContainer.add(new HTML(clientView.getClientContent()));
+								viewsContainer.add(new HTML(
+											"<script type='text/javascript'>"
+											+ CLIENT_RENDER_JS_FUNC + "(" + clientView.getModelAsJSON() + ");" +
+											"</script>"
+										));
 								addViewButton.setEnabled(true);
 							}
 						});
@@ -101,12 +102,5 @@ public class SametimedView implements EntryPoint {
 		AddClientViewHandler avHandler = new AddClientViewHandler();
 		addViewButton.addClickHandler(avHandler);
 	}
-	
-	private native void initRedrawJSFunc(AWavesClientRedrawEventsHandler redrawHandler) /*-{
-		$wnd.redrawClientPanel = 
-			function (holderId, withContent) {
-					redrawHandler.@name.shamansir.sametimed.client.proto.AWavesClientRedrawEventsHandler::redrawClientPanel(Ljava/lang/String;Ljava/lang/String;) (holderId, withContent);
-			};					
-	}-*/;
 			
 }

@@ -10,12 +10,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dom4j.DocumentException;
+import org.mortbay.util.ajax.Continuation;
+import org.mortbay.util.ajax.ContinuationSupport;
 
 @SuppressWarnings("serial")
 public class CommandExecutorServlet extends HttpServlet {
 	
 	private static final Logger LOG = Logger.getLogger(CommandExecutorServlet.class.getName());	
 
+	/*
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -36,7 +39,25 @@ public class CommandExecutorServlet extends HttpServlet {
 		} else {
 			responseWriter.write("");
 		}
-
-	}
+		
+	} */
 	
+	/*
+	@Override
+	public void service(HttpServletRequest request, HttpServletResponse response) {
+		if (request.getRequestURI().endsWith("/time")) {
+			
+			Continuation cc = ContinuationSupport.getContinuation(request, null);
+			
+			response.setContentType("text/html");
+			
+			while (true) {
+				cc.suspend(1000);
+				String script = "<script>parent.printTime(new Date())</script>";
+				response.getWriter().println(script);
+				response.getWriter().flush();
+			}
+			
+		}
+	} */
 }
