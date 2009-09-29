@@ -1,7 +1,0 @@
-com.google.gwt.user.client.rpc.IncompatibleRemoteServiceException, true
-java.io.IOException, true
-java.lang.Exception, false
-java.lang.RuntimeException, false
-java.lang.String, true
-java.lang.Throwable, false
-name.shamansir.sametimed.client.WavesClientViewContainer, true
