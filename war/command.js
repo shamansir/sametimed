@@ -71,7 +71,7 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 }
 
 function cmdButtonOnClick(holderElementId, clientId, commandXML) {
-	
+	// FIXME: it is required to pass all panels ids to rerender
 }
 
 function sendButtonOnClick(holderElementId, clientId, inputId) {
