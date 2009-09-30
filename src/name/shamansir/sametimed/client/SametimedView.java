@@ -91,8 +91,8 @@ public class SametimedView implements EntryPoint {
 								/* clientIdToHolder.put(Integer.valueOf(clientView.getClientId()), 
 												     clientView.getHolderElementId()); */
 								viewsContainer.add(new HTML(
-											"<script type='text/javascript'>"
-											+ CLIENT_RENDER_JS_FUNC + 
+											"<script type='text/javascript'>" +
+											CLIENT_RENDER_JS_FUNC + 
 											"(" + wrapQuot + clientView.getModelAsJSON() + wrapQuot + ");" +
 											"</script>"
 										));

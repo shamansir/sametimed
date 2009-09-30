@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave;
+package name.shamansir.sametimed.wave.messaging;
 
 import java.util.EnumSet;
 import java.util.HashMap;

@@ -7,6 +7,9 @@ public class EmptyModelValue implements IModelValue {
 	public EmptyModelValue(String source) {};
 	
 	@Override
-	public String asJSON(boolean useEscapedQuotes) { return "null"; }		
+	public String asJSON(boolean useEscapedQuotes) { return "null"; }
+	
+	@Override
+	public String asJSON() { return "null"; }	
 
 }

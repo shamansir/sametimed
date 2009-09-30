@@ -32,6 +32,10 @@ public abstract class AModel<SourceType, ModelValueType extends IModelValue> {
 		return value.asJSON(useEscapedQuotes);
 	}
 	
+	public String asJSON() {
+		return value.asJSON(false);
+	}	
+	
 	public ModelID getModelID() {
 		return modelID;
 	}

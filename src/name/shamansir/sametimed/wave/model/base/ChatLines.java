@@ -35,6 +35,11 @@ public class ChatLines implements IModelValue {
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";
-	}	
+	}
+
+	@Override	
+	public String asJSON() {
+		return asJSON(false);
+	}
 
 }

@@ -17,9 +17,16 @@
     <script type="text/javascript" src="ui.js"></script>
         
     <script type="text/javascript" src="ajax.js"></script> <!-- FIXME: get rid -->
-    <script type="text/javascript" src="jquery.comet.plugin.js"></script>
+    <!-- <script type="text/javascript" src="jquery.comet.plugin.js"></script>  -->
     <script type="text/javascript" src="command.js"></script>
+    
+    <script type="text/javascript" src="dwr/engine.js"></script>    
 
+    <script type="text/javascript">
+         $(document).ready(function(){
+        	 dwr.engine.setActiveReverseAjax(true);
+    	 });    
+    </script>
     
     <link type="text/css" rel="stylesheet" href="sametimed.css" />    
   </head>

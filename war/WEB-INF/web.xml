@@ -5,30 +5,49 @@
 
 <web-app>
   
-  <!-- Servlets -->
-  <servlet>
-    <servlet-name>getClientView</servlet-name>
-    <servlet-class>name.shamansir.sametimed.server.WavesClientViewServiceImpl</servlet-class>
-  </servlet> 
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>getClientView</servlet-name>
+        <servlet-class>name.shamansir.sametimed.server.WavesClientViewServiceImpl</servlet-class>
+    </servlet> 
   
-  <servlet>
-    <servlet-name>executeClientCommand</servlet-name>
-    <servlet-class>name.shamansir.sametimed.wave.CommandExecutorServlet</servlet-class>
-  </servlet>  
+    <servlet>
+        <servlet-name>executeClientCommand</servlet-name>
+        <servlet-class>name.shamansir.sametimed.wave.messaging.CommandExecutorServlet</servlet-class>
+    </servlet>  
   
-  <servlet-mapping>
-    <servlet-name>getClientView</servlet-name>
-    <url-pattern>/same_timed/get_client_view</url-pattern>
-  </servlet-mapping>
+	<servlet>
+        <servlet-name>dwr-invoker</servlet-name>
+        <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
+        <init-param>
+	       <param-name>activeReverseAjaxEnabled</param-name>
+	       <param-value>true</param-value>
+	    </init-param>
+	    <init-param>
+	       <param-name>initApplicationScopeCreatorsAtStartup</param-name>
+	       <param-value>true</param-value>
+	     </init-param>
+	     <load-on-startup>1</load-on-startup>
+	</servlet>  
   
-  <servlet-mapping>
-    <servlet-name>executeClientCommand</servlet-name>
-    <url-pattern>/same_timed/cmd_exec</url-pattern>
-  </servlet-mapping>   
+    <servlet-mapping>
+        <servlet-name>getClientView</servlet-name>
+        <url-pattern>/same_timed/get_client_view</url-pattern>
+    </servlet-mapping>
   
-  <!-- Default page to serve -->
-  <welcome-file-list>
-    <welcome-file>sametimed.html</welcome-file>
-  </welcome-file-list>
+    <servlet-mapping>
+        <servlet-name>executeClientCommand</servlet-name>
+        <url-pattern>/same_timed/cmd_exec</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </servlet-mapping>
+  
+    <!-- Default page to serve -->
+    <welcome-file-list>
+        <welcome-file>sametimed.html</welcome-file>
+    </welcome-file-list>
 
 </web-app>

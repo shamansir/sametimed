@@ -19,13 +19,7 @@ function renderClient(waveModelStr) {
 	var waveModelObj = JSON.parse(waveModelStr);
 	$('#' + CLIENTS_HOLDER_ID).append(
 			ClientRenderer.createClient(waveModelObj)
-		);
-	/*
-	if (window.console) {
-		console.log(waveModelStr);
-	} else {
-		alert(waveModelStr);
-	} */
+		);	
 }
 
 // use jquery.inherit plugin
@@ -35,6 +29,7 @@ var ClientRenderer = {
 	CMD_BTN_HANDLER: 'cmdButtonOnClick',
 		
 	createClient: function(waveModel) {
+	
 		var clientId = waveModel.clientId;
 		
 		var clientWrapper = $('<div />')
@@ -129,22 +124,23 @@ var ClientRenderer = {
 		
 		var consoleWrapper = $('<form />')
 				.attr('id', 'client-' + clientId + '-console')
-				.attr('action', '#')
+				.attr('action', null)
 				.attr('method', 'post')
 				.addClass('console');
 		
-		consoleWrapper.add($('<input />')
+		consoleWrapper.append($('<input />')
 				.attr('id', inputElmId)
 				.attr('type', 'text')
 				.addClass('gwt-TextBox'));
 				
-		consoleWrapper.add($('<input />')
+		consoleWrapper.append($('<input />')
 				.attr('type', 'button')
 				.attr('title', 'send')
 				.attr('value', 'send')
 				.addClass('gwt-Button')
-				.click(this.SEND_BTN_HANDLER + 
-						'(' + clientId + ',\'' + inputElmId + '\')'));		
+				.attr('onclick', this.SEND_BTN_HANDLER +
+						'(' + clientId + ',\'' + inputElmId + '\')'));
+				/* .click(...)); */		
 		
 		return consoleWrapper;		
 	},

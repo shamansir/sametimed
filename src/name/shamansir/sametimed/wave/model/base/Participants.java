@@ -33,5 +33,9 @@ public class Participants implements IModelValue {
 		return jsonString + "]";
 	}	
 	
+	@Override	
+	public String asJSON() {
+		return asJSON(false);
+	}	
 	
 }

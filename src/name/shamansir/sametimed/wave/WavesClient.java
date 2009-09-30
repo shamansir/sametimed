@@ -3,8 +3,10 @@ package name.shamansir.sametimed.wave;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -29,10 +31,17 @@ import org.waveprotocol.wave.model.wave.data.WaveletData;
 
 import com.google.common.collect.ImmutableMap;
 
+import name.shamansir.sametimed.wave.messaging.Command;
+import name.shamansir.sametimed.wave.messaging.IUpdatesListener;
+import name.shamansir.sametimed.wave.messaging.ModelUpdateMessage;
+import name.shamansir.sametimed.wave.messaging.UpdateMessage;
+import name.shamansir.sametimed.wave.model.AModel;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.model.WaveModel;
 import name.shamansir.sametimed.wave.model.base.InboxWaveView;
+import name.shamansir.sametimed.wave.render.JSUpdatesListener;
 import name.shamansir.sametimed.wave.render.NullRenderer;
+import name.shamansir.sametimed.wave.render.WaveInfoProvider;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 // FIXME: Javadoc
@@ -58,6 +67,9 @@ public class WavesClient implements WaveletOperationListener {
 	private List<String> errors = new ArrayList<String>();
 	
 	private final IWavesClientRenderer renderer; 
+	private final WaveInfoProvider infoProvider = new WaveInfoProvider();
+	
+	private Set<IUpdatesListener> updatesListeners = new HashSet<IUpdatesListener>();	 
 	
 	public WavesClient() {
 		this(null);
@@ -67,6 +79,8 @@ public class WavesClient implements WaveletOperationListener {
 		this.VIEW_ID = generateViewId();
 		this.waveModel = new WaveModel(this.VIEW_ID);
 		this.renderer = (renderer != null) ? renderer : getDefaultRenderer(this.VIEW_ID);
+		
+		this.updatesListeners.add(getDefaultUpdatesListener());
 		
 		registerClient(this.VIEW_ID, this);
 	}	
@@ -109,9 +123,9 @@ public class WavesClient implements WaveletOperationListener {
 		if (isWaveOpen()) {
 			// FIXME: add participant to list, not recreate model 
 			participants = extractParticipantsData(getOpenWavelet().getParticipants());
-			if (participants != null) { 
-				waveModel.setModel(ModelID.USERSLIST_MODEL, participants);
-				renderer.renderByModel(waveModel.getModel(ModelID.USERSLIST_MODEL));
+			if (participants != null) {
+				// TODO: pass adding user message
+				updateView(ModelID.USERSLIST_MODEL, participants);
 			}
 		} else {
 			sendErrorToUser("No waves opened now");
@@ -218,16 +232,12 @@ public class WavesClient implements WaveletOperationListener {
 	
 	private void sendErrorToUser(String errorText) {
 		LOG.warning("Client Error: " + errorText);
-		// FIXME: implement
 		errors.add(errorText);
-		waveModel.setModel(ModelID.ERRORBOX_MODEL, errors);
-		renderer.renderByModel(waveModel.getModel(ModelID.ERRORBOX_MODEL));
-		// renderer.updatePanel(PanelID.ERROR_BOX_PANEL);
+		updateView(ModelID.ERRORBOX_MODEL, errors);
 	}
 	
-	protected void updateRendererFromOpenedWave() {
-		waveModel.setModel(ModelID.ERRORBOX_MODEL, errors);
-		renderer.renderByModel(waveModel.getModel(ModelID.ERRORBOX_MODEL));
+	protected void updateViewFromOpenedWave() {
+		updateView(ModelID.ERRORBOX_MODEL, errors);
 		// FIXME: implement				
 		
 		/*
@@ -239,9 +249,8 @@ public class WavesClient implements WaveletOperationListener {
 		*/		
 	}
 	
-	protected void updateRendererFromUpdatedInbox() {
-		waveModel.setModel(ModelID.ERRORBOX_MODEL, errors);
-		renderer.renderByModel(waveModel.getModel(ModelID.ERRORBOX_MODEL));
+	protected void updateViewFromUpdatedInbox() {
+		updateView(ModelID.ERRORBOX_MODEL, errors);
 		// FIXME: implement			
 		
 		/*
@@ -250,9 +259,39 @@ public class WavesClient implements WaveletOperationListener {
 		renderer.updatePanel(PanelID.EDITOR_PANEL); */		
 	}
 	
-	public IWavesClientRenderer getDefaultRenderer(int clientID) {
+	protected IWavesClientRenderer getDefaultRenderer(int clientID) {
 		return new NullRenderer(clientID);
 	}
+	
+	protected IUpdatesListener getDefaultUpdatesListener() {
+		return new JSUpdatesListener();
+	}	
+	
+	public void addUpdatesListener(IUpdatesListener listener) {
+	    synchronized(updatesListeners) {
+	    	updatesListeners.add(listener);
+	    }		
+	}
+	
+	private void dispatchUpdate(UpdateMessage updateMessage) {
+	    synchronized(updatesListeners) {
+	        for (IUpdatesListener listener: updatesListeners) {
+	          listener.onUpdate(updateMessage);
+	        }
+	    }		
+	}
+	
+	public <SourceType> void updateView(ModelID modelType, SourceType model) {
+		waveModel.setModel(modelType, model);
+		AModel<?, ?> newModel = waveModel.getModel(modelType); 
+		renderer.renderByModel(newModel);
+		dispatchUpdate(new ModelUpdateMessage(VIEW_ID, modelType, newModel));
+	}
+	
+	public <SourceType> void updateView(ModelID modelType, SourceType model, UpdateMessage message) {
+		updateView(modelType, model);
+		dispatchUpdate(message);
+	}	
 	
 	/* =========================================================================================== */
 	/* the code below is the copy of ConsoleClient functionality with changes related to rendering */
@@ -283,6 +322,12 @@ public class WavesClient implements WaveletOperationListener {
 		LOG.info("Connected ok");
 				
 		renderer.initialize();
+		
+		waveModel.setModel(ModelID.INFOLINE_MODEL, 
+				infoProvider.getInfoLineCaption(backend.getUserAtDomain(),
+												backend.getWaveServerHostData(),
+												getViewId()));
+		renderer.renderByModel(waveModel.getModel(ModelID.INFOLINE_MODEL));
 		
 		return true;
 	}
@@ -371,7 +416,7 @@ public class WavesClient implements WaveletOperationListener {
 		}
 
 		openedWave = wave;		
-		updateRendererFromOpenedWave();
+		updateViewFromOpenedWave();
 	}
 	
 	private boolean undo(String userId) {
@@ -444,7 +489,7 @@ public class WavesClient implements WaveletOperationListener {
 	private boolean readAllWaves() {
 		if (isConnected()) {
 			inbox.updateHashedVersions();
-			updateRendererFromUpdatedInbox();
+			updateViewFromUpdatedInbox();
 			return true;
 		} else {
 			errorNotConnected();
@@ -506,11 +551,11 @@ public class WavesClient implements WaveletOperationListener {
 		if (isWaveOpen()) {
 			if (mode.equals("normal")) {
 				renderer.setRenderingMode(RenderMode.NORMAL);
-				updateRendererFromOpenedWave();
+				updateViewFromOpenedWave();
 				return true;
 			} else if (mode.equals("xml")) {
 				renderer.setRenderingMode(RenderMode.NORMAL);
-				updateRendererFromOpenedWave();
+				updateViewFromOpenedWave();
 				return true;
 			} else {
 				sendErrorToUser("Error: unsupported rendering, run \"?\"");

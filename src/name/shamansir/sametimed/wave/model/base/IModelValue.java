@@ -12,6 +12,7 @@ public interface IModelValue {
 	//					   // (useEscapedQuotes == false)
 	// the best way:
 	// String quot = useEscapedQuotes ? "\\\"" : "\"";
-	public String asJSON(boolean useEscapedQuotes);
+	public String asJSON(boolean useEscapedQuotes);	
+	public String asJSON();
 
 }

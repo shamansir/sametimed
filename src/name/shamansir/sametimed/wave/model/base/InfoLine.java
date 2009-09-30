@@ -22,5 +22,10 @@ public class InfoLine implements IModelValue {
 		return quot + infoLine + quot;
 	}	
 	
+	@Override	
+	public String asJSON() {
+		return asJSON(false);
+	}	
+	
 
 }

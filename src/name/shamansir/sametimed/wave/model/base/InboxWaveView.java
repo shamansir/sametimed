@@ -41,5 +41,9 @@ public class InboxWaveView implements IModelValue {
 		return jsonString + "}";
 	}	
 	
+	@Override	
+	public String asJSON() {
+		return asJSON(false);
+	}	
 
 }
