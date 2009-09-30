@@ -9,7 +9,7 @@
 
 	var msgConnect =
 	{
-		channel: '/meta/connect',
+		channel: '/meta/connect'
 	};
 
 	var msgSubscribe =

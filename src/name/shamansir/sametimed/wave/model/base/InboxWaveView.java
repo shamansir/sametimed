@@ -28,13 +28,14 @@ public class InboxWaveView implements IModelValue {
 	}	
 	
 	@Override
-	public String asJSON() {
+	public String asJSON(boolean useEscapedQuotes) {
 		String jsonString = "{";
+		String quot = useEscapedQuotes ? "\\\"" : "\"";		
 		Iterator<Map.Entry<Integer, InboxElement>> iter = inboxWaves.entrySet().iterator();
 		while (iter.hasNext()) {
 			Map.Entry<Integer, InboxElement> wavesEntry = iter.next();
 			jsonString += wavesEntry.getKey().toString() + ":" +
-						  "'" + wavesEntry.getValue().getWaveID() + "'";
+						  quot + wavesEntry.getValue().getWaveID() + quot;
 			if (iter.hasNext()) jsonString += ","; 
 		}
 		return jsonString + "}";

@@ -17,8 +17,9 @@ public class InfoLine implements IModelValue {
 	}
 	
 	@Override
-	public String asJSON() {
-		return "'" + infoLine + "'";
+	public String asJSON(boolean useEscapedQuotes) {
+		String quot = useEscapedQuotes ? "\\\"" : "\"";		
+		return quot + infoLine + quot;
 	}	
 	
 

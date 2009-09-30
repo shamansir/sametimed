@@ -9,7 +9,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface IWavesClientViewServiceAsync {
 
-	void getClientView(String forUser, 
+	void getClientView(String forUser, boolean useEscapedQuotes,
 			AsyncCallback<WavesClientViewContainer> callback);
 
 }

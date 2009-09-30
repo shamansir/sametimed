@@ -23,12 +23,13 @@ public class Document implements IModelValue {
 	}	
 
 	@Override
-	public String asJSON() {
+	public String asJSON(boolean useEscapedQuotes) {
 		String jsonString = "[";
+		String quot = useEscapedQuotes ? "\\\"" : "\"";	
 		for (Iterator<TextChunk> iter = documentContent.iterator(); iter.hasNext(); ) {
 			TextChunk textChunk = iter.next();
-			jsonString += "{'text':" + textChunk.getText() + "," +
-						   "'style':" + textChunk.getStyle() + "}";
+			jsonString += "{" + quot + "text"  + quot + ":" + quot + textChunk.getText() + quot + "," +
+							    quot + "style" + quot + ":" + quot + textChunk.getStyle() + quot + "}";
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

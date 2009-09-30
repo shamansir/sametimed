@@ -24,12 +24,14 @@ public class ChatLines implements IModelValue {
 	}
 
 	@Override
-	public String asJSON() {
+	public String asJSON(boolean useEscapedQuotes) {
 		String jsonString = "[";
+		String quot = useEscapedQuotes ? "\\\"" : "\"";
 		for (Iterator<ChatLine> iter = chatLines.iterator(); iter.hasNext(); ) {
 			ChatLine chatLine = iter.next();
-			jsonString += "{'author':" + chatLine.getAuthor() + "," +
-						   "'text':" + chatLine.getText() + "}";
+			jsonString += "{" + 
+				quot + "author" + quot + ":" + quot + chatLine.getAuthor() + quot + "," +
+				quot + "text"   + quot + ":" + quot + chatLine.getText() + quot + "}";
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

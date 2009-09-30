@@ -21,8 +21,9 @@ IWavesClientViewService {
 	private static final String CONNECTION_ERR_STR = "Connection to the Wave Server (as user %s) is failed";  
 
 	@Override
-	public WavesClientViewContainer getClientView(String user) throws IOException {
+	public WavesClientViewContainer getClientView(String user, boolean useEscapedQuotes) throws IOException {
 		WavesClient newClient = new WavesClient();
+		String quot = useEscapedQuotes ? "\\\"" : "\"";		
 		
 		try {
 			newClient.connect(user);
@@ -31,7 +32,7 @@ IWavesClientViewService {
 			return new WavesClientViewContainer(
 					newClient.getViewId(),
 					// FIXME: create ErrorModel class
-					"{error: '" + String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", user, e.getMessage()) + "'}"
+					"{error: " + quot + String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", user, e.getMessage()) + quot + "}"
 				);
 		}
 		
@@ -42,7 +43,7 @@ IWavesClientViewService {
 		
 		return new WavesClientViewContainer(
 				newClient.getViewId(),
-				newClient.getWaveModel().asJSON()
+				newClient.getWaveModel().asJSON(useEscapedQuotes)
 			);
 	}
 

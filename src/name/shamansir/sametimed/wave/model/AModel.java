@@ -28,8 +28,8 @@ public abstract class AModel<SourceType, ModelValueType extends IModelValue> {
 		this.value = value;
 	}	
 	
-	public String asJSON() {
-		return value.asJSON();
+	public String asJSON(boolean useEscapedQuotes) {
+		return value.asJSON(useEscapedQuotes);
 	}
 	
 	public ModelID getModelID() {

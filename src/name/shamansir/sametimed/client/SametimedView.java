@@ -69,7 +69,9 @@ public class SametimedView implements EntryPoint {
 			private void tryToGetView() {
 				addViewButton.setEnabled(false);
 				String username = usernameField.getText();
-				clientViewService.getClientView(username, 
+				boolean wrapDoubleQuotes = true; // way to wrap the JSON parameter in javaScript
+				final String wrapQuot = wrapDoubleQuotes ? "\"" : "'"; 
+				clientViewService.getClientView(username, wrapDoubleQuotes, 
 						new AsyncCallback<WavesClientViewContainer>() {
 							public void onFailure(Throwable caught) {
 								// Show the RPC error message to the user
@@ -90,7 +92,8 @@ public class SametimedView implements EntryPoint {
 												     clientView.getHolderElementId()); */
 								viewsContainer.add(new HTML(
 											"<script type='text/javascript'>"
-											+ CLIENT_RENDER_JS_FUNC + "(\"" + clientView.getModelAsJSON() + "\");" +
+											+ CLIENT_RENDER_JS_FUNC + 
+											"(" + wrapQuot + clientView.getModelAsJSON() + wrapQuot + ");" +
 											"</script>"
 										));
 								addViewButton.setEnabled(true);

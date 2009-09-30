@@ -70,11 +70,11 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 	}	
 }
 
-function cmdButtonOnClick(holderElementId, clientId, commandXML) {
+function cmdButtonOnClick(clientId, commandXML) {
 	// FIXME: it is required to pass all panels ids to rerender
 }
 
-function sendButtonOnClick(holderElementId, clientId, inputId) {
+function sendButtonOnClick(clientId, inputId) {
 	var consoleInputElm = document.getElementById(inputId);
 	if (consoleInputElm) {
 		var consoleLine = consoleInputElm.value;

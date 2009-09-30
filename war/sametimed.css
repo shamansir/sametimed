@@ -115,6 +115,7 @@ form#add-client-form button {
 	color: #666;
 }
 
+.wave-client ol.inbox, 
 .wave-client ul.userlist {
 	list-style-type: none;
 }

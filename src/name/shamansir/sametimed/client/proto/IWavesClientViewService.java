@@ -12,5 +12,5 @@ import name.shamansir.sametimed.client.WavesClientViewContainer;
  */
 @RemoteServiceRelativePath("get_client_view")
 public interface IWavesClientViewService extends RemoteService {
-	WavesClientViewContainer getClientView(String forUser) throws IOException;
+	WavesClientViewContainer getClientView(String forUser, boolean useEscapedQuotes) throws IOException;
 }

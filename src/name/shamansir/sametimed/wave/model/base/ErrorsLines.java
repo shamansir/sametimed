@@ -21,10 +21,11 @@ public class ErrorsLines implements IModelValue {
 	}	
 	
 	@Override
-	public String asJSON() {
+	public String asJSON(boolean useEscapedQuotes) {
 		String jsonString = "[";
+		String quot = useEscapedQuotes ? "\\\"" : "\"";
 		for (Iterator<String> iter = errors.iterator(); iter.hasNext(); ) {
-			jsonString += "'" + iter.next() + "'";
+			jsonString += quot + iter.next() + quot;
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

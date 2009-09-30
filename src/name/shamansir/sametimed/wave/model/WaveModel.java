@@ -42,14 +42,15 @@ public class WaveModel extends AModel<String, EmptyModelValue> {
 	}
 	
 	@Override
-	public String asJSON() {
+	public String asJSON(boolean useEscapedQuotes) {
 		String jsonString = "{";
+		String quot = useEscapedQuotes ? "\\\"" : "\"";		
 		
 		for (ModelID modelID: ModelID.allInner()) {   
-			jsonString += "'" + modelID.getAlias() + "':" + innerModels.get(modelID).asJSON() + ",";
+			jsonString += quot + modelID.getAlias() + quot + ":" + innerModels.get(modelID).asJSON(useEscapedQuotes) + ",";
 		}
 		
-		jsonString += "'clientId': " + Integer.valueOf(currentClientID);
+		jsonString += quot + "clientId" + quot + ":" + Integer.toString(currentClientID);
 		
 		return jsonString + "}";
 	}	
