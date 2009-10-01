@@ -6,7 +6,9 @@
   <allow>
     <create creator="new" javascript="Tracker" scope="application">
       <param name="class" value="name.shamansir.sametimed.wave.render.JSUpdatesListener"/>
-    </create>
+      
+      <!-- <include method="onUpdate"/>  -->      
+    </create>    
 
     <!-- <convert converter="bean" match="name.shamansir.sametimed.wave.messsaging.Command"/> -->
     <!-- <convert converter="bean" match="name.shamansir.sametimed.wave.messsaging.UpdateMessage"/> -->

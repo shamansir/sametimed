@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-public class Participants implements IModelValue {
+public class Participants extends StringBasedValue implements IModelValue {
 
 	private List<ParticipantId> participants;
 	
@@ -27,7 +27,7 @@ public class Participants implements IModelValue {
 		String jsonString = "[";
 		String quot = useEscapedQuotes ? "\\\"" : "\"";		
 		for (Iterator<ParticipantId> iter = participants.iterator(); iter.hasNext(); ) {
-			jsonString += quot + iter.next().getAddress() + quot;
+			jsonString += quot + cleanQuotes(iter.next().getAddress()) + quot;
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

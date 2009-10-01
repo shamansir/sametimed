@@ -6,20 +6,38 @@ var CLIENTS_HOLDER_ID = 'client-views';
  * client = {
  * 		clientId: <int>,
  * 		info: <string>, // information line
- * 		inbox: {<int>: <string>, ...}, // waves list, inbox number to wave id string
+ * 		inbox: {<int>: <inboxObj>, ...}, // waves list, inbox number to wave id string
  * 		users: [<string>, ...], // full addresses, one by one   
  * 		chat: [{author: <string>, text: <string>}, ...], // chat lines
  * 		document: [{text: <string>, style: <string>}, ...}], // document chunks
  * 		console: [<string>, ...], // console history
  * 		errors: [<string>, ...], // errors happend while using the client
  * }
+ * 
+ * inboxObj = {
+ * 		new: <boolean>,
+ * 		current: <boolean>,
+ * 		id: <string>,
+ * 		digest: <string>
+ * }
  */
 
 function renderClient(waveModelStr) {
 	var waveModelObj = JSON.parse(waveModelStr);
-	$('#' + CLIENTS_HOLDER_ID).append(
-			ClientRenderer.createClient(waveModelObj)
-		);	
+	if (!waveModelObj.error) {
+		$('#' + CLIENTS_HOLDER_ID).append(
+				ClientRenderer.createClient(waveModelObj)
+			);
+	} else {
+		$('#error')
+			.removeClass('no-errors')
+			.addClass('have-errors')
+			.append($('<span />').text(waveModelObj.error));
+	}
+}
+
+function renderUpdate(updateObj) {
+	ClientRenderer.renderUpdate(updateObj);
 }
 
 // use jquery.inherit plugin
@@ -27,13 +45,27 @@ var ClientRenderer = {
 		
 	SEND_BTN_HANDLER: 'sendButtonOnClick',
 	CMD_BTN_HANDLER: 'cmdButtonOnClick',
+	
+	CLIENT_HOLDER_PREFIX: 'wave-client-',	
+	IDS_PREFIX: 'client-',	
+	MODELS_POSTFIXES: {
+		info: "-infoline",
+		inbox: "-inbox",
+		users: "-userlist",
+		chat: "-chat",
+		document: "-editor",
+		console: "-console",
+		errors: "-errorbox"
+	},
+	
+	// TODO: store models renderers using createMethodReference
 		
 	createClient: function(waveModel) {
 	
 		var clientId = waveModel.clientId;
 		
 		var clientWrapper = $('<div />')
-			.attr('id', 'wave-client-' + clientId)
+			.attr('id', this.CLIENT_HOLDER_PREFIX + clientId)
 			.addClass('wave-client');
 		
 		// TODO: store elements as id -> element hash
@@ -50,14 +82,14 @@ var ClientRenderer = {
 
 	createInfoLine: function(clientId, infoLineStr) {
 		return $('<span />')
-				.attr('id', 'client-' + clientId + '-infoline')
+				.attr('id', this.getModelHolderId("info", clientId))
 				.addClass('infoline')
 				.text(infoLineStr);
 	},
 	
 	createInbox: function(clientId, inboxModel) {
 		var inboxWrapper = $('<ol />')
-				.attr('id', 'client-' + clientId + '-inbox')
+				.attr('id', this.getModelHolderId("inbox", clientId))
 				.addClass('inbox');
 		
 		if (inboxModel.length == 0) {
@@ -65,10 +97,16 @@ var ClientRenderer = {
 		}
 		
 		for (inboxId in inboxModel) {
-			inboxWrapper.append($('<li />')
+			var entryData = inboxModel[inboxId];
+			var liElm = $('<li />')
 					.append($('<span />').addClass('inbox-id').text(inboxId))
 					.append($('<span />').addClass('inbox-wave-id').text(
-							inboxModel[inboxId])));
+														entryData.id));
+			 	 // .append($('<span />').addClass('inbox-wave-digest').text(
+													 // entryData.digest)));
+			if (entryData.unread)  liElm.addClass('inbox-unread');
+			if (entryData.current) liElm.addClass('inbox-current');
+			inboxWrapper.append(liElm);
 		}	
 		
 		return inboxWrapper;		
@@ -76,7 +114,7 @@ var ClientRenderer = {
 	
 	createUsersList: function(clientId, usersModel) {
 		var userslistWrapper = $('<ul />')
-				.attr('id', 'client-' + clientId + '-userlist')
+				.attr('id', this.getModelHolderId("users", clientId))
 				.addClass('userlist');
 		
 		if (usersModel.length == 0) {
@@ -93,7 +131,7 @@ var ClientRenderer = {
 	
 	createChat: function(clientId, chatModel) {
 		var chatWrapper = $('<div />')
-				.attr('id', 'client-' + clientId + '-chat')
+				.attr('id', this.getModelHolderId("chat", clientId))
 				.addClass('chat');
 		
 		for (chatLineIdx in chatModel) {
@@ -107,7 +145,7 @@ var ClientRenderer = {
 	
 	createEditor: function(clientId, documentModel) {
 		var editorWrapper = $('<div />')
-				.attr('id', 'client-' + clientId + '-editor')
+				.attr('id', this.getModelHolderId("document", clientId))
 				.addClass('editor');
 		
 		for (textChunkIdx in documentModel) {
@@ -123,7 +161,7 @@ var ClientRenderer = {
 		var inputElmId = 'console-input-' + clientId;
 		
 		var consoleWrapper = $('<form />')
-				.attr('id', 'client-' + clientId + '-console')
+				.attr('id', this.getModelHolderId("console", clientId))
 				.attr('action', null)
 				.attr('method', 'post')
 				.addClass('console');
@@ -131,7 +169,8 @@ var ClientRenderer = {
 		consoleWrapper.append($('<input />')
 				.attr('id', inputElmId)
 				.attr('type', 'text')
-				.addClass('gwt-TextBox'));
+				.addClass('gwt-TextBox')
+				.attr('onkeydown', 'return blockEnter(event);'));
 				
 		consoleWrapper.append($('<input />')
 				.attr('type', 'button')
@@ -147,7 +186,7 @@ var ClientRenderer = {
 	
 	createErrorBox: function(clientId, errorsLines) {
 		var errboxWrapper = $('<div />')
-				.attr('id', 'client-' + clientId + '-errorbox')
+				.attr('id', this.getModelHolderId("errors", clientId))
 				.addClass('errorbox');
 		
 		for (errorLineIdx in errorsLines) {
@@ -156,7 +195,49 @@ var ClientRenderer = {
 		}	
 		
 		return errboxWrapper;			
-	}	
+	},
+	
+	getModelHolderId: function(modelAlias, clientId) {
+		return this.IDS_PREFIX + clientId + this.MODELS_POSTFIXES[modelAlias];
+	},
+	
+	renderUpdate: function(updateModel) {
+		var clientId = updateModel.clientId;
+		var modelType = updateModel.modelType;
+		var model = updateModel.modelValue;
+		
+		var modelWrapper = null;
+		if (modelType == 'info') {
+			modelWrapper = this.createInfoLine(clientId, model);
+		} else if (modelType == 'inbox') {
+			modelWrapper = this.createInbox(clientId, model);
+		} else if (modelType == 'users') {
+			modelWrapper = this.createUsersList(clientId, model);
+		} else if (modelType == 'chat') {
+			modelWrapper = this.createChat(clientId, model);
+		} else if (modelType == 'document') {
+			modelWrapper = this.createEditor(clientId, model);
+		} else if (modelType == 'console') {
+			modelWrapper = this.createConsole(clientId, model);
+		} else if (modelType == 'errors') {
+			modelWrapper = this.createErrorBox(clientId, model);
+		}
+		
+		if (modelWrapper != null) {
+			var holderId = this.getModelHolderId(modelType, clientId);
+			$('#' + holderId).replaceWith(modelWrapper);
+		}
+
+	}
 		
 }
 
+function blockEnter(evt) {
+    evt = (evt) ? evt : event;
+    var charCode = (evt.charCode) ? evt.charCode :((evt.which) ? evt.which : evt.keyCode);
+    if (charCode == 13) {
+        return false;
+    } else {
+        return true;
+    }
+}

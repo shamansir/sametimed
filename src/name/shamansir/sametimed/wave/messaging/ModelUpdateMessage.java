@@ -23,5 +23,13 @@ public class ModelUpdateMessage extends UpdateMessage {
 		arguments.put("value", model.asJSON(false));
 		return arguments;
 	}
+	
+	public ModelID getModelID() {
+		return modelID;
+	}
+	
+	public AModel<?, ?> getModel() {
+		return model;
+	}	
 
 }

@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.wave.model.base;
 
-public class EmptyModelValue implements IModelValue {
+public class EmptyModelValue /* extends StringBasedValue */ implements IModelValue {
 	
 	public EmptyModelValue() {};
 	

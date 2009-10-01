@@ -76,6 +76,8 @@ form#add-client-form button {
 	margin: 3px;
 	padding: 3px;
     background-color: #eed;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* display, floats and width/height */
@@ -109,6 +111,11 @@ form#add-client-form button {
     clear: both;
 }
 
+.wave-client .errorbox {
+    height: 50px;
+    width: 520px;   
+}
+
 /* other styles */
 
 .wave-client .infoline {
@@ -124,5 +131,7 @@ form#add-client-form button {
 	width: 80%;
 }
 
-.wave-client .errorbox {
+.wave-client .errorbox span.error-line {
+    display: block;
+    color: #f00;   
 }

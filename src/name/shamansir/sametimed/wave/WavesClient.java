@@ -31,6 +31,7 @@ import org.waveprotocol.wave.model.wave.data.WaveletData;
 
 import com.google.common.collect.ImmutableMap;
 
+import name.shamansir.sametimed.wave.InboxWaveView;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.IUpdatesListener;
 import name.shamansir.sametimed.wave.messaging.ModelUpdateMessage;
@@ -38,7 +39,6 @@ import name.shamansir.sametimed.wave.messaging.UpdateMessage;
 import name.shamansir.sametimed.wave.model.AModel;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.model.WaveModel;
-import name.shamansir.sametimed.wave.model.base.InboxWaveView;
 import name.shamansir.sametimed.wave.render.JSUpdatesListener;
 import name.shamansir.sametimed.wave.render.NullRenderer;
 import name.shamansir.sametimed.wave.render.WaveInfoProvider;
@@ -62,7 +62,6 @@ public class WavesClient implements WaveletOperationListener {
 	
 	private InboxWaveView inbox = null;
 	private ClientWaveView openedWave = null;	
-	private List<String> participants = null;	 
 	
 	private List<String> errors = new ArrayList<String>();
 	
@@ -100,49 +99,60 @@ public class WavesClient implements WaveletOperationListener {
 	} */
 
 	@Override
-	public void noOp(String arg0, WaveletData arg1) {
+	public void noOp(String author, WaveletData wavelet) {
 		// TODO Auto-generated method stub
+		LOG.info("NoOp fired");
 		
 	}
 
 	@Override
-	public void onDeltaSequenceEnd(WaveletData arg0) {
+	public void onDeltaSequenceEnd(WaveletData wavelet) {
+		LOG.info("Delta Sequence End fired");
+		// FIXME: must to make decision what to update		
+		updateFullView();
+	}
+
+	@Override
+	public void onDeltaSequenceStart(WaveletData wavelet) {
 		// TODO Auto-generated method stub
+		LOG.info("Delta Sequence Start fired");
 		
 	}
 
 	@Override
-	public void onDeltaSequenceStart(WaveletData arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void participantAdded(String name, WaveletData arg1,
-			ParticipantId arg2) {
+	public void participantAdded(String name, WaveletData wavelet,
+			ParticipantId participant) {
+		LOG.info("Participant added fired " + participant.getAddress());
 		if (isWaveOpen()) {
 			// FIXME: add participant to list, not recreate model 
-			participants = extractParticipantsData(getOpenWavelet().getParticipants());
+			List<ParticipantId> participants = getOpenWavelet().getParticipants();
 			if (participants != null) {
 				// TODO: pass adding user message
+				// FIXME: may be rendered twice if user adding himself
 				updateView(ModelID.USERSLIST_MODEL, participants);
 			}
-		} else {
+		} /* else {
 			sendErrorToUser("No waves opened now");
-		}
+		} */
 	}
 
 	@Override
-	public void participantRemoved(String arg0, WaveletData arg1,
-			ParticipantId arg2) {
-		// TODO Auto-generated method stub
-		
+	public void participantRemoved(String author, WaveletData wavelet,
+			ParticipantId participant) {
+		LOG.info("Participant added fired " + participant.getAddress());
+	    if (isWaveOpen() && participant.equals(backend.getUserId())) {
+	        // We might have been removed from our open wave (an impressively verbose check...)
+	        if (wavelet.getWaveletName().waveId.equals(openedWave.getWaveId())) {
+	          openedWave = null;
+	        }
+	    }		
 	}
 
 	@Override
-	public void waveletDocumentUpdated(String arg0, WaveletData arg1,
-			WaveletDocumentOperation arg2) {
+	public void waveletDocumentUpdated(String author, WaveletData wavelet,
+			WaveletDocumentOperation performed) {
 		// TODO Auto-generated method stub
+		LOG.info("Document updated fired");
 		
 	}
 	
@@ -152,15 +162,6 @@ public class WavesClient implements WaveletOperationListener {
 
 	public int getViewId() {
 		return VIEW_ID;
-	}
-	
-	// TODO: list must to be immutable
-	protected List<String> extractParticipantsData(List<ParticipantId> participants) {
-		List<String> participantsStrings = new ArrayList<String>();
-		for (ParticipantId participantId: participants) {
-			participantsStrings.add(participantId.toString());
-		}
-		return participantsStrings;
 	}
 	
 	private static void registerClient(int clientId, WavesClient client) {
@@ -219,7 +220,7 @@ public class WavesClient implements WaveletOperationListener {
 					return readAllWaves();
 				}
 			case CMD_CHANGE_VIEW: {
-					return setView(command.getArgument("mode"));
+					return setViewMode(command.getArgument("mode"));
 				}
 			case CMD_QUIT: {
 					// FIXME: implement clearing and closing the client
@@ -236,27 +237,24 @@ public class WavesClient implements WaveletOperationListener {
 		updateView(ModelID.ERRORBOX_MODEL, errors);
 	}
 	
-	protected void updateViewFromOpenedWave() {
-		updateView(ModelID.ERRORBOX_MODEL, errors);
-		// FIXME: implement				
+	protected void updateFullView() {
+		if (isConnected() && backend.getIndexWave() != null) {
+			inbox.setOpenWave(openedWave);			
+		}
 		
-		/*
-		renderer.updatePanel(PanelID.INBOX_PANEL);
-		renderer.updatePanel(PanelID.CHAT_PANEL);
-		renderer.updatePanel(PanelID.EDITOR_PANEL);
-		renderer.updatePanel(PanelID.INFOLINE_PANEL);
-		renderer.updatePanel(PanelID.USERS_LIST_PANEL);
-		*/		
+		updateView(ModelID.INBOX_MODEL, inbox.getOpenedWaves());
+		// updateView(ModelID.INFOLINE_MODEL, null);
+		updateView(ModelID.ERRORBOX_MODEL, errors);
+		
+		updateWavePart();
 	}
 	
-	protected void updateViewFromUpdatedInbox() {
-		updateView(ModelID.ERRORBOX_MODEL, errors);
-		// FIXME: implement			
-		
-		/*
-		renderer.updatePanel(PanelID.INBOX_PANEL);
-		renderer.updatePanel(PanelID.CHAT_PANEL);
-		renderer.updatePanel(PanelID.EDITOR_PANEL); */		
+	protected void updateWavePart() {
+		if (getOpenWavelet() != null) {
+			updateView(ModelID.USERSLIST_MODEL, getOpenWavelet().getParticipants());
+		}
+		updateView(ModelID.CHAT_MODEL, null);
+		updateView(ModelID.EDITOR_MODEL, null);
 	}
 	
 	protected IWavesClientRenderer getDefaultRenderer(int clientID) {
@@ -317,19 +315,9 @@ public class WavesClient implements WaveletOperationListener {
 	        return false;
 	    }		
 		
-		backend.addWaveletOperationListener(this);
-		
-		LOG.info("Connected ok");
-				
-		renderer.initialize();
-		
-		waveModel.setModel(ModelID.INFOLINE_MODEL, 
-				infoProvider.getInfoLineCaption(backend.getUserAtDomain(),
-												backend.getWaveServerHostData(),
-												getViewId()));
-		renderer.renderByModel(waveModel.getModel(ModelID.INFOLINE_MODEL));
-		
-		return true;
+	    afterSuccessfullConnection();
+	    
+	    return true;
 	}
 	
 	// identical to connect(asUser) but passes server and port to backend
@@ -347,15 +335,26 @@ public class WavesClient implements WaveletOperationListener {
 	        return false;
 	    }		
 		
+	    afterSuccessfullConnection();
+		
+		return true;		
+	}
+	
+	private void afterSuccessfullConnection() {
 		backend.addWaveletOperationListener(this);
 		
 		LOG.info("Connected ok");
 				
 		renderer.initialize();
 		
-		return true;		
+		waveModel.setModel(ModelID.INFOLINE_MODEL, 
+				infoProvider.getInfoLineCaption(backend.getUserAtDomain(),
+												backend.getWaveServerHostData(),
+												getViewId()));
+		renderer.renderByModel(waveModel.getModel(ModelID.INFOLINE_MODEL));
+		inbox = new InboxWaveView(backend, backend.getIndexWave());	
 	}
-	
+
 	public boolean shutdown() {
 		if (isConnected()) {
 			backend.shutdown();
@@ -416,7 +415,7 @@ public class WavesClient implements WaveletOperationListener {
 		}
 
 		openedWave = wave;		
-		updateViewFromOpenedWave();
+		updateFullView();
 	}
 	
 	private boolean undo(String userId) {
@@ -489,7 +488,7 @@ public class WavesClient implements WaveletOperationListener {
 	private boolean readAllWaves() {
 		if (isConnected()) {
 			inbox.updateHashedVersions();
-			updateViewFromUpdatedInbox();
+			updateFullView();
 			return true;
 		} else {
 			errorNotConnected();
@@ -547,15 +546,15 @@ public class WavesClient implements WaveletOperationListener {
 		}
 	}
 
-	private boolean setView(String mode) {
+	private boolean setViewMode(String mode) {
 		if (isWaveOpen()) {
 			if (mode.equals("normal")) {
 				renderer.setRenderingMode(RenderMode.NORMAL);
-				updateViewFromOpenedWave();
+				updateWavePart();
 				return true;
 			} else if (mode.equals("xml")) {
 				renderer.setRenderingMode(RenderMode.NORMAL);
-				updateViewFromOpenedWave();
+				updateWavePart();
 				return true;
 			} else {
 				sendErrorToUser("Error: unsupported rendering, run \"?\"");

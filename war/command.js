@@ -23,6 +23,7 @@ function parseCommandLine(cmdAuthor, line) {
 }
 
 function createCommandXML(forClient, commandName, arguments) {
+	// FIXME: rewrite with JQuery
 	var xml = '<command><name>' + commandName + '</name>';
 	xml += '<owner-id>' + forClient + '</owner-id>';
 	for (argumentName in arguments) {
@@ -71,8 +72,22 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 	}	
 }
 
+function parseUpdateMessage(updateMessage) {
+	// FIXME: use XMLDocument;
+	var msgRoot = $(updateMessage);
+	var msgType = msgRoot.find('name').text();
+	var ownerId = msgRoot.find('owner-id').text();
+	var typeStr = msgRoot.find('argument[name=alias]').text();
+	var valueStr = msgRoot.find('argument[name=value]').text();	
+	return {
+			clientId: ownerId,
+			modelType: typeStr,
+			modelValue: JSON.parse(valueStr)
+		};
+}
+
 function cmdButtonOnClick(clientId, commandXML) {
-	// FIXME: it is required to pass all panels ids to rerender
+	// FIXME: implement
 }
 
 function sendButtonOnClick(clientId, inputId) {
@@ -96,8 +111,6 @@ function sendButtonOnClick(clientId, inputId) {
 	}
 }
 
-function updateReceived(updateMessage) {
-	if (console || window.console) {
-		console.log(updateMessage);
-	}
+function updateReceived(updateMessageXML) {	
+	renderUpdate(parseUpdateMessage(updateMessageXML));
 }

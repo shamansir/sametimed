@@ -32,7 +32,7 @@ IWavesClientViewService {
 			return new WavesClientViewContainer(
 					newClient.getViewId(),
 					// FIXME: create ErrorModel class
-					"{error: " + quot + String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", user, e.getMessage()) + quot + "}"
+					"{\"error\": " + quot + String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", user, e.getMessage()) + quot + "}"
 				);
 		}
 		

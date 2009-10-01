@@ -7,7 +7,7 @@ import java.util.List;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 
 
-public class ChatLines implements IModelValue {
+public class ChatLines extends StringBasedValue implements IModelValue {
 	
 	private List<ChatLine> chatLines;
 	
@@ -30,8 +30,8 @@ public class ChatLines implements IModelValue {
 		for (Iterator<ChatLine> iter = chatLines.iterator(); iter.hasNext(); ) {
 			ChatLine chatLine = iter.next();
 			jsonString += "{" + 
-				quot + "author" + quot + ":" + quot + chatLine.getAuthor() + quot + "," +
-				quot + "text"   + quot + ":" + quot + chatLine.getText() + quot + "}";
+				quot + "author" + quot + ":" + quot + cleanQuotes(chatLine.getAuthor()) + quot + "," +
+				quot + "text"   + quot + ":" + quot + cleanQuotes(chatLine.getText()) + quot + "}";
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

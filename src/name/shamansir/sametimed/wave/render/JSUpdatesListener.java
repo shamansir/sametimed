@@ -5,8 +5,10 @@ import java.util.Collection;
 import name.shamansir.sametimed.wave.messaging.IUpdatesListener;
 import name.shamansir.sametimed.wave.messaging.UpdateMessage;
 
+import org.directwebremoting.Browser;
 import org.directwebremoting.ScriptBuffer;
 import org.directwebremoting.ScriptSession;
+import org.directwebremoting.ScriptSessions;
 import org.directwebremoting.ServerContext;
 import org.directwebremoting.ServerContextFactory;
 
@@ -20,11 +22,12 @@ public class JSUpdatesListener implements IUpdatesListener {
 	}
 	
 	public void onUpdate(UpdateMessage updateMessage) {
-		ScriptBuffer script = new ScriptBuffer(); 
+		final ScriptBuffer script = new ScriptBuffer(); 
 		script.appendScript("updateReceived(")
-	    		.appendScript("'" + updateMessage.toXMLString() + "'")
-	    		.appendScript(");");
+	    	  .appendScript("'" + updateMessage.toXMLString() + "'")
+	    	  .appendScript(");");
 		
+		/*
 		Collection<ScriptSession> sessions = 
 	            sctx.getAllScriptSessions();
 	            
@@ -32,8 +35,16 @@ public class JSUpdatesListener implements IUpdatesListener {
 			if (sctx.getScriptSessionById(session.getId()) != null) {
 				session.addScript(script);
 			}
-		}		
+		} */
+		
+	    Browser.withAllSessions(new Runnable() {
+	    	public void run() {
+	           
+	    		ScriptSessions.addScript(script);
 
-	}
+	        }
+	    });
+	} 		
 
 }
+
