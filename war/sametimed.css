@@ -118,6 +118,17 @@ form#add-client-form button {
 
 /* other styles */
 
+.wave-client .infoline,
+.wave-client .inbox, 
+.wave-client .userlist,
+.wave-client .chat,
+.wave-client .editor,
+.wave-client .console,
+.wave-client .errorbox {
+	font-size: 0.8em;
+	font-family: consolas, corbel, 'dejavu sans', sans-serif; 
+}
+
 .wave-client .infoline {
 	color: #666;
 }
@@ -135,3 +146,38 @@ form#add-client-form button {
     display: block;
     color: #f00;   
 }
+
+/* Inbox styles */
+
+.wave-client ol.inbox li.inbox-current {
+	color: #966;
+}
+
+.wave-client ol.inbox li.inbox-unread {
+    color: #366;
+}
+
+.wave-client ol.inbox li .inbox-id {
+	margin-right: 4px;
+	color: #000;
+} 
+
+.wave-client ol.inbox li .inbox-wave-id {
+}
+
+/* UserList styles */
+
+.wave-client .userlist span.user {
+	color: #336;
+}
+
+/* Chat styles */
+
+.wave-client .chat .chat-line {
+	display: block;
+}
+
+.wave-client .chat .chat-line .author {
+    color: #393;
+    margin-right: 4px;
+} 

@@ -12,7 +12,7 @@ import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.IndexEntry;
 
-// based on ScrollableInbox class
+// based on ScrollableInbox/ScrollableWaveView class
 public class InboxWaveView {
 
 	private ClientWaveView indexWave;
@@ -74,6 +74,7 @@ public class InboxWaveView {
 					isNewWave = true;
 				}
 			}
+			// TODO: also store version			
 			inboxData.put(Integer.valueOf(i), new InboxElement(waveId,
 					waveDigest, isCurrentWave, isNewWave));
 		}

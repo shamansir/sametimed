@@ -136,8 +136,10 @@ var ClientRenderer = {
 		
 		for (chatLineIdx in chatModel) {
 			var chatLine = chatModel[chatLineIdx];
-			chatWrapper.append($('<span />').addClass('author').text(chatLine.author));
-			chatWrapper.append($('<span />').addClass('line').text(chatLine.text));
+			var chatLineElm = $('<span />').addClass('chat-line');
+			chatLineElm.append($('<span />').addClass('author').text(chatLine.author));
+			chatLineElm.append($('<span />').addClass('line').text(chatLine.text));
+			chatWrapper.append(chatLineElm);
 		}	
 		
 		return chatWrapper;
@@ -147,6 +149,8 @@ var ClientRenderer = {
 		var editorWrapper = $('<div />')
 				.attr('id', this.getModelHolderId("document", clientId))
 				.addClass('editor');
+		
+		// TODO: append buttons
 		
 		for (textChunkIdx in documentModel) {
 			var textChunk = documentModel[textChunkIdx];

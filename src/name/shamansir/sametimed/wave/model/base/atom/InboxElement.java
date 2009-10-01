@@ -1,7 +1,7 @@
 package name.shamansir.sametimed.wave.model.base.atom;
 
 public class InboxElement {
-	
+
 	private String waveID;
 	private boolean isCurrent;
 	private boolean isNew;

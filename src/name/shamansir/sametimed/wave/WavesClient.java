@@ -46,9 +46,11 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 // FIXME: Javadoc
 
-public class WavesClient implements WaveletOperationListener {
+public class WavesClient implements WaveletOperationListener {	
 	
 	private static final Logger LOG = Logger.getLogger(WavesClient.class.getName());
+	
+	private final boolean LOG_OPS = true;
 	
 	private static int LAST_VIEW_ID = -1;
 	private final int VIEW_ID;
@@ -61,7 +63,8 @@ public class WavesClient implements WaveletOperationListener {
 	private WaveModel waveModel = null;
 	
 	private InboxWaveView inbox = null;
-	private ClientWaveView openedWave = null;	
+	private ClientWaveView openedWave = null;
+	private ChatView chatView = null;
 	
 	private List<String> errors = new ArrayList<String>();
 	
@@ -101,13 +104,13 @@ public class WavesClient implements WaveletOperationListener {
 	@Override
 	public void noOp(String author, WaveletData wavelet) {
 		// TODO Auto-generated method stub
-		LOG.info("NoOp fired");
+		if (LOG_OPS) LOG.info("NoOp fired");
 		
 	}
 
 	@Override
 	public void onDeltaSequenceEnd(WaveletData wavelet) {
-		LOG.info("Delta Sequence End fired");
+		if (LOG_OPS) LOG.info("Delta Sequence End fired");
 		// FIXME: must to make decision what to update		
 		updateFullView();
 	}
@@ -115,14 +118,14 @@ public class WavesClient implements WaveletOperationListener {
 	@Override
 	public void onDeltaSequenceStart(WaveletData wavelet) {
 		// TODO Auto-generated method stub
-		LOG.info("Delta Sequence Start fired");
+		if (LOG_OPS) LOG.info("Delta Sequence Start fired");
 		
 	}
 
 	@Override
 	public void participantAdded(String name, WaveletData wavelet,
 			ParticipantId participant) {
-		LOG.info("Participant added fired " + participant.getAddress());
+		if (LOG_OPS) LOG.info("Participant added fired " + participant.getAddress());
 		if (isWaveOpen()) {
 			// FIXME: add participant to list, not recreate model 
 			List<ParticipantId> participants = getOpenWavelet().getParticipants();
@@ -139,11 +142,12 @@ public class WavesClient implements WaveletOperationListener {
 	@Override
 	public void participantRemoved(String author, WaveletData wavelet,
 			ParticipantId participant) {
-		LOG.info("Participant added fired " + participant.getAddress());
+		if (LOG_OPS) LOG.info("Participant added fired " + participant.getAddress());
 	    if (isWaveOpen() && participant.equals(backend.getUserId())) {
 	        // We might have been removed from our open wave (an impressively verbose check...)
 	        if (wavelet.getWaveletName().waveId.equals(openedWave.getWaveId())) {
 	          openedWave = null;
+	          chatView = null;
 	        }
 	    }		
 	}
@@ -151,9 +155,7 @@ public class WavesClient implements WaveletOperationListener {
 	@Override
 	public void waveletDocumentUpdated(String author, WaveletData wavelet,
 			WaveletDocumentOperation performed) {
-		// TODO Auto-generated method stub
-		LOG.info("Document updated fired");
-		
+		if (LOG_OPS) LOG.info("Document updated fired");		
 	}
 	
 	public IWavesClientRenderer getRenderer() {
@@ -236,27 +238,7 @@ public class WavesClient implements WaveletOperationListener {
 		errors.add(errorText);
 		updateView(ModelID.ERRORBOX_MODEL, errors);
 	}
-	
-	protected void updateFullView() {
-		if (isConnected() && backend.getIndexWave() != null) {
-			inbox.setOpenWave(openedWave);			
-		}
 		
-		updateView(ModelID.INBOX_MODEL, inbox.getOpenedWaves());
-		// updateView(ModelID.INFOLINE_MODEL, null);
-		updateView(ModelID.ERRORBOX_MODEL, errors);
-		
-		updateWavePart();
-	}
-	
-	protected void updateWavePart() {
-		if (getOpenWavelet() != null) {
-			updateView(ModelID.USERSLIST_MODEL, getOpenWavelet().getParticipants());
-		}
-		updateView(ModelID.CHAT_MODEL, null);
-		updateView(ModelID.EDITOR_MODEL, null);
-	}
-	
 	protected IWavesClientRenderer getDefaultRenderer(int clientID) {
 		return new NullRenderer(clientID);
 	}
@@ -291,6 +273,28 @@ public class WavesClient implements WaveletOperationListener {
 		dispatchUpdate(message);
 	}	
 	
+	protected void updateFullView() {
+		if (isConnected() && backend.getIndexWave() != null) {
+			inbox.setOpenWave(openedWave);			
+		}
+		
+		updateView(ModelID.INBOX_MODEL, inbox.getOpenedWaves());
+		// updateView(ModelID.INFOLINE_MODEL, null);
+		updateView(ModelID.ERRORBOX_MODEL, errors);
+		
+		updateWavePart();
+	}
+	
+	protected void updateWavePart() {
+		if (getOpenWavelet() != null) {
+			updateView(ModelID.USERSLIST_MODEL, getOpenWavelet().getParticipants());
+			if (isChatReady()) {
+				updateView(ModelID.CHAT_MODEL, chatView.getChatLines());
+			}
+		}
+		updateView(ModelID.EDITOR_MODEL, null);
+	}	
+	
 	/* =========================================================================================== */
 	/* the code below is the copy of ConsoleClient functionality with changes related to rendering */
 	
@@ -298,6 +302,7 @@ public class WavesClient implements WaveletOperationListener {
 		backend.shutdown();
 	    backend = null;
 	    openedWave = null;
+	    chatView = null;
 	    inbox = null;		
 	}	
 	
@@ -367,6 +372,10 @@ public class WavesClient implements WaveletOperationListener {
 		return isConnected() && openedWave != null;
 	}	
 	
+	private boolean isChatReady() {
+		return chatView != null;
+	}
+	
 	private WaveletData getOpenWavelet() {
 	    return (openedWave == null) ? null : ClientUtils.getConversationRoot(openedWave);
 	}
@@ -414,7 +423,8 @@ public class WavesClient implements WaveletOperationListener {
 		    wave.createWavelet(ClientUtils.getConversationRootId(wave));
 		}
 
-		openedWave = wave;		
+		openedWave = wave;
+		chatView = new ChatView(openedWave);
 		updateFullView();
 	}
 	
@@ -549,11 +559,13 @@ public class WavesClient implements WaveletOperationListener {
 	private boolean setViewMode(String mode) {
 		if (isWaveOpen()) {
 			if (mode.equals("normal")) {
+				chatView.setOutputMode(RenderMode.NORMAL);				
 				renderer.setRenderingMode(RenderMode.NORMAL);
 				updateWavePart();
 				return true;
 			} else if (mode.equals("xml")) {
-				renderer.setRenderingMode(RenderMode.NORMAL);
+				chatView.setOutputMode(RenderMode.XML);
+				renderer.setRenderingMode(RenderMode.XML);
 				updateWavePart();
 				return true;
 			} else {
@@ -583,8 +595,11 @@ public class WavesClient implements WaveletOperationListener {
 			docOp.elementStart(ConsoleUtils.LINE, new AttributesImpl(
 					ImmutableMap.of(ConsoleUtils.LINE_AUTHOR, backend
 							.getUserId().getAddress())));
-			docOp.elementEnd();
 			docOp.characters(text);
+			docOp.elementEnd();
+			
+			// ATTENTION: this differs from console, first characters, then - elementEnd
+			//            console does end before characters 
 
 			backend.sendWaveletOperation(getOpenWavelet().getWaveletName(),
 					new WaveletDocumentOperation(MAIN_DOCUMENT_ID, docOp
