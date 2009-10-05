@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.wave.model.base;
 
-public class InfoLine extends StringBasedValue implements IModelValue {
+public class InfoLine extends JSONiableValue implements IModelValue {
 	
 	private String infoLine;
 	
@@ -19,7 +19,7 @@ public class InfoLine extends StringBasedValue implements IModelValue {
 	@Override
 	public String asJSON(boolean useEscapedQuotes) {
 		String quot = useEscapedQuotes ? "\\\"" : "\"";		
-		return quot + cleanQuotes(infoLine) + quot;
+		return quot + escapeJSONString(infoLine) + quot;
 	}	
 	
 	@Override	

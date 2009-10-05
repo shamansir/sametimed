@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ErrorsLines extends StringBasedValue implements IModelValue {
+public class ErrorsLines extends JSONiableValue implements IModelValue {
 
 	private List<String> errors;
 		
@@ -25,7 +25,7 @@ public class ErrorsLines extends StringBasedValue implements IModelValue {
 		String jsonString = "[";
 		String quot = useEscapedQuotes ? "\\\"" : "\"";
 		for (Iterator<String> iter = errors.iterator(); iter.hasNext(); ) {
-			jsonString += quot + cleanQuotes(iter.next()) + quot;
+			jsonString += quot + escapeJSONString(iter.next()) + quot;
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

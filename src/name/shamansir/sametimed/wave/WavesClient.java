@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.IndexEntry;
@@ -206,7 +207,7 @@ public class WavesClient implements WaveletOperationListener {
 					return removeParticipant(command.getArgument("user"));
 				}
 			case CMD_SAY: {
-					return sendAppendMutation(command.getArgument("text"));
+					return sendAppendMutation(StringEscapeUtils.unescapeXml(command.getArgument("text")));
 				}
 			case CMD_UNDO_OP: {
 					if (command.getArgument("user") != null) {

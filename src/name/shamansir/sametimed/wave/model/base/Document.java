@@ -6,7 +6,7 @@ import java.util.List;
 
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 
-public class Document extends StringBasedValue implements IModelValue {
+public class Document extends JSONiableValue implements IModelValue {
 	
 	private List<TextChunk> documentContent;
 	
@@ -28,8 +28,8 @@ public class Document extends StringBasedValue implements IModelValue {
 		String quot = useEscapedQuotes ? "\\\"" : "\"";	
 		for (Iterator<TextChunk> iter = documentContent.iterator(); iter.hasNext(); ) {
 			TextChunk textChunk = iter.next();
-			jsonString += "{" + quot + "text"  + quot + ":" + quot + cleanQuotes(textChunk.getText())  + quot + "," +
-							    quot + "style" + quot + ":" + quot + cleanQuotes(textChunk.getStyle()) + quot + "}";
+			jsonString += "{" + quot + "text"  + quot + ":" + quot + escapeJSONString(textChunk.getText())  + quot + "," +
+							    quot + "style" + quot + ":" + quot + escapeJSONString(textChunk.getStyle()) + quot + "}";
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

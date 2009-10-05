@@ -1,6 +1,20 @@
-var CMD_EXECUTOR_URL = '/same_timed/cmd_exec';
-// it must to be identical to the function, described in initRedrawJSFunc() method
-// var REDRAW_JS_FUNC_NAME = 'redrawPanel'; FIXME: use constant 
+function escapeXML(strForXml) {
+	strForXml = strForXml.replace(/&/g, "&amp;");
+	strForXml = strForXml.replace(/</g, "&lt;");
+	strForXml = strForXml.replace(/>/g, "&gt;");
+	strForXml = strForXml.replace(/"/g, "&quot;");
+	return strForXml;
+}
+
+function unescapeXML(xmlStr) {
+	xmlStr = xmlStr.replace(/&amp;/g, "&");
+	xmlStr = xmlStr.replace(/&lt;/g, "<");
+	xmlStr = xmlStr.replace(/&gt;/g, ">");
+	xmlStr = xmlStr.replace(/&quot;/g, "\"");
+	return xmlStr;
+}
+
+var CMD_EXECUTOR_URL = '/same_timed/cmd_exec'; 
 
 function parseCommandLine(cmdAuthor, line) {
 	var line = new String(line);
@@ -30,7 +44,7 @@ function createCommandXML(forClient, commandName, arguments) {
 		var argument = arguments[argumentName];
 		if (argument !== undefined) {
 			xml += '<argument name="' + argumentName + '">' +
-				arguments[argumentName] + "</argument>";
+				escapeXML(arguments[argumentName]) + "</argument>";
 		}
 	}
 	xml += '</command>';
@@ -69,11 +83,10 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 		arguments["server"] = argumentsArray[1];
 		arguments["port"]   = argumentsArray[2];
 		return arguments;
-	}	
+	}
 }
 
 function parseUpdateMessage(updateMessage) {
-	// FIXME: use XMLDocument;
 	var msgRoot = $(updateMessage);
 	var msgType = msgRoot.find('name').text();
 	var ownerId = msgRoot.find('owner-id').text();
@@ -82,26 +95,29 @@ function parseUpdateMessage(updateMessage) {
 	return {
 			clientId: ownerId,
 			modelType: typeStr,
-			modelValue: JSON.parse(valueStr)
+			modelValue: JSON.parse(unescapeXML(valueStr))
 		};
 }
 
-function cmdButtonOnClick(clientId, commandXML) {
+function cmdButtonOnClick(clientId, commandAlias) {
 	// FIXME: implement
+	return false;
 }
 
 function sendButtonOnClick(clientId, inputId) {
 	var consoleInputElm = document.getElementById(inputId);
 	if (consoleInputElm) {
 		var consoleLine = consoleInputElm.value;
+		// FIXME: put it in the stack and clear only on successful perform of the command
+		//        also, show command performing process
+		consoleInputElm.value = "";
 		if (consoleLine.length > 0) {
 			var cmdXML = parseCommandLine(clientId, consoleLine);
 			if (cmdXML != '?') {
-				/* var redrawJSFunc = function(request, response) {
-						// FIXME: it is required to pass all panels ids to rerender
-						redrawPanel(holderElementId, response);
-					} */
-				makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + escape(cmdXML), null /*redrawJSFunc*/, true);
+				/* var clearInputFunc = function(request, response) {
+					consoleInputElm.value = "";
+				}; */
+				makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + escape(cmdXML), null /*clearInputFunc*/, true);
 			} else {
 				alert('console command cannot be parsed');
 			}

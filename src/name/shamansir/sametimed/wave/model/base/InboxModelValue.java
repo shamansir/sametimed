@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 import name.shamansir.sametimed.wave.model.base.atom.InboxElement;
 
-public class InboxModelValue extends StringBasedValue implements IModelValue {
+public class InboxModelValue extends JSONiableValue implements IModelValue {
 	
 	private Map<Integer, InboxElement> inboxWaves;
 	
@@ -39,13 +39,13 @@ public class InboxModelValue extends StringBasedValue implements IModelValue {
 			jsonString += entryId.toString() + ":" +
 						  "{" + 
 						  	quot + "id" + quot + ":" 
-						  		 + quot + cleanQuotes(inboxEntry.getWaveID()) + quot + "," +
+						  		 + quot + escapeJSONString(inboxEntry.getWaveID()) + quot + "," +
 						  	quot + "unread" + quot + ":" 
 						  		 + Boolean.toString(inboxEntry.isNew()) + "," +
 						  	quot + "current" + quot + ":" 
 						  		 + Boolean.toString(inboxEntry.isOpened()) + "," +
 						  	quot + "digest" + quot + ":" 
-						  	     + quot + cleanQuotes(inboxEntry.getDigest()) + quot +
+						  	     + quot + escapeJSONString(inboxEntry.getDigest()) + quot +
 						  "}";
 			if (iter.hasNext()) jsonString += ","; 
 		}

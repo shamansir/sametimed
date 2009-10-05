@@ -2,6 +2,8 @@ package name.shamansir.sametimed.wave.messaging;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 public class UpdateMessage implements IServerInfoPackage {
 	
 	// private static final Logger LOG = Logger.getLogger(UpdateMessage.class.getName());	
@@ -30,7 +32,7 @@ public class UpdateMessage implements IServerInfoPackage {
 		for (Map.Entry<String, String> argPair: message.getArguments().entrySet()) {
 			xmlCmdString += 
 				"<argument name=\"" + argPair.getKey() + "\">" + 
-					argPair.getValue() + "</argument>";			
+					StringEscapeUtils.escapeXml(argPair.getValue()) + "</argument>";			
 		}		
 		return xmlCmdString + "</message>";
 	}

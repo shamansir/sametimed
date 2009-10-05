@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import name.shamansir.sametimed.wave.WavesClient;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
@@ -51,7 +52,7 @@ public class Command implements IServerInfoPackage {
 			List<Element> argumentsNodes = commandElement.selectNodes("./argument");
 			Map<String, String> arguments = new HashMap<String, String>();
 			for (Element argument: argumentsNodes) {
-				arguments.put(argument.valueOf("@name"), argument.getText());
+				arguments.put(argument.valueOf("@name"), StringEscapeUtils.unescapeXml(argument.getText()));
 			}
 			
 			return new Command(clientId, commandType, arguments);
@@ -69,7 +70,7 @@ public class Command implements IServerInfoPackage {
 		for (Map.Entry<String, String> argPair: command.getArguments().entrySet()) {
 			xmlCmdString += 
 				"<argument name=\"" + argPair.getKey() + "\">" + 
-					argPair.getValue() + "</argument>";			
+					StringEscapeUtils.escapeXml(argPair.getValue()) + "</argument>";			
 		}		
 		return xmlCmdString + "</command>";
 	}

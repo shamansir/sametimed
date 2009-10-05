@@ -165,6 +165,11 @@ form#add-client-form button {
 .wave-client ol.inbox li .inbox-wave-id {
 }
 
+.wave-client ol.inbox li .inbox-wave-digest {
+	color: #ccc;
+}
+
+
 /* UserList styles */
 
 .wave-client .userlist span.user {
@@ -181,3 +186,46 @@ form#add-client-form button {
     color: #393;
     margin-right: 4px;
 } 
+
+/* Editor buttons styles */
+
+.wave-client .editor ul.editor-buttons,
+.wave-client .editor /*ul.editor-buttons */ ul.editor-buttons-block {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-width: 1px;
+    border-style: solid;    
+}
+
+.wave-client .editor ul.editor-buttons {
+	border-color: #ccc;
+	height: 24px;
+}
+
+.wave-client .editor /*ul.editor-buttons*/ ul.editor-buttons-block  {
+    border-color: #999;	
+    float: left;
+    margin: 1px;
+    height: 20px;
+}
+
+.wave-client .editor /*ul.editor-buttons*/ ul.editor-buttons-block li {
+	display: inline;
+}
+
+.wave-client .editor /*ul.editor-buttons ul.editor-buttons-block li*/ a.editor-button {
+    display: block;
+    float: left;
+	text-decoration: none;	
+	border: 1px solid #ddd;  
+	background-color: #eee;
+	height: 16px;
+	width: 16px;
+	margin: 1px;
+	text-align: center;
+}
+
+.wave-client .editor /*ul.editor-buttons ul.editor-buttons-block li*/ a.editor-button:hover {
+	background-color: #ddd;
+}

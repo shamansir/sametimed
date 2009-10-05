@@ -58,6 +58,16 @@ var ClientRenderer = {
 		errors: "-errorbox"
 	},
 	
+	EDITOR_BUTTONS: [
+		{ 'bold': { id_postfix: '-bold', name: 'Bold', cmd: 'bold', text: 'B' },
+		  'italic': { id_postfix: '-italic', name: 'Italic', cmd: 'italic', text: 'I' },
+		  'underline': { id_postfix: '-uline', name: 'Underline', cmd: 'uline', text: 'U' } },
+		{ 'left': { id_postfix: '-left', name: 'Align Teft', cmd: 'left', text: 'L' },
+		  'center': { id_postfix: '-center', name: 'Center Text', cmd: 'center', text: 'C' },
+		  'right': { id_postfix: '-right', name: 'Align Right', cmd: 'right', text: 'R' },
+		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} } 
+	],
+	
 	// TODO: store models renderers using createMethodReference
 		
 	createClient: function(waveModel) {
@@ -101,9 +111,9 @@ var ClientRenderer = {
 			var liElm = $('<li />')
 					.append($('<span />').addClass('inbox-id').text(inboxId))
 					.append($('<span />').addClass('inbox-wave-id').text(
-														entryData.id));
-			 	 // .append($('<span />').addClass('inbox-wave-digest').text(
-													 // entryData.digest)));
+														entryData.id))
+			 	    .append($('<span />').addClass('inbox-wave-digest').text(
+													 entryData.digest));
 			if (entryData.unread)  liElm.addClass('inbox-unread');
 			if (entryData.current) liElm.addClass('inbox-current');
 			inboxWrapper.append(liElm);
@@ -150,7 +160,30 @@ var ClientRenderer = {
 				.attr('id', this.getModelHolderId("document", clientId))
 				.addClass('editor');
 		
-		// TODO: append buttons
+		var buttonsContainer = $('<ul />')
+				.addClass('editor-buttons');		
+		for (blockIdx in this.EDITOR_BUTTONS) {
+			var blockData = this.EDITOR_BUTTONS[blockIdx];
+			var blockWrapper = $('<li />');
+			var buttonsBlock = $('<ul />')
+					.addClass('editor-buttons-block');
+			for (buttonAlias in blockData) {
+				var buttonData = blockData[buttonAlias];
+				var buttonWrapper = $('<li />');
+				var button = $('<a />')
+							.attr('id', 'editor-' + clientId + '-button' + buttonData.id_postfix)
+							.attr('href', '#')
+							.attr('title', buttonData.name)
+							.attr('onclick', this.CMD_BTN_HANDLER + "(" + clientId + ",'" + buttonData.cmd + "')")
+							.addClass('editor-button')
+							.text(buttonData.text);
+				buttonWrapper.append(button);
+				buttonsBlock.append(buttonWrapper);
+			}
+			blockWrapper.append(buttonsBlock);
+			buttonsContainer.append(blockWrapper);
+		}
+		editorWrapper.append(buttonsContainer);
 		
 		for (textChunkIdx in documentModel) {
 			var textChunk = documentModel[textChunkIdx];

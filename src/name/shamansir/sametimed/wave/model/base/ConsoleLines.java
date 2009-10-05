@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class ConsoleLines extends StringBasedValue implements IModelValue {
+public class ConsoleLines extends JSONiableValue implements IModelValue {
 		
 	private List<String> consoleLines;
 		
@@ -26,7 +26,7 @@ public class ConsoleLines extends StringBasedValue implements IModelValue {
 		String jsonString = "[";
 		String quot = useEscapedQuotes ? "\\\"" : "\"";		
 		for (Iterator<String> iter = consoleLines.iterator(); iter.hasNext(); ) {
-			jsonString += quot + cleanQuotes(iter.next()) + quot;
+			jsonString += quot + escapeJSONString(iter.next()) + quot;
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";
