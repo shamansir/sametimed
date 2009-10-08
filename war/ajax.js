@@ -4,7 +4,7 @@
  * @param {String} locationURL an URL to call, without parameters
  * @param {String} [parameters=null] a parameters list, in the form
  *        'param1=value1&param2=value2&param3=value3'
- * @param {Function(XHMLHTTPRequest, Object)} [onComplete=null] a function that
+ * @param {Function(XHMLHTTPRequest, String, Object)} [onComplete=null] a function that
  *        will be called when the response (responseText or responseXML of
  *        XHMLHTTPRequest) will be received
  * @param {Boolean} [doSynchronous=false] make a synchronous request (onComplete

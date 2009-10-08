@@ -1,7 +1,10 @@
+@CHARSET "UTF-8";
+
 /* ============================== PAGE STYLE ================================ */
 
 body.sametimed {
 	margin: 20px 6%;
+    font-size: 12px;	
     font-family: corbel, 'lucida bright', 'dejavu sans', 'arial unicode ms', arial, sans-serif;	
 }
 
@@ -53,6 +56,10 @@ form#add-client-form button {
     padding: 5px;
     background-color: #fee;
     border: 1px solid #c00;	
+}
+
+/*div#error*/ .have-errors span {
+    display: block;
 }
 
 /* ============================== WAVE CLIENT =============================== */
@@ -167,6 +174,9 @@ form#add-client-form button {
 
 .wave-client ol.inbox li .inbox-wave-digest {
 	color: #ccc;
+    display: block;
+    width: 100px;    
+    overflow: hidden;	
 }
 
 

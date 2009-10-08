@@ -6,6 +6,15 @@ import java.util.List;
 
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see ParticipantId
+ * 
+ * @see IModelValue
+ * @see JSONiableValue
+ */
+
 public class Participants extends JSONiableValue implements IModelValue {
 
 	private List<ParticipantId> participants;

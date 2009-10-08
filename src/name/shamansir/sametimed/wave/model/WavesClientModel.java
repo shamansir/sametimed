@@ -5,13 +5,21 @@ import java.util.Map;
 
 import name.shamansir.sametimed.wave.model.base.EmptyModelValue;
 
-public class WaveModel extends AModel<String, EmptyModelValue> {
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * The whole Waves Client model that contains the inner models (inbox, 
+ * chat, users list, document & s.o.) 
+ *
+ */
+
+public class WavesClientModel extends AModel<String, EmptyModelValue> {
 	
 	private final int currentClientID;
 	
 	private Map<ModelID, AModel<?, ?>> innerModels = new HashMap<ModelID, AModel<?, ?>>(); 
 	
-	public WaveModel(int clientID) {
+	public WavesClientModel(int clientID) {
 		super(ModelID.FULLWAVE_MODEL);
 		this.currentClientID = clientID;
 		for (ModelID modelID: ModelID.allInner()) { 

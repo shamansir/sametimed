@@ -10,7 +10,7 @@ import name.shamansir.sametimed.client.WavesClientViewContainer;
 /**
  * The client side stub for the RPC service.
  */
-@RemoteServiceRelativePath("get_client_view")
+@RemoteServiceRelativePath("gwt_client_view")
 public interface IWavesClientViewService extends RemoteService {
 	WavesClientViewContainer getClientView(String forUser, boolean useEscapedQuotes) throws IOException;
 }

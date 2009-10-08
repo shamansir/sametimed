@@ -6,6 +6,14 @@ import java.util.List;
 
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see ChatLine
+ * 
+ * @see IModelValue
+ * @see JSONiableValue
+ */
 
 public class ChatLines extends JSONiableValue implements IModelValue {
 	

@@ -1,6 +1,14 @@
 package name.shamansir.sametimed.wave.model.base;
 
-public class EmptyModelValue /* extends StringBasedValue */ implements IModelValue {
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * An empty model value (used as a stub in models that don't use their value)
+ * 
+ * @see IModelValue
+ */
+
+public class EmptyModelValue /* extends JSONiableValue */ implements IModelValue {
 	
 	public EmptyModelValue() {};
 	

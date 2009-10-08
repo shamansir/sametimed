@@ -1,4 +1,4 @@
-var CLIENTS_HOLDER_ID = 'client-views';
+var DEFAULT_CLIENTS_HOLDER_ID = 'client-views';
 
 /*
  * waveModelStr format:
@@ -22,12 +22,11 @@ var CLIENTS_HOLDER_ID = 'client-views';
  * }
  */
 
-function renderClient(waveModelStr) {
+function renderClient(waveModelStr, holder) {
 	var waveModelObj = JSON.parse(waveModelStr);
 	if (!waveModelObj.error) {
-		$('#' + CLIENTS_HOLDER_ID).append(
-				ClientRenderer.createClient(waveModelObj)
-			);
+		var clientsHolder = holder ? holder : $('#' + DEFAULT_CLIENTS_HOLDER_ID);
+		clientsHolder.append(ClientRenderer.createClient(waveModelObj));
 	} else {
 		$('#error')
 			.removeClass('no-errors')
@@ -67,6 +66,8 @@ var ClientRenderer = {
 		  'right': { id_postfix: '-right', name: 'Align Right', cmd: 'right', text: 'R' },
 		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} } 
 	],
+	
+	DIGEST_MAX_LENGTH: 14, // in symbols
 	
 	// TODO: store models renderers using createMethodReference
 		
@@ -113,7 +114,7 @@ var ClientRenderer = {
 					.append($('<span />').addClass('inbox-wave-id').text(
 														entryData.id))
 			 	    .append($('<span />').addClass('inbox-wave-digest').text(
-													 entryData.digest));
+													 entryData.digest.substr(this.DIGEST_MAX_LENGTH)));
 			if (entryData.unread)  liElm.addClass('inbox-unread');
 			if (entryData.current) liElm.addClass('inbox-current');
 			inboxWrapper.append(liElm);
@@ -174,7 +175,7 @@ var ClientRenderer = {
 							.attr('id', 'editor-' + clientId + '-button' + buttonData.id_postfix)
 							.attr('href', '#')
 							.attr('title', buttonData.name)
-							.attr('onclick', this.CMD_BTN_HANDLER + "(" + clientId + ",'" + buttonData.cmd + "')")
+							.attr('onclick', 'return ' + this.CMD_BTN_HANDLER + "(" + clientId + ",'" + buttonData.cmd + "')")
 							.addClass('editor-button')
 							.text(buttonData.text);
 				buttonWrapper.append(button);
@@ -214,7 +215,7 @@ var ClientRenderer = {
 				.attr('title', 'send')
 				.attr('value', 'send')
 				.addClass('gwt-Button')
-				.attr('onclick', this.SEND_BTN_HANDLER +
+				.attr('onclick', 'return ' + this.SEND_BTN_HANDLER +
 						'(' + clientId + ',\'' + inputElmId + '\')'));
 				/* .click(...)); */		
 		

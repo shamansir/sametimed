@@ -6,6 +6,15 @@ import java.util.Map;
 import name.shamansir.sametimed.wave.model.AModel;
 import name.shamansir.sametimed.wave.model.ModelID;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * Message, that makes a signal about some model update from the server 
+ * (participant added, chat message added, new wave created, document changed & s.o.)
+ *
+ * @see UpdateMessage
+ *
+ */
 public class ModelUpdateMessage extends UpdateMessage {
 	
 	private ModelID modelID;

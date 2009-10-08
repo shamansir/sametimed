@@ -5,6 +5,16 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * Reads the server connection properties from the 'waveserver.properties' file. 
+ * 
+ * @see Properties
+ *
+ */
+
 @SuppressWarnings("serial")
 public final class WaveServerProperties extends Properties {
 	
@@ -25,24 +35,28 @@ public final class WaveServerProperties extends Properties {
 	private static final String NOT_FOUND_STR = "Can't locate Wave Server properties file: %s. Using default values";
 	
 	public WaveServerProperties() {		
+		this.useDefaults = !loadProperties();		
+	}
+	
+	protected boolean loadProperties() {
         InputStream is = getClass().getResourceAsStream(PROPS_FILE_PATH);
         
         if (null == is) {
         	// throw new FileNotFoundException("Can't locate file:" +PROPS_FILENAME);        	
         	LOG.warning(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
         	System.err.println(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
-        	useDefaults = true;
+        	return false;
         }
         
         try {
             this.load(is);
+            return true;
         } catch (IOException ioe) {
             // throw new FileNotFoundException("Can't locate file:" +PROPS_FILENAME);        	
         	LOG.warning(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
             System.err.println(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
-            useDefaults = true;
-        }
-		
+            return false;
+        }		
 	}
 	
 	public String getWaveDomain() {

@@ -6,6 +6,13 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.wave.model.base.Participants;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * @see Participants
+ * @see ParticipantId
+ */
+
 public class ParticipantsModel extends AModel<List<ParticipantId>, Participants> {
 	
 	protected ParticipantsModel() {

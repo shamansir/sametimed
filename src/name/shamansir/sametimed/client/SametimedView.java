@@ -14,7 +14,12 @@ import name.shamansir.sametimed.client.proto.IWavesClientViewService;
 import name.shamansir.sametimed.client.proto.IWavesClientViewServiceAsync;
 
 /**
- * Entry point classes define <code>onModuleLoad()</code>.
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * @see EntryPoint
+ * 
+ * Entry point for GWT SametimedView Widget
+ *
  */
 public class SametimedView implements EntryPoint {
 	

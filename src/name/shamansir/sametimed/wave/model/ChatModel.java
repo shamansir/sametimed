@@ -5,6 +5,14 @@ import java.util.List;
 import name.shamansir.sametimed.wave.model.base.ChatLines;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see ChatLines
+ * @see ChatLine
+ * 
+ */
+
 public class ChatModel extends AModel<List<ChatLine>, ChatLines> {
 	
 	protected ChatModel() {

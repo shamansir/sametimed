@@ -14,7 +14,10 @@ function unescapeXML(xmlStr) {
 	return xmlStr;
 }
 
+var CLIENT_RECEIVER_URL = '/same_timed/get_client_view'; 
 var CMD_EXECUTOR_URL = '/same_timed/cmd_exec'; 
+
+/* ====== COMMANDS ====== */
 
 function parseCommandLine(cmdAuthor, line) {
 	var line = new String(line);
@@ -86,6 +89,8 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 	}
 }
 
+/* ====== MESSAGES ====== */
+
 function parseUpdateMessage(updateMessage) {
 	var msgRoot = $(updateMessage);
 	var msgType = msgRoot.find('name').text();
@@ -98,6 +103,23 @@ function parseUpdateMessage(updateMessage) {
 			modelValue: JSON.parse(unescapeXML(valueStr))
 		};
 }
+
+function updateReceived(updateMessageXML) {	
+	renderUpdate(parseUpdateMessage(updateMessageXML));
+}
+
+/* ====== GET FULL CLIENT ====== */
+
+function getFullClient(username, clientsHolder) {
+	var addClientFunc = function(response, responseText) {
+			if (responseText) {
+				renderClient(responseText, clientsHolder);
+			}
+		};
+	makeRequest(CLIENT_RECEIVER_URL, 'username=' + username + '&ueq=false', addClientFunc, true);	
+}
+
+/* ====== ONCLICK ====== */
 
 function cmdButtonOnClick(clientId, commandAlias) {
 	// FIXME: implement
@@ -125,8 +147,10 @@ function sendButtonOnClick(clientId, inputId) {
 	} else {
 		alert('console input element is not found by id ' + inputId);
 	}
+	return false;
 }
 
-function updateReceived(updateMessageXML) {	
-	renderUpdate(parseUpdateMessage(updateMessageXML));
+function getClientOnClick(inputId, clientsHolderId) {
+	getFullClient($('#' + inputId).val(), $('#' + clientsHolderId));
+	return false;
 }

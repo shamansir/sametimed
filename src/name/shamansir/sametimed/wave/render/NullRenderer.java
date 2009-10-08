@@ -5,11 +5,24 @@ import java.util.List;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 
 import name.shamansir.sametimed.wave.model.AModel;
-import name.shamansir.sametimed.wave.model.WaveModel;
+import name.shamansir.sametimed.wave.model.WavesClientModel;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
+
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * The Renderer that renders to nothing
+ *
+ * @see IWavesClientRenderer
+ * 
+ */
 
 public class NullRenderer implements IWavesClientRenderer { 
 	
+	/**
+	 * @param clientID id of the client, renderer attached to
+	 */
 	public NullRenderer(int clientID) { }
 	
 	@Override
@@ -25,13 +38,13 @@ public class NullRenderer implements IWavesClientRenderer {
 	public void renderByModels(List<AModel<?, ?>> models) { }
 	
 	@Override
-	public void setModel(WaveModel model) { }
+	public void setModel(WavesClientModel model) { }
 
 	@Override
-	public void setRenderingMode(RenderMode normal) { }
+	public void setRenderingMode(RenderMode mode) { }
 
 	@Override
-	public String getErrorView(String format) {
+	public String getErrorView(String error) {
 		return null;
 	}
 

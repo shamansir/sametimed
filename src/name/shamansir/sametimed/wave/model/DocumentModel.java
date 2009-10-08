@@ -5,6 +5,13 @@ import java.util.List;
 import name.shamansir.sametimed.wave.model.base.Document;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see Document
+ * @see TextChunk
+ * 
+ */
 public class DocumentModel extends AModel<List<TextChunk>, Document> {
 	
 	protected DocumentModel() {

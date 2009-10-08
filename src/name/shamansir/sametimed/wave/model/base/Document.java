@@ -6,6 +6,14 @@ import java.util.List;
 
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see TextChunk
+ * 
+ * @see IModelValue
+ * @see JSONiableValue
+ */
 public class Document extends JSONiableValue implements IModelValue {
 	
 	private List<TextChunk> documentContent;

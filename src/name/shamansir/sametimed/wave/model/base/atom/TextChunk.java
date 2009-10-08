@@ -1,5 +1,13 @@
 package name.shamansir.sametimed.wave.model.base.atom;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * Text chunk of a document (holds text, author (in future), and style)
+ *
+ */
+
 public class TextChunk {
 	
 	private String text;

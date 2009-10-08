@@ -1,5 +1,14 @@
 package name.shamansir.sametimed.wave.model.base.atom;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * Any element of the waves inbox (holds waveID, digest and flags, is it
+ * current or new)
+ *
+ */
+
 public class InboxElement {
 
 	private String waveID;

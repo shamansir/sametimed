@@ -1,5 +1,12 @@
 package name.shamansir.sametimed.wave.model.base;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see IModelValue
+ * @see JSONiableValue
+ */
+
 public class InfoLine extends JSONiableValue implements IModelValue {
 	
 	private String infoLine;

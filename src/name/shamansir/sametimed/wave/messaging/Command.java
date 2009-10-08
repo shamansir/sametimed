@@ -14,6 +14,24 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * Command, representing the changes called from the client (adding user, saying
+ * something, creating wave, opening it, modifying document & s.o.). It is passed from 
+ * the client to the server in XML format through CommandExecutorServlet, 
+ * servlet loads arguments inside and calls execute method  
+ * 
+ * @see #fromXMLString(String)
+ * @see #execute()
+ * @see CommandExecutorServlet
+ * @see CommandTypeID
+ *
+ * @see IServerInfoPackage
+ *  
+ */
+
 public class Command implements IServerInfoPackage {
 	
 	private static final Logger LOG = Logger.getLogger(Command.class.getName());	

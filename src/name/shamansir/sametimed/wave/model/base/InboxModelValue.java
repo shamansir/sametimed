@@ -6,6 +6,15 @@ import java.util.TreeMap;
 
 import name.shamansir.sametimed.wave.model.base.atom.InboxElement;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see InboxElement
+ * 
+ * @see IModelValue
+ * @see JSONiableValue
+ */
+
 public class InboxModelValue extends JSONiableValue implements IModelValue {
 	
 	private Map<Integer, InboxElement> inboxWaves;

@@ -10,6 +10,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.dom4j.DocumentException;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * The main servlet that receives (in XML format) and executes commands, 
+ * passed from Waves Client (such as creating wave, opening wave, saying something,
+ * adding someone & s.o.)
+ * 
+ * @see Command
+ * @see CommandTypeID
+ * 
+ * @see HttpServlet
+ */ 
+
 @SuppressWarnings("serial")
 public class CommandExecutorServlet extends HttpServlet {
 	

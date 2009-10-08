@@ -39,13 +39,28 @@ import name.shamansir.sametimed.wave.messaging.ModelUpdateMessage;
 import name.shamansir.sametimed.wave.messaging.UpdateMessage;
 import name.shamansir.sametimed.wave.model.AModel;
 import name.shamansir.sametimed.wave.model.ModelID;
-import name.shamansir.sametimed.wave.model.WaveModel;
+import name.shamansir.sametimed.wave.model.WavesClientModel;
 import name.shamansir.sametimed.wave.render.JSUpdatesListener;
 import name.shamansir.sametimed.wave.render.NullRenderer;
-import name.shamansir.sametimed.wave.render.WaveInfoProvider;
+import name.shamansir.sametimed.wave.render.WavesClientInfoProvider;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
-// FIXME: Javadoc
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * The main class that controls/encapsulates all operations between wave server 
+ * and waves client. Represents the single Waves Client (one connection as some username) 
+ * and holds the full model of it. Can use Renderer (IWavesClientRenderer) to make signals about
+ * requirement to update model of some panel (inbox, users list, chat & s.o.) and 
+ * also sends messages to the client using Listeners (IUpdatesListener) (now,
+ * JSUpdatesListener is default, I plan to get rid of it and add it after construction)
+ * 
+ * @see WaveletOperationListener
+ * @see IWavesClientRenderer
+ * @see IUpdatesListener
+ * 
+ */
 
 public class WavesClient implements WaveletOperationListener {	
 	
@@ -61,7 +76,7 @@ public class WavesClient implements WaveletOperationListener {
 	private static final String MAIN_DOCUMENT_ID = "main"; // FIXME: means all command done for the single document	
 	
 	private WavesClientBackend backend = null;
-	private WaveModel waveModel = null;
+	private WavesClientModel clientModel = null;
 	
 	private InboxWaveView inbox = null;
 	private ClientWaveView openedWave = null;
@@ -70,7 +85,7 @@ public class WavesClient implements WaveletOperationListener {
 	private List<String> errors = new ArrayList<String>();
 	
 	private final IWavesClientRenderer renderer; 
-	private final WaveInfoProvider infoProvider = new WaveInfoProvider();
+	private final WavesClientInfoProvider infoProvider = new WavesClientInfoProvider();
 	
 	private Set<IUpdatesListener> updatesListeners = new HashSet<IUpdatesListener>();	 
 	
@@ -80,7 +95,7 @@ public class WavesClient implements WaveletOperationListener {
 	
 	public WavesClient(IWavesClientRenderer renderer) {
 		this.VIEW_ID = generateViewId();
-		this.waveModel = new WaveModel(this.VIEW_ID);
+		this.clientModel = new WavesClientModel(this.VIEW_ID);
 		this.renderer = (renderer != null) ? renderer : getDefaultRenderer(this.VIEW_ID);
 		
 		this.updatesListeners.add(getDefaultUpdatesListener());
@@ -94,8 +109,8 @@ public class WavesClient implements WaveletOperationListener {
 		return newId;
 	}
 	
-	public WaveModel getWaveModel() {
-		return this.waveModel;
+	public WavesClientModel getClientModel() {
+		return this.clientModel;
 	}
 			
 	/* private void connectToWaveServer(String waveServer) {
@@ -263,8 +278,8 @@ public class WavesClient implements WaveletOperationListener {
 	}
 	
 	public <SourceType> void updateView(ModelID modelType, SourceType model) {
-		waveModel.setModel(modelType, model);
-		AModel<?, ?> newModel = waveModel.getModel(modelType); 
+		clientModel.setModel(modelType, model);
+		AModel<?, ?> newModel = clientModel.getModel(modelType); 
 		renderer.renderByModel(newModel);
 		dispatchUpdate(new ModelUpdateMessage(VIEW_ID, modelType, newModel));
 	}
@@ -353,11 +368,11 @@ public class WavesClient implements WaveletOperationListener {
 				
 		renderer.initialize();
 		
-		waveModel.setModel(ModelID.INFOLINE_MODEL, 
+		clientModel.setModel(ModelID.INFOLINE_MODEL, 
 				infoProvider.getInfoLineCaption(backend.getUserAtDomain(),
 												backend.getWaveServerHostData(),
 												getViewId()));
-		renderer.renderByModel(waveModel.getModel(ModelID.INFOLINE_MODEL));
+		renderer.renderByModel(clientModel.getModel(ModelID.INFOLINE_MODEL));
 		inbox = new InboxWaveView(backend, backend.getIndexWave());	
 	}
 

@@ -6,16 +6,23 @@
 <web-app>
   
     <!-- Servlets -->
+    
     <servlet>
-        <servlet-name>getClientView</servlet-name>
+        <servlet-name>getClientViewFromGWT</servlet-name>
         <servlet-class>name.shamansir.sametimed.server.WavesClientViewServiceImpl</servlet-class>
     </servlet> 
+    
+    <servlet>
+        <servlet-name>getClientView</servlet-name>
+        <servlet-class>name.shamansir.sametimed.server.GetClientViewServlet</servlet-class>
+    </servlet>    
   
     <servlet>
         <servlet-name>executeClientCommand</servlet-name>
         <servlet-class>name.shamansir.sametimed.wave.messaging.CommandExecutorServlet</servlet-class>
     </servlet>  
   
+    <!-- DWR -->  
 	<servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
@@ -35,10 +42,17 @@
 	     </init-param>
 	     <load-on-startup>1</load-on-startup>
 	</servlet>  
+	
+	<!-- Servlets-mappings -->
   
     <servlet-mapping>
         <servlet-name>getClientView</servlet-name>
         <url-pattern>/same_timed/get_client_view</url-pattern>
+    </servlet-mapping>  
+  
+    <servlet-mapping>
+        <servlet-name>getClientViewFromGWT</servlet-name>
+        <url-pattern>/same_timed/gwt_client_view</url-pattern>
     </servlet-mapping>
   
     <servlet-mapping>
@@ -46,12 +60,14 @@
         <url-pattern>/same_timed/cmd_exec</url-pattern>
     </servlet-mapping>
     
+    <!-- DWR -->
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
     </servlet-mapping>
   
-    <!-- Default page to serve -->
+    <!-- Default pages -->
+    
     <welcome-file-list>
         <welcome-file>sametimed.html</welcome-file>
     </welcome-file-list>

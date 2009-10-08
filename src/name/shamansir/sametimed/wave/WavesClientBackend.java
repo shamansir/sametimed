@@ -4,6 +4,18 @@ import java.io.IOException;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * Wraps the ClientBackend class to use WaveServerProperties as connection information
+ * and thats why receives only username in constructor
+ * 
+ * @see ClientBackend
+ * @see WaveServerProperties
+ * 
+ */
+
 public class WavesClientBackend extends ClientBackend {
 	
 	private static WaveServerProperties WAVE_SRV_PROPS = new WaveServerProperties();

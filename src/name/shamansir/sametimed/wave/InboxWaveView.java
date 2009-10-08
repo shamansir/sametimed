@@ -12,6 +12,20 @@ import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.IndexEntry;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * Inbox View, generates the representation of Inbox in the Map<Integer, InboxElement> form,
+ * using the ClientWaveView as source. Also, holds and controls the current state
+ * of the Inbox. (must be Controller in MVC terms, though)
+ * 
+ * @see WavesClientBackend
+ * @see ClientWaveView
+ * @see InboxElement
+ * 
+ */
+
 // based on ScrollableInbox/ScrollableWaveView class
 public class InboxWaveView {
 

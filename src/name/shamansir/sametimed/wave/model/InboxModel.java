@@ -5,6 +5,14 @@ import java.util.Map;
 import name.shamansir.sametimed.wave.model.base.InboxModelValue;
 import name.shamansir.sametimed.wave.model.base.atom.InboxElement;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * @see InboxModelValue
+ * @see InboxElement
+ * 
+ */
+
 public class InboxModel extends AModel<Map<Integer, InboxElement>, InboxModelValue> {
 	
 	protected InboxModel() {

@@ -9,8 +9,25 @@ import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.model.base.atom.InboxElement;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * Creates AModel instances from source of any type (must match to
+ * the model SourceType)  
+ * 
+ * @see AModel
+ *
+ */
 public class ModelFactory {
 	
+	/**
+	 * Create model using passed source and type
+	 * 
+	 * @param <SourceType> type of the source
+	 * @param modelID model type ID
+	 * @param source the source itself
+	 * @return model of the type, corresponding to the ID that was passed
+	 */
 	@SuppressWarnings("unchecked")
 	public static <SourceType> AModel<?, ?> createModel(ModelID modelID, SourceType source) {
 		switch (modelID) {
@@ -26,6 +43,12 @@ public class ModelFactory {
 		}
 	}
 	
+	/**
+	 * Create empty model using passed model type
+	 * 
+	 * @param modelID model type ID
+	 * @return model of the type, corresponding to the ID that was passed
+	 */	
 	public static AModel<?, ?> createModel(ModelID modelID) {
 		switch (modelID) {
 			case INFOLINE_MODEL:  return new InfoLineModel();

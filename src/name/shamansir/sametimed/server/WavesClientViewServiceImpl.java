@@ -10,8 +10,13 @@ import name.shamansir.sametimed.client.proto.IWavesClientViewService;
 import name.shamansir.sametimed.wave.WavesClient;
 
 /**
- * The server side implementation of the RPC service.
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * The server side implementation of the RPC service (for GWT version).
+ * 
  */
+
 @SuppressWarnings("serial")
 public class WavesClientViewServiceImpl extends RemoteServiceServlet implements
 IWavesClientViewService {
@@ -43,7 +48,7 @@ IWavesClientViewService {
 		
 		return new WavesClientViewContainer(
 				newClient.getViewId(),
-				newClient.getWaveModel().asJSON(useEscapedQuotes)
+				newClient.getClientModel().asJSON(useEscapedQuotes)
 			);
 	}
 

@@ -4,6 +4,12 @@ import java.util.List;
 
 import name.shamansir.sametimed.wave.model.base.ErrorsLines;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see ErrorsLines 
+ */
+
 public class ErrorsModel extends AModel<List<String>, ErrorsLines> {
 	
 	protected ErrorsModel() {

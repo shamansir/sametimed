@@ -4,6 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see IModelValue
+ * @see JSONiableValue
+ */
+
 public class ErrorsLines extends JSONiableValue implements IModelValue {
 
 	private List<String> errors;

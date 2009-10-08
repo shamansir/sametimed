@@ -18,6 +18,18 @@ import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorA
 
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * Chat View, generates the representation of Chat in the List<ChatLine> form,
+ * using the ClientWaveView as source (must be Controller in MVC terms, though)
+ * 
+ * @see ClientWaveView
+ * @see ChatLine
+ * 
+ */
+
 // based on ScrollableWaveView
 public class ChatView {
 	

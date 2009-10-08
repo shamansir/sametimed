@@ -2,6 +2,12 @@ package name.shamansir.sametimed.client.proto;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ */
+
 /* FIXME: this class must to be abstract, but GWT doesn't recognizes it as Serializable int his way */ 
 public class AWavesClientRedrawEventsHandler implements IsSerializable {
 	

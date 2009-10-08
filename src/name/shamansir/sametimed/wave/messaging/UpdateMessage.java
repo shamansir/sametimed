@@ -4,6 +4,13 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * Message, that makes a signal about some update from the server 
+ * model update or signal that some command was performed
+ *
+ */
 public class UpdateMessage implements IServerInfoPackage {
 	
 	// private static final Logger LOG = Logger.getLogger(UpdateMessage.class.getName());	

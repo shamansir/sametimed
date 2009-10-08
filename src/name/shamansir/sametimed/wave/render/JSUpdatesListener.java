@@ -1,29 +1,44 @@
 package name.shamansir.sametimed.wave.render;
 
-import java.util.Collection;
-
 import name.shamansir.sametimed.wave.messaging.IUpdatesListener;
 import name.shamansir.sametimed.wave.messaging.UpdateMessage;
 
 import org.directwebremoting.Browser;
 import org.directwebremoting.ScriptBuffer;
-import org.directwebremoting.ScriptSession;
 import org.directwebremoting.ScriptSessions;
-import org.directwebremoting.ServerContext;
-import org.directwebremoting.ServerContextFactory;
+
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * The Updates Listener that informs all clients (browsers) about
+ * the update, by calling JS updates handling function and
+ * passing message in the XML format  
+ * 
+ * @see IUpdatesListener
+ * @see UpdateMessage
+ *  
+ * @see Browser
+ *
+ */
 
 public class JSUpdatesListener implements IUpdatesListener {
 	
-	private ServerContext sctx;
+	private final String JS_UPDATES_HANDLER = "updateReceived";
+	
+	// private ServerContext sctx;
 
+	/**
+	 * Listener constructor (initializes server context)
+	 */
 	public JSUpdatesListener() {
-	    sctx = ServerContextFactory.get();
+	    // sctx = ServerContextFactory.get();
 	    // FIXME: WavesClient.get(clientId).addUpdatesListener(this);
 	}
 	
 	public void onUpdate(UpdateMessage updateMessage) {
 		final ScriptBuffer script = new ScriptBuffer(); 
-		script.appendScript("updateReceived(")
+		script.appendScript(JS_UPDATES_HANDLER + "(")
 	    	  .appendScript("'" + updateMessage.toXMLString() + "'")
 	    	  .appendScript(");");
 		

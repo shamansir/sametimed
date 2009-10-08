@@ -4,6 +4,12 @@ import java.util.List;
 
 import name.shamansir.sametimed.wave.model.base.ConsoleLines;
 
+/**
+ * @author shamansir <shaman.sir@gmail.com>
+ * 
+ * @see ConsoleLines
+ * 
+ */
 public class ConsoleModel extends AModel<List<String>, ConsoleLines> {
 	
 	protected ConsoleModel() {

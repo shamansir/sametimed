@@ -1,5 +1,13 @@
 package name.shamansir.sametimed.wave.model.base.atom;
 
+/**
+ * 
+ * @author shamansir <shaman.sir@gmail.com>
+ *
+ * Any line of the chat (with author and text)
+ *
+ */
+
 public class ChatLine {
 	
 	private String author;
