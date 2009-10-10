@@ -174,9 +174,10 @@ form#add-client-form button {
 
 .wave-client ol.inbox li .inbox-wave-digest {
 	color: #ccc;
-    display: block;
-    width: 100px;    
-    overflow: hidden;	
+    display: block;    
+    width: 100px;  
+    max-height: 12px;
+    overflow: hidden;
 }
 
 

@@ -176,7 +176,8 @@ form#add-client-form button {
     color: #ccc;
     display: block;
     width: 100px;    
-    overflow: hidden;   
+    max-height: 12px;    
+    overflow: hidden;       
 }
 
 

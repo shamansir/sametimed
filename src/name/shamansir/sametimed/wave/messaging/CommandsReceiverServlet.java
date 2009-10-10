@@ -25,9 +25,9 @@ import org.dom4j.DocumentException;
  */ 
 
 @SuppressWarnings("serial")
-public class CommandExecutorServlet extends HttpServlet {
+public class CommandsReceiverServlet extends HttpServlet {
 	
-	private static final Logger LOG = Logger.getLogger(CommandExecutorServlet.class.getName());	
+	private static final Logger LOG = Logger.getLogger(CommandsReceiverServlet.class.getName());	
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)

@@ -5,7 +5,7 @@ import java.util.List;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 
 import name.shamansir.sametimed.wave.model.AModel;
-import name.shamansir.sametimed.wave.model.WavesClientModel;
+import name.shamansir.sametimed.wave.model.WaveletModel;
 
 /**
  * 
@@ -20,7 +20,7 @@ import name.shamansir.sametimed.wave.model.WavesClientModel;
  * @see name.shamansir.sametimed.wave.WavesClient
  *
  * @see RenderMode
- * @see WavesClientModel
+ * @see WaveletModel
  * @see AModel
  * 
  */
@@ -32,7 +32,7 @@ public interface IWavesClientRenderer {
 	 * 
 	 * @param model current model
 	 */
-	public void setModel(WavesClientModel model);
+	public void setModel(WaveletModel model);
 	
 	/**
 	 * Render all panels, using the current model

@@ -1,10 +1,11 @@
-package name.shamansir.sametimed.wave;
+package name.shamansir.sametimed.wave.chat;
 
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
@@ -16,14 +17,13 @@ import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorAdapter;
 
-import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 
 /**
  * 
  * @author shamansir <shaman.sir@gmail.com>
  * 
- * Chat View, generates the representation of Chat in the List<ChatLine> form,
- * using the ClientWaveView as source (must be Controller in MVC terms, though)
+ * Chat, gives the model of Chat in the List<ChatLine> form,
+ * using the ClientWaveView as source
  * 
  * @see ClientWaveView
  * @see ChatLine
@@ -31,14 +31,12 @@ import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
  */
 
 // based on ScrollableWaveView
-public class ChatView {
-	
-	private Logger LOG = Logger.getLogger(ChatView.class.getName()); 
+public class Chat {
 	
 	private ClientWaveView sourceWave;
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
-	public ChatView(ClientWaveView sourceWave) {
+	public Chat(ClientWaveView sourceWave) {
 		this.sourceWave = sourceWave;
 	}
 	

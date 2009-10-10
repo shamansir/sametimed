@@ -20,16 +20,16 @@ public enum ModelID {
 	INBOX_MODEL("inbox"),
 	/** participants list model (inner)  */	
 	USERSLIST_MODEL("users"),
-	/** chat model (inner)  */	
-	CHAT_MODEL("chat"),
-	/** document model (inner)  */	
-	EDITOR_MODEL("document"),
+	/** chat model (inner, not pure)  */	
+	CHAT_MODEL("chat", true, false),
+	/** document model (inner, not pure)  */	
+	EDITOR_MODEL("document", true, false),
 	/** command console model (inner)  */	
 	CONSOLE_MODEL("console"),
 	/** errors box model (inner) */	
 	ERRORBOX_MODEL("errors"),
-	/** the whole wave model (outer) */	
-	FULLWAVE_MODEL("client", true)
+	/** the whole wave model (outer, not pure) */	
+	FULLWAVE_MODEL("client", false, false)
     ;
 
     private static final Map<String, ModelID> lookup 
@@ -42,17 +42,26 @@ public enum ModelID {
     }
 
     private String alias;
-    private boolean isOuter;
+    private boolean isInner; // do not holds other models inside
+    private boolean isPure; // accords to "pure" wavelet (no documents)  
 
     private ModelID(String alias) {
          this.alias = alias;
-         this.isOuter = false;
+         this.isInner = true;
+         this.isPure = true;
     }
     
-    private ModelID(String alias, boolean isOuter) {
+    private ModelID(String alias, boolean isInner) {
         this.alias = alias;
-        this.isOuter = isOuter;
-    }    
+        this.isInner = isInner;
+        if (this.isInner) this.isPure = true;
+    }
+    
+    private ModelID(String alias, boolean isInner, boolean isPure) {
+        this.alias = alias;
+        this.isInner = isInner;
+        this.isPure = isPure;    	
+    }
 
     /**
      * @return model type alias (name)
@@ -76,10 +85,10 @@ public enum ModelID {
     public static List<ModelID> allInner() {
     	List<ModelID> allInner = new ArrayList<ModelID>();
     	for (ModelID modelID: ModelID.values()) {
-    		if (!modelID.isOuter) allInner.add(modelID);
+    		if (modelID.isInner) allInner.add(modelID);
     	}
     	return allInner;    	
-    }
+    }    
 
     // FIXME: must to return array ModelID[]    
     /**
@@ -88,10 +97,22 @@ public enum ModelID {
     public static List<ModelID> allOuter() {
     	List<ModelID> allOuter = new ArrayList<ModelID>();
     	for (ModelID modelID: ModelID.values()) {
-    		if (modelID.isOuter) allOuter.add(modelID);
+    		if (!modelID.isInner) allOuter.add(modelID);
     	}
     	return allOuter;    	
     }
+    
+    // FIXME: must to return array ModelID[]
+    /**
+     * @return all pure-typed models
+     */
+    public static List<ModelID> allPure() {
+    	List<ModelID> allPure = new ArrayList<ModelID>();
+    	for (ModelID modelID: ModelID.values()) {
+    		if (modelID.isPure) allPure.add(modelID);
+    	}
+    	return allPure;    	
+    }    
 	
 
 }

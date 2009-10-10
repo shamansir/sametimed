@@ -19,7 +19,7 @@
   
     <servlet>
         <servlet-name>executeClientCommand</servlet-name>
-        <servlet-class>name.shamansir.sametimed.wave.messaging.CommandExecutorServlet</servlet-class>
+        <servlet-class>name.shamansir.sametimed.wave.messaging.CommandsReceiverServlet</servlet-class>
     </servlet>  
   
     <!-- DWR -->  

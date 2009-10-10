@@ -1,6 +1,7 @@
 package name.shamansir.sametimed.wave.model;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import name.shamansir.sametimed.wave.model.base.EmptyModelValue;
@@ -13,25 +14,34 @@ import name.shamansir.sametimed.wave.model.base.EmptyModelValue;
  *
  */
 
-public class WavesClientModel extends AModel<String, EmptyModelValue> {
+public class WaveletModel extends AModel<String, EmptyModelValue> {
 	
 	private final int currentClientID;
 	
 	private Map<ModelID, AModel<?, ?>> innerModels = new HashMap<ModelID, AModel<?, ?>>(); 
 	
-	public WavesClientModel(int clientID) {
+	public WaveletModel(int clientID, List<ModelID> additionalModels) {
 		super(ModelID.FULLWAVE_MODEL);
 		this.currentClientID = clientID;
-		for (ModelID modelID: ModelID.allInner()) { 
+		for (ModelID modelID: ModelID.allPure()) { 
 			innerModels.put(modelID, ModelFactory.createModel(modelID));
+		}
+		if (additionalModels != null) {
+			prepareAdditionalModels(additionalModels);
 		}
 	}
 	
-	public void setModel(ModelID modelID, AModel<?, ?> model) {
+	private void prepareAdditionalModels(List<ModelID> models) {
+		for (ModelID modelID: models) { 
+			innerModels.put(modelID, ModelFactory.createModel(modelID));
+		}		
+	}
+	
+	public void useModel(ModelID modelID, AModel<?, ?> model) {
 		innerModels.put(modelID, model);
 	}	
 	
-	public <SourceType> void setModel(ModelID modelID, SourceType source) {
+	public <SourceType> void useModel(ModelID modelID, SourceType source) {
 		innerModels.put(modelID, ModelFactory.createModel(modelID, source));
 	}
 	
@@ -54,7 +64,7 @@ public class WavesClientModel extends AModel<String, EmptyModelValue> {
 		String jsonString = "{";
 		String quot = useEscapedQuotes ? "\\\"" : "\"";		
 		
-		for (ModelID modelID: ModelID.allInner()) {   
+		for (ModelID modelID: innerModels.keySet()) {   
 			jsonString += quot + modelID.getAlias() + quot + ":" + innerModels.get(modelID).asJSON(useEscapedQuotes) + ",";
 		}
 		

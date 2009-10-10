@@ -25,7 +25,7 @@ import org.dom4j.Node;
  * 
  * @see #fromXMLString(String)
  * @see #execute()
- * @see CommandExecutorServlet
+ * @see CommandsReceiverServlet
  * @see CommandTypeID
  *
  * @see IServerInfoPackage
@@ -67,7 +67,7 @@ public class Command implements IServerInfoPackage {
 				throw new DocumentException("No matching type found for command with name " + commandNameNode.getText());
 			}
 			
-			List<Element> argumentsNodes = commandElement.selectNodes("./argument");
+			List<Element> argumentsNodes = (List<Element>)commandElement.selectNodes("./argument");
 			Map<String, String> arguments = new HashMap<String, String>();
 			for (Element argument: argumentsNodes) {
 				arguments.put(argument.valueOf("@name"), StringEscapeUtils.unescapeXml(argument.getText()));

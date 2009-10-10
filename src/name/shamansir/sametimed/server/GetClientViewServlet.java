@@ -9,7 +9,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import name.shamansir.sametimed.wave.ADocumentsWavelet;
 import name.shamansir.sametimed.wave.WavesClient;
+import name.shamansir.sametimed.wave.editor.WaveletWithEditor;
+import name.shamansir.sametimed.wave.render.JSUpdatesListener;
+import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 /**
  * 
@@ -38,7 +42,16 @@ public class GetClientViewServlet extends HttpServlet {
 		String username = (String)request.getParameter("username");
 		boolean useEscapedQuotes = Boolean.valueOf(request.getParameter("ueq"));
 		
-		WavesClient newClient = new WavesClient();
+		WavesClient newClient = new WavesClient() {
+			
+			@Override
+			protected ADocumentsWavelet createWavelet(IWavesClientRenderer renderer) {
+				return new WaveletWithEditor(getViewId(), renderer);
+			}
+			
+		};
+		newClient.getWavelet().addUpdatesListener(new JSUpdatesListener());
+		
 		String quot = useEscapedQuotes ? "\\\"" : "\"";
 
 		response.setContentType("text/plain");		
@@ -68,7 +81,7 @@ public class GetClientViewServlet extends HttpServlet {
 			return;			
 		}
 		
-		responseStr = newClient.getClientModel().asJSON(useEscapedQuotes);
+		responseStr = newClient.getWavelet().getModel().asJSON(useEscapedQuotes);
 		
 		sendResponseString(response, responseStr);
 		

@@ -7,7 +7,11 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import name.shamansir.sametimed.client.WavesClientViewContainer;
 import name.shamansir.sametimed.client.proto.IWavesClientViewService;
+import name.shamansir.sametimed.wave.ADocumentsWavelet;
 import name.shamansir.sametimed.wave.WavesClient;
+import name.shamansir.sametimed.wave.editor.WaveletWithEditor;
+import name.shamansir.sametimed.wave.render.JSUpdatesListener;
+import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 /**
  * 
@@ -27,7 +31,16 @@ IWavesClientViewService {
 
 	@Override
 	public WavesClientViewContainer getClientView(String user, boolean useEscapedQuotes) throws IOException {
-		WavesClient newClient = new WavesClient();
+		WavesClient newClient = new WavesClient() {
+
+			@Override
+			protected ADocumentsWavelet createWavelet(IWavesClientRenderer renderer) {
+				return new WaveletWithEditor(getViewId(), renderer);
+			}			
+			
+		};
+		newClient.getWavelet().addUpdatesListener(new JSUpdatesListener());
+		
 		String quot = useEscapedQuotes ? "\\\"" : "\"";		
 		
 		try {
@@ -48,7 +61,7 @@ IWavesClientViewService {
 		
 		return new WavesClientViewContainer(
 				newClient.getViewId(),
-				newClient.getClientModel().asJSON(useEscapedQuotes)
+				newClient.getWavelet().getModel().asJSON(useEscapedQuotes)
 			);
 	}
 

@@ -16,9 +16,9 @@ import org.waveprotocol.wave.examples.fedone.waveclient.common.IndexEntry;
  * 
  * @author shamansir <shaman.sir@gmail.com>
  * 
- * Inbox View, generates the representation of Inbox in the Map<Integer, InboxElement> form,
+ * Inbox, gives the model of Inbox in the Map<Integer, InboxElement> form,
  * using the ClientWaveView as source. Also, holds and controls the current state
- * of the Inbox. (must be Controller in MVC terms, though)
+ * of the Inbox.
  * 
  * @see WavesClientBackend
  * @see ClientWaveView
@@ -27,20 +27,20 @@ import org.waveprotocol.wave.examples.fedone.waveclient.common.IndexEntry;
  */
 
 // based on ScrollableInbox/ScrollableWaveView class
-public class InboxWaveView {
+public class InboxWaves {
 
 	private ClientWaveView indexWave;
-	private WavesClientBackend backend;
-	private Object openedWave = null;
+	private WavesProvider wavesProvider;
+	private ClientWaveView openedWave = null;
 	private final Map<ClientWaveView, HashedVersion> lastSeenVersions = new HashMap<ClientWaveView, HashedVersion>();	
 
-	public InboxWaveView(WavesClientBackend backend, ClientWaveView indexWave) {
-	    if (!indexWave.getWaveId().equals(CommonConstants.INDEX_WAVE_ID)) {
-	        throw new IllegalArgumentException(indexWave + " is not an index wave");
-	    }
+	public InboxWaves(WavesProvider wavesProvider) {
+	    this.wavesProvider = wavesProvider;		
+	    this.indexWave = wavesProvider.getIndexWave();
 
-	    this.indexWave = indexWave;
-	    this.backend = backend;
+	    if (!this.indexWave.getWaveId().equals(CommonConstants.INDEX_WAVE_ID)) {
+	        throw new IllegalArgumentException(indexWave + " is not an index wave");
+	    }	    
 	}
 
 	public void setOpenWave(ClientWaveView openedWave) {
@@ -49,7 +49,7 @@ public class InboxWaveView {
 
 	public void updateHashedVersions() {
 	    for (IndexEntry indexEntry : ClientUtils.getIndexEntries(indexWave)) {
-	        ClientWaveView wave = backend.getWave(indexEntry.getWaveId());
+	        ClientWaveView wave = wavesProvider.getWave(indexEntry.getWaveId());
 	        if ((wave != null) && (ClientUtils.getConversationRoot(wave) != null)) {
 	          lastSeenVersions.put(wave, wave.getWaveletVersion(ClientUtils.getConversationRootId(wave)));
 	        }
@@ -62,7 +62,7 @@ public class InboxWaveView {
 		List<IndexEntry> indexEntries = ClientUtils.getIndexEntries(indexWave);
 
 		for (int i = 0; i < indexEntries.size(); i++) {
-			ClientWaveView wave = backend.getWave(indexEntries.get(i)
+			ClientWaveView wave = wavesProvider.getWave(indexEntries.get(i)
 					.getWaveId());
 
 			boolean isCurrentWave = false;
