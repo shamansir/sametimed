@@ -83,8 +83,10 @@ var ClientRenderer = {
 		clientWrapper.append(this.createInfoLine(clientId, waveModel.info));
 		clientWrapper.append(this.createInbox(clientId, waveModel.inbox));
 		clientWrapper.append(this.createUsersList(clientId, waveModel.users));
-		clientWrapper.append(this.createChat(clientId, waveModel.chat));
-		clientWrapper.append(this.createEditor(clientId, waveModel.document));
+		
+		if (waveModel.chat)     clientWrapper.append(this.createChat(clientId, waveModel.chat));
+		if (waveModel.document) clientWrapper.append(this.createEditor(clientId, waveModel.document));
+		
 		clientWrapper.append(this.createConsole(clientId, waveModel.console));
 		clientWrapper.append(this.createErrorBox(clientId, waveModel.errors));
 		

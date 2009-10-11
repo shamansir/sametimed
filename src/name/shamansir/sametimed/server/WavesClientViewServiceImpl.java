@@ -7,8 +7,7 @@ import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import name.shamansir.sametimed.client.WavesClientViewContainer;
 import name.shamansir.sametimed.client.proto.IWavesClientViewService;
-import name.shamansir.sametimed.wave.ADocumentsWavelet;
-import name.shamansir.sametimed.wave.WavesClient;
+import name.shamansir.sametimed.wave.chat.ChatWavesClient;
 import name.shamansir.sametimed.wave.editor.WaveletWithEditor;
 import name.shamansir.sametimed.wave.render.JSUpdatesListener;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
@@ -31,11 +30,11 @@ IWavesClientViewService {
 
 	@Override
 	public WavesClientViewContainer getClientView(String user, boolean useEscapedQuotes) throws IOException {
-		WavesClient newClient = new WavesClient() {
+		ChatWavesClient newClient = new ChatWavesClient() {
 
 			@Override
-			protected ADocumentsWavelet createWavelet(IWavesClientRenderer renderer) {
-				return new WaveletWithEditor(getViewId(), renderer);
+			protected WaveletWithEditor createWavelet(IWavesClientRenderer renderer) {
+				return new WaveletWithEditor(getViewID(), renderer);
 			}			
 			
 		};
@@ -48,7 +47,7 @@ IWavesClientViewService {
 		} catch (Exception e) {
 			LOG.severe(String.format(CONNECTION_ERR_STR + "; Exception thrown: %s, caused by %s", user, e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "nothing"));
 			return new WavesClientViewContainer(
-					newClient.getViewId(),
+					newClient.getViewID(),
 					// FIXME: create ErrorModel class
 					"{\"error\": " + quot + String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", user, e.getMessage()) + quot + "}"
 				);
@@ -60,7 +59,7 @@ IWavesClientViewService {
 		}
 		
 		return new WavesClientViewContainer(
-				newClient.getViewId(),
+				newClient.getViewID(),
 				newClient.getWavelet().getModel().asJSON(useEscapedQuotes)
 			);
 	}

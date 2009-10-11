@@ -2,15 +2,13 @@ package name.shamansir.sametimed.wave;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
-import org.waveprotocol.wave.examples.fedone.waveclient.common.IndexEntry;
+import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.WaveletOperationListener;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode; // FIXME: get rid
+import org.waveprotocol.wave.model.id.WaveId;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 import org.waveprotocol.wave.model.wave.data.WaveletData;
@@ -41,7 +39,7 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  * 
  */
 
-public abstract class WavesClient implements WaveletOperationListener, ICommandsPerformer {	
+public abstract class WavesClient <WaveletType extends AUpdatingWavelet> implements WaveletOperationListener, ICommandsPerformer {	
 	
 	private static final Logger LOG = Logger.getLogger(WavesClient.class.getName());
 	
@@ -50,6 +48,7 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 	private static int LAST_VIEW_ID = -1;
 	private final int VIEW_ID;
 	
+	@SuppressWarnings("unchecked")
 	private static Map<Integer, WavesClient> registeredClients = new HashMap<Integer, WavesClient>();
 	
 	private WavesClientBackend backend = null;
@@ -66,7 +65,7 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 		registerClient(this.VIEW_ID, this);
 	}
 	
-	protected abstract AUpdatingWavelet createWavelet(IWavesClientRenderer renderer);
+	protected abstract WaveletType createWavelet(IWavesClientRenderer renderer);
 	
 	/* GETTERS */
 	
@@ -76,11 +75,16 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 		return newId;
 	}
 	
-	public AUpdatingWavelet getWavelet() {
-		return this.curWavelet;
+	@SuppressWarnings("unchecked")
+	public WaveletType getWavelet() {
+		return (WaveletType)this.curWavelet;
 	}
 	
-	/* GETTERS */
+	protected ClientBackend getBackend() {
+		return backend;
+	}
+	
+	/* HANDLERS */
 			
 	@Override
 	public void noOp(String author, WaveletData wavelet) {
@@ -127,14 +131,16 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 		if (LOG_OPS) LOG.info("Document updated fired");		
 	}
 	
-	public int getViewId() {
+	public int getViewID() {
 		return VIEW_ID;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static void registerClient(int clientId, WavesClient client) {
 		registeredClients.put(Integer.valueOf(clientId), client);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static WavesClient get(int clientId) {
 		return registeredClients.get(Integer.valueOf(clientId));
 	}
@@ -157,7 +163,20 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 			
 			case CMD_OPEN_WAVE: {
 			        try {
-			            return doOpenWave(Integer.parseInt(command.getArgument("entry")));
+			            int entry = Integer.parseInt(command.getArgument("entry"));
+			            
+			    		if (isConnected()) {
+			    			WaveId entryId = curWavelet.getCorrectedEntry(entry, backend.getIndexWave());
+			    			if (entryId != null) {
+			    				return curWavelet.onOpenWave(backend.getWave(entryId));
+			    			} else {
+			    				return false;
+			    			}
+			    		} else {
+			    			curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
+			    	    }
+			    		return false;
+			            
 			        } catch (NumberFormatException e) {
 			        	curWavelet.registerError("Error: " + command.getArgument("entry") + " is not a number");
 			        	return false;
@@ -184,25 +203,6 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 						new ParticipantId(command.getArgument("user")));
 				}
 			
-			// FIXME: possibly, must be described in WaveletWithChat
-			case CMD_SAY: {
-					return curWavelet.onDocumentAppendMutation(
-							StringEscapeUtils.unescapeXml(command.getArgument("text")),
-							backend.getUserId());
-				}
-			
-			case CMD_UNDO_OP: {
-					if (command.getArgument("user") != null) {
-						return curWavelet.onUndoCall(
-								new ParticipantId(command.getArgument("user")));
-					} else if (backend != null) {
-						return curWavelet.onUndoCall(
-								new ParticipantId(backend.getUserId().getAddress()));
-					} else {
-						curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
-						return false;
-					}
-				}
 			case CMD_MARK_READ: {
 					if (isConnected()) {
 						return curWavelet.onWavesRead();
@@ -211,6 +211,7 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 						return false;
 					}
 				}
+			
 			case CMD_CHANGE_VIEW: {
 					String modeStr = command.getArgument("mode");
 					RenderMode mode = RenderMode.NORMAL; 
@@ -221,11 +222,13 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 					}
 					return curWavelet.setViewMode(mode);
 				}
+			
 			case CMD_QUIT: {
 					// FIXME: implement clearing and closing the client
 					curWavelet.registerError("quitting is not implemented still");
 					return false;
 				}
+			
 			default: return false;
 		}
 	}
@@ -299,28 +302,6 @@ public abstract class WavesClient implements WaveletOperationListener, ICommands
 		
 	public boolean isConnected() {
 		return backend != null;
-	}		
-	
-	// FIXME: none of these methods must exist here
-	
-	private boolean doOpenWave(int entry) {
-		if (isConnected()) {
-			List<IndexEntry> index = ClientUtils.getIndexEntries(backend.getIndexWave());
-
-	    	if (entry >= index.size()) {
-	    		curWavelet.registerError("Error: entry is out of range, ");
-		        if (index.isEmpty()) {
-		        	curWavelet.registerError("there are no available waves (try \"/new\")");
-		        } else {
-		        	curWavelet.registerError("expecting [0.." + (index.size() - 1) + "] (for example, \"/open 0\")");
-		        }
-	    	} else {
-	    		return curWavelet.onOpenWave(backend.getWave(index.get(entry).getWaveId()));
-	    	}
-		} else {
-			curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
-	    }
-		return false;
-	}	
-	
+	}
+		
 }

@@ -9,8 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import name.shamansir.sametimed.wave.ADocumentsWavelet;
+import name.shamansir.sametimed.wave.SimpleWavelet;
 import name.shamansir.sametimed.wave.WavesClient;
+import name.shamansir.sametimed.wave.chat.ChatWavesClient;
 import name.shamansir.sametimed.wave.editor.WaveletWithEditor;
 import name.shamansir.sametimed.wave.render.JSUpdatesListener;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
@@ -42,11 +43,21 @@ public class GetClientViewServlet extends HttpServlet {
 		String username = (String)request.getParameter("username");
 		boolean useEscapedQuotes = Boolean.valueOf(request.getParameter("ueq"));
 		
-		WavesClient newClient = new WavesClient() {
+		/*
+		WavesClient<SimpleWavelet> newClient = new WavesClient<SimpleWavelet>() {
+
+			@Override
+			protected SimpleWavelet createWavelet(IWavesClientRenderer renderer) {
+				return new SimpleWavelet(getViewID(), renderer);
+			}
+			
+		}; */
+		
+		ChatWavesClient newClient = new ChatWavesClient() {
 			
 			@Override
-			protected ADocumentsWavelet createWavelet(IWavesClientRenderer renderer) {
-				return new WaveletWithEditor(getViewId(), renderer);
+			protected WaveletWithEditor createWavelet(IWavesClientRenderer renderer) {
+				return new WaveletWithEditor(getViewID(), renderer);
 			}
 			
 		};
