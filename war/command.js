@@ -139,7 +139,7 @@ function sendButtonOnClick(clientId, inputId) {
 				/* var clearInputFunc = function(request, response) {
 					consoleInputElm.value = "";
 				}; */
-				makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + escape(cmdXML), null /*clearInputFunc*/, true);
+				makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null /*clearInputFunc*/, true);
 			} else {
 				alert('console command cannot be parsed');
 			}

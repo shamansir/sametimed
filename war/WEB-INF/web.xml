@@ -9,7 +9,7 @@
         
     <servlet>
         <servlet-name>getClientView</servlet-name>
-        <servlet-class>name.shamansir.sametimed.server.GetClientViewServlet</servlet-class>
+        <servlet-class>name.shamansir.sametimed.wave.GetClientViewServlet</servlet-class>
     </servlet>    
   
     <servlet>

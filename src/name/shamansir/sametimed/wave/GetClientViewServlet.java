@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.server;
+package name.shamansir.sametimed.wave;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import name.shamansir.sametimed.wave.SimpleWavelet;
-import name.shamansir.sametimed.wave.WavesClient;
 import name.shamansir.sametimed.wave.chat.ChatWavesClient;
 import name.shamansir.sametimed.wave.editor.WaveletWithEditor;
 import name.shamansir.sametimed.wave.render.JSUpdatesListener;

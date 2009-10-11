@@ -266,6 +266,11 @@ var ClientRenderer = {
 		if (modelWrapper != null) {
 			var holderId = this.getModelHolderId(modelType, clientId);
 			$('#' + holderId).replaceWith(modelWrapper);
+			if ((modelType == 'inbox') || 
+				(modelType == 'users') ||
+				(modelType == 'chat')) {
+				modelWrapper.attr("scrollTop", modelWrapper.height());
+			}
 		}
 
 	}
