@@ -6,12 +6,7 @@
 <web-app>
   
     <!-- Servlets -->
-    
-    <servlet>
-        <servlet-name>getClientViewFromGWT</servlet-name>
-        <servlet-class>name.shamansir.sametimed.server.WavesClientViewServiceImpl</servlet-class>
-    </servlet> 
-    
+        
     <servlet>
         <servlet-name>getClientView</servlet-name>
         <servlet-class>name.shamansir.sametimed.server.GetClientViewServlet</servlet-class>
@@ -44,16 +39,11 @@
 	</servlet>  
 	
 	<!-- Servlets-mappings -->
-  
+    
     <servlet-mapping>
         <servlet-name>getClientView</servlet-name>
         <url-pattern>/same_timed/get_client_view</url-pattern>
     </servlet-mapping>  
-  
-    <servlet-mapping>
-        <servlet-name>getClientViewFromGWT</servlet-name>
-        <url-pattern>/same_timed/gwt_client_view</url-pattern>
-    </servlet-mapping>
   
     <servlet-mapping>
         <servlet-name>executeClientCommand</servlet-name>
