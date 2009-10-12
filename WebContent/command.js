@@ -14,8 +14,8 @@ function unescapeXML(xmlStr) {
 	return xmlStr;
 }
 
-var CLIENT_RECEIVER_URL = '/same_timed/get_client_view'; 
-var CMD_EXECUTOR_URL = '/same_timed/cmd_exec'; 
+var CLIENT_RECEIVER_URL = './get_client_view'; 
+var CMD_EXECUTOR_URL = './cmd_exec'; 
 
 /* ====== COMMANDS ====== */
 

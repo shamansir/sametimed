@@ -5,6 +5,8 @@
 
 <web-app>
   
+    <display-name>sametimed</display-name>
+  
     <!-- Servlets -->
         
     <servlet>
@@ -42,12 +44,12 @@
     
     <servlet-mapping>
         <servlet-name>getClientView</servlet-name>
-        <url-pattern>/same_timed/get_client_view</url-pattern>
+        <url-pattern>/get_client_view</url-pattern>
     </servlet-mapping>  
   
     <servlet-mapping>
         <servlet-name>executeClientCommand</servlet-name>
-        <url-pattern>/same_timed/cmd_exec</url-pattern>
+        <url-pattern>/cmd_exec</url-pattern>
     </servlet-mapping>
     
     <!-- DWR -->

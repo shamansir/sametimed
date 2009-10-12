@@ -1,0 +1,13 @@
+1. Get project archive
+2. Add to Eclipse
+3. Install RunJettyRun from
+    UpdateSite: http://run-jetty-run.googlecode.com/svn/trunk/updatesite
+4. sametimed -> Run As -> Run Configurations...
+    Jetty Webapp -> New
+        Project: sametimed
+        HTTP: <any>
+        HTTPS: any-or-none
+        Context: /sametimed
+        WebApp Dir: war
+        
+5. Browser -> http://localhost:<port>/sametimed
