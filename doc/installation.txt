@@ -11,3 +11,6 @@
         WebApp Dir: war
         
 5. Browser -> http://localhost:<port>/sametimed
+
+From repository:
+
