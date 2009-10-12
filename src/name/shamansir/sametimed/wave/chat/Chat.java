@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.chat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import name.shamansir.sametimed.wave.chat.cursor.LinesExtractionCursor;
@@ -42,10 +43,15 @@ public class Chat {
 	public List<ChatLine> getChatLines() {		
 	    BufferedDocOp document = ClientUtils.getConversationRoot(
 				sourceWave).getDocuments().get(DOCUMENT_ID);
-	    LinesExtractionCursor linesCursor = new LinesExtractionCursor(outputMode);
-	    document.apply(new InitializationCursorAdapter(linesCursor));
 	    
-		return linesCursor.getExtractedLines();
+	    if (document != null) {
+	    	LinesExtractionCursor linesCursor = new LinesExtractionCursor(outputMode);
+	    	document.apply(new InitializationCursorAdapter(linesCursor));
+	    	return linesCursor.getExtractedLines();
+	    } else {
+	    	return new ArrayList<ChatLine>();
+	    }
+		
 	}
 
 	public void setOutputMode(RenderMode outputMode) {
