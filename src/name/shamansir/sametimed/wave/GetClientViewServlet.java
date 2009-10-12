@@ -10,9 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import name.shamansir.sametimed.wave.chat.ChatWavesClient;
-import name.shamansir.sametimed.wave.editor.WaveletWithEditor;
 import name.shamansir.sametimed.wave.render.JSUpdatesListener;
-import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 /**
  * 
@@ -36,11 +34,15 @@ public class GetClientViewServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		
-		String responseStr = ""; 
+		String responseStr = "";
+		
+		response.setContentType("text/plain");		
+		response.setCharacterEncoding("UTF-8");		
 		
 		String username = (String)request.getParameter("username");
 		boolean useEscapedQuotes = Boolean.valueOf(request.getParameter("ueq"));
 		
+		/* uncomment it to get just waves client, without chat or editor */		
 		/*
 		WavesClient<SimpleWavelet> newClient = new WavesClient<SimpleWavelet>() {
 
@@ -53,19 +55,18 @@ public class GetClientViewServlet extends HttpServlet {
 		
 		ChatWavesClient newClient = new ChatWavesClient() {
 			
+			/* uncomment it to enable editor */			
+			/*
 			@Override
 			protected WaveletWithEditor createWavelet(IWavesClientRenderer renderer) {
 				return new WaveletWithEditor(getViewID(), renderer);
-			}
+			} */
 			
 		};
 		newClient.getWavelet().addUpdatesListener(new JSUpdatesListener());
 		
 		String quot = useEscapedQuotes ? "\\\"" : "\"";
 
-		response.setContentType("text/plain");		
-		response.setCharacterEncoding("UTF-8");
-		
 		try {
 			newClient.connect(username);
 		} catch (Exception e) {

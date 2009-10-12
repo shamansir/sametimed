@@ -11,7 +11,7 @@ body.sametimed {
 h1 {
    font-family: unbatang, 'bitstream charter', 'dejavu sans', garamond, serif; 
    color: #666;
-   margin: 40px 0px 50px;
+   margin: 30px 0 40px;
    text-align: center;
    font-weight: bold;
    /* text-decoration: overline */
@@ -67,9 +67,9 @@ form#add-client-form button {
 .wave-client {
     float: left;    
     border: 1px solid #ccc;
-    background-color: #eee;
+    background-color: #dde;
     margin: 5px;
-    padding: 5px;
+    padding: 0;
 }
 
 .wave-client .infoline,
@@ -79,10 +79,10 @@ form#add-client-form button {
 .wave-client .editor,
 .wave-client .console,
 .wave-client .errorbox {
-    border: 1px dashed #ddd;
     margin: 3px;
-    padding: 3px;
-    background-color: #eed;
+    padding: 2px;
+    background-color: #e9e9ff;
+    border: 1px solid #fff;
     overflow-x: hidden;
     overflow-y: auto;
 }
@@ -91,6 +91,8 @@ form#add-client-form button {
 
 .wave-client .infoline {
     display: block;
+    padding: 4px;
+    margin: 0;
 }
 
 .wave-client .inbox,
@@ -105,7 +107,7 @@ form#add-client-form button {
 }
 
 .wave-client .chat {
-    width: 292px;
+    width: 296px;
 }
 
 .wave-client .editor {
@@ -119,7 +121,7 @@ form#add-client-form button {
 }
 
 .wave-client .errorbox {
-    height: 50px;
+    height: 30px;
     width: 520px;   
 }
 
@@ -137,7 +139,13 @@ form#add-client-form button {
 }
 
 .wave-client .infoline {
-    color: #666;
+	background-color: #269;
+    color: #eee;
+}
+
+.wave-client .chat,
+.wave-client .editor {
+	background-color: #eef;
 }
 
 .wave-client ol.inbox, 
@@ -145,8 +153,23 @@ form#add-client-form button {
     list-style-type: none;
 }
 
+.wave-client ol.inbox li,
+.wave-client ul.userlist li,
+.wave-client .chat .chat-line {
+    padding: 1px;
+    margin-bottom: 2px;
+}
+
+.wave-client ul.userlist li span {
+	padding: 1px;
+}
+
 .wave-client .console input[type=text] {
     width: 80%;
+}
+
+.wave-client .errorbox {
+	background-color: #edd;
 }
 
 .wave-client .errorbox span.error-line {
@@ -156,11 +179,18 @@ form#add-client-form button {
 
 /* Inbox styles */
 
+.wave-client ol.inbox li {
+	color: #aaa;
+	background-color: #dfdfdf;
+}
+
 .wave-client ol.inbox li.inbox-current {
+    background-color: #efefef;		
     color: #966;
 }
 
 .wave-client ol.inbox li.inbox-unread {
+    background-color: #e3e3e3;
     color: #366;
 }
 
@@ -183,14 +213,20 @@ form#add-client-form button {
 
 /* UserList styles */
 
+.wave-client ul.userlist li {
+}
+
 .wave-client .userlist span.user {
-    color: #336;
+    color: #333;
+    background-color: #eef6ee; 
 }
 
 /* Chat styles */
 
 .wave-client .chat .chat-line {
     display: block;
+    color: #333;
+    background-color: #ececec;
 }
 
 .wave-client .chat .chat-line .author {
