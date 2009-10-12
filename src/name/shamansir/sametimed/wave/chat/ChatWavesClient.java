@@ -21,11 +21,14 @@ public class ChatWavesClient extends WavesClient<WaveletWithChat> {
 	public boolean doCommand(Command command) {
 		WaveletWithChat curWavelet = getWavelet();
 		ClientBackend backend = getBackend();
+		
 		if (command.getType() == CommandTypeID.CMD_SAY) {
 			return curWavelet.onDocumentAppendMutation(
 					StringEscapeUtils.unescapeXml(command.getArgument("text")),
 					backend.getUserId());			
-		} else if (command.getType() == CommandTypeID.CMD_UNDO_OP) { 
+		} 
+		
+		else if (command.getType() == CommandTypeID.CMD_UNDO_OP) { 
 			if (command.getArgument("user") != null) {
 				return curWavelet.onUndoCall(
 						new ParticipantId(command.getArgument("user")));
@@ -36,7 +39,9 @@ public class ChatWavesClient extends WavesClient<WaveletWithChat> {
 				curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
 				return false;
 			}			
-		} else {
+		} 
+		
+		else {
 			return super.doCommand(command);
 		}
 	}

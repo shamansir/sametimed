@@ -2,16 +2,12 @@ package name.shamansir.sametimed.wave.chat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ConsoleUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
-import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
-import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
-import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorAdapter;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
@@ -21,6 +17,7 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 import com.google.common.collect.ImmutableMap;
 
 import name.shamansir.sametimed.wave.ADocumentsWavelet;
+import name.shamansir.sametimed.wave.chat.cursor.LastUserLineCursor;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
@@ -39,9 +36,7 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  */
 
 
-public class WaveletWithChat extends ADocumentsWavelet {
-	
-	private static final String CHAT_DOCUMENT_ID = "main";		
+public class WaveletWithChat extends ADocumentsWavelet {	
 	
 	/* models */
 	private Chat chatView = null;	
@@ -94,7 +89,7 @@ public class WaveletWithChat extends ADocumentsWavelet {
 	}	
 	
 	private BufferedDocOp getChatDocument() {
-		return getDocument(CHAT_DOCUMENT_ID);
+		return getDocument(Chat.DOCUMENT_ID);
 	}
 	
 	@Override
@@ -104,47 +99,15 @@ public class WaveletWithChat extends ADocumentsWavelet {
 			return false;
 		}
 		
-		final String userId_ = userId;
-
-		// Find the last line written by the participant given by userId (by
-		// counting the number of
-		// <line></line> elements, and comparing to their authors).
-		final AtomicInteger totalLines = new AtomicInteger(0);
-		final AtomicInteger lastLine = new AtomicInteger(-1);
-
-		// FIXME: it works for console, implement it for HTMLView (using models)
-		getChatDocument().apply(
-				new InitializationCursorAdapter(new DocInitializationCursor() {
-					@Override
-					public void elementStart(String type, Attributes attrs) {
-						if (type.equals(ConsoleUtils.LINE)) {
-							totalLines.incrementAndGet();
-
-							if (userId_.equals(attrs
-									.get(ConsoleUtils.LINE_AUTHOR))) {
-								lastLine.set(totalLines.get() - 1);
-							}
-						}
-					}
-
-					@Override
-					public void characters(String s) {
-					}
-
-					@Override
-					public void annotationBoundary(AnnotationBoundaryMap map) {
-					}
-
-					@Override
-					public void elementEnd() {
-					}
-				}));
+		LastUserLineCursor lastLineCursor = new LastUserLineCursor(userId); 		
+		getChatDocument().apply(new InitializationCursorAdapter(lastLineCursor));		
+		int lastLine = lastLineCursor.getComputedNum();
 
 		// Delete the line
-		if (lastLine.get() >= 0) {
+		if (lastLine >= 0) {
 			WaveletDocumentOperation undoOp = new WaveletDocumentOperation(
-					CHAT_DOCUMENT_ID, ConsoleUtils.createLineDeletion(
-							getChatDocument(), lastLine.get()));
+					Chat.DOCUMENT_ID, ConsoleUtils.createLineDeletion(
+							getChatDocument(), lastLine));
 			getOperationsSender().sendWaveletOperation(getOpenWavelet().getWaveletName(),
 					undoOp);
 			return true;
@@ -165,8 +128,8 @@ public class WaveletWithChat extends ADocumentsWavelet {
 			docOp.retain(docSize);
 		}
 
-		docOp.elementStart(ConsoleUtils.LINE, new AttributesImpl(
-				ImmutableMap.of(ConsoleUtils.LINE_AUTHOR, author.getAddress())));
+		docOp.elementStart(Chat.LINE_TAG_NAME, new AttributesImpl(
+				ImmutableMap.of(Chat.AUTHOR_ATTR_NAME, author.getAddress())));
 		docOp.characters(text);
 		docOp.elementEnd();
 		
@@ -175,7 +138,7 @@ public class WaveletWithChat extends ADocumentsWavelet {
 		//            console does end before characters 
 
 		getOperationsSender().sendWaveletOperation(getOpenWavelet().getWaveletName(),
-				new WaveletDocumentOperation(CHAT_DOCUMENT_ID, docOp
+				new WaveletDocumentOperation(Chat.DOCUMENT_ID, docOp
 						.finish()));
 	}
 
