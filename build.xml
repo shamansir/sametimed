@@ -1,0 +1,42 @@
+<project>
+	
+	<property name="project.name" value="sametimed" />
+    <property name="project.version" value="b0.1" />
+	 
+    <property name="project.dir" value="${basedir}" />
+	<property name="src.dir" value="${basedir}/src" />
+    <property name="war.dir" value="${basedir}/WebContent" />
+
+    <target name="default" depends="compile,buildwar" />
+
+    <target name="compile">
+        <delete dir="${war.dir}/WEB-INF/classes" />
+        <mkdir dir="${war.dir}/WEB-INF/classes" />
+        <javac destdir="${war.dir}/WEB-INF/classes" srcdir="${src.dir}">
+            <classpath>
+                <fileset dir="${war.dir}/WEB-INF/lib">
+                    <include name="*.jar" />
+                </fileset>
+            </classpath>
+        </javac>
+        <copy todir="${war.dir}/WEB-INF/classes">
+            <fileset dir="src">
+                <include name="**/*.properties" />
+                <include name="**/*.xml" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="buildwar">
+        <war basedir="${war.dir}" destfile="${project.name}.${project.version}.war" webxml="${war.dir}/WEB-INF/web.xml" />
+    </target>
+
+    <target name="archive-project-files">
+        <zip basedir="${project.dir}" 
+             destfile="${project.name}.${project.version}.eclipse-files.zip"
+             includes=".project, .classpath, .settings/, .externalToolBuilders/"
+             update="false"              
+             />    
+    </target>
+	
+</project>

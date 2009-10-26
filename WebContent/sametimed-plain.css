@@ -1,0 +1,242 @@
+@CHARSET "UTF-8";
+
+/* ============================== PAGE STYLE ================================ */
+
+body.sametimed {
+	margin: 20px 6%;
+    font-size: 12px;	
+    font-family: corbel, 'lucida bright', 'dejavu sans', 'arial unicode ms', arial, sans-serif;	
+}
+
+h1 {
+   font-family: unbatang, 'bitstream charter', 'dejavu sans', garamond, serif; 
+   color: #666;
+   margin: 40px 0px 50px;
+   text-align: center;
+   font-weight: bold;
+   /* text-decoration: overline */
+   border-bottom: 1px solid #000;
+   padding-bottom: 7px;
+}
+
+.addButton {
+  display: block;
+  font-size: 16pt;
+}
+
+.serverResponseLabelError {
+  color: red;
+}
+
+form#add-client-form {
+	border: 1px solid #ddd;
+	background-color: #eee;
+    margin: 5px;
+	padding: 5px;
+}
+
+form#add-client-form * {
+	display: inline;
+}
+
+form#add-client-form button {
+	margin-left: 10px;
+}
+
+/* #client-views {
+	background-color: #ddd;
+} */
+
+/*div#error*/ .no-errors {	
+    display: none;
+}
+
+/*div#error*/ .have-errors {
+    margin: 5px;
+    padding: 5px;
+    background-color: #fee;
+    border: 1px solid #c00;	
+}
+
+/*div#error*/ .have-errors span {
+    display: block;
+}
+
+/* ============================== WAVE CLIENT =============================== */
+
+.wave-client {
+    float: left;	
+	border: 1px solid #ccc;
+	background-color: #eee;
+	margin: 5px;
+	padding: 5px;
+}
+
+.wave-client .infoline,
+.wave-client .inbox, 
+.wave-client .userlist,
+.wave-client .chat,
+.wave-client .editor,
+.wave-client .console,
+.wave-client .errorbox {
+	border: 1px dashed #ddd;
+	margin: 3px;
+	padding: 3px;
+    background-color: #eed;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+/* display, floats and width/height */
+
+.wave-client .infoline {
+	display: block;
+}
+
+.wave-client .inbox,
+.wave-client .userlist,
+.wave-client .chat {
+    float: left;	
+	height: 150px;
+}
+
+.wave-client .inbox, .wave-client .userlist {
+    width: 100px;	
+}
+
+.wave-client .chat {
+    width: 292px;
+}
+
+.wave-client .editor {
+    clear: left;
+    width: 520px;	
+	height: 150px;
+}
+
+.wave-client .console {
+    clear: both;
+}
+
+.wave-client .errorbox {
+    height: 50px;
+    width: 520px;   
+}
+
+/* other styles */
+
+.wave-client .infoline,
+.wave-client .inbox, 
+.wave-client .userlist,
+.wave-client .chat,
+.wave-client .editor,
+.wave-client .console,
+.wave-client .errorbox {
+	font-size: 0.8em;
+	font-family: consolas, corbel, 'dejavu sans', sans-serif; 
+}
+
+.wave-client .infoline {
+	color: #666;
+}
+
+.wave-client ol.inbox, 
+.wave-client ul.userlist {
+	list-style-type: none;
+}
+
+.wave-client .console input[type=text] {
+	width: 80%;
+}
+
+.wave-client .errorbox span.error-line {
+    display: block;
+    color: #f00;   
+}
+
+/* Inbox styles */
+
+.wave-client ol.inbox li.inbox-current {
+	color: #966;
+}
+
+.wave-client ol.inbox li.inbox-unread {
+    color: #366;
+}
+
+.wave-client ol.inbox li .inbox-id {
+	margin-right: 4px;
+	color: #000;
+} 
+
+.wave-client ol.inbox li .inbox-wave-id {
+}
+
+.wave-client ol.inbox li .inbox-wave-digest {
+	color: #ccc;
+    display: block;    
+    width: 100px;  
+    max-height: 12px;
+    overflow: hidden;
+}
+
+
+/* UserList styles */
+
+.wave-client .userlist span.user {
+	color: #336;
+}
+
+/* Chat styles */
+
+.wave-client .chat .chat-line {
+	display: block;
+}
+
+.wave-client .chat .chat-line .author {
+    color: #393;
+    margin-right: 4px;
+} 
+
+/* Editor buttons styles */
+
+.wave-client .editor ul.editor-buttons,
+.wave-client .editor /*ul.editor-buttons */ ul.editor-buttons-block {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-width: 1px;
+    border-style: solid;    
+}
+
+.wave-client .editor ul.editor-buttons {
+	border-color: #ccc;
+	height: 24px;
+}
+
+.wave-client .editor /*ul.editor-buttons*/ ul.editor-buttons-block  {
+    border-color: #999;	
+    float: left;
+    margin: 1px;
+    height: 20px;
+}
+
+.wave-client .editor /*ul.editor-buttons*/ ul.editor-buttons-block li {
+	display: inline;
+}
+
+.wave-client .editor /*ul.editor-buttons ul.editor-buttons-block li*/ a.editor-button {
+    display: block;
+    float: left;
+	text-decoration: none;	
+	border: 1px solid #ddd;  
+	background-color: #eee;
+	height: 16px;
+	width: 16px;
+	margin: 1px;
+	text-align: center;
+}
+
+.wave-client .editor /*ul.editor-buttons ul.editor-buttons-block li*/ a.editor-button:hover {
+	background-color: #ddd;
+}

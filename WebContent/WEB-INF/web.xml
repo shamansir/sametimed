@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+  
+    <display-name>sametimed</display-name>
+  
+    <!-- Servlets -->
+        
+    <servlet>
+        <servlet-name>getClientView</servlet-name>
+        <servlet-class>name.shamansir.sametimed.client.GetClientViewServlet</servlet-class>
+    </servlet>    
+  
+    <servlet>
+        <servlet-name>executeClientCommand</servlet-name>
+        <servlet-class>name.shamansir.sametimed.wave.messaging.CommandsReceiverServlet</servlet-class>
+    </servlet>  
+  
+    <!-- DWR -->  
+	<servlet>
+        <servlet-name>dwr-invoker</servlet-name>
+        <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
+        <init-param>
+	       <param-name>activeReverseAjaxEnabled</param-name>
+	       <param-value>true</param-value>
+	    </init-param>
+	    <!--
+        <init-param>
+            <param-name>debug</param-name>
+            <param-value>true</param-value>
+        </init-param>
+	     -->
+	    <init-param>
+	       <param-name>initApplicationScopeCreatorsAtStartup</param-name>
+	       <param-value>true</param-value>
+	     </init-param>
+	     <load-on-startup>1</load-on-startup>
+	</servlet>  
+	
+	<!-- Servlets-mappings -->
+    
+    <servlet-mapping>
+        <servlet-name>getClientView</servlet-name>
+        <url-pattern>/get_client_view</url-pattern>
+    </servlet-mapping>  
+  
+    <servlet-mapping>
+        <servlet-name>executeClientCommand</servlet-name>
+        <url-pattern>/cmd_exec</url-pattern>
+    </servlet-mapping>
+    
+    <!-- DWR -->
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </servlet-mapping>
+  
+    <!-- Default pages -->
+    
+    <welcome-file-list>
+        <welcome-file>sametimed.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>
