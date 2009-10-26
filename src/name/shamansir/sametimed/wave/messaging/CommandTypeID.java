@@ -22,8 +22,6 @@ public enum CommandTypeID {
 	 CMD_ADD_USER("add"),
 	 /** removing participant command (user) */
 	 CMD_REMOVE_USER("remove"),
-	 /** saying something command (text) */
-     CMD_SAY("say", true),
      /** undo last action command (user?) */
      CMD_UNDO_OP("undo", true),
      /** mark all waves as read command () */
@@ -31,8 +29,15 @@ public enum CommandTypeID {
      /** view mode changing command (mode) */
      CMD_CHANGE_VIEW("view"),
      /** quitting form client command () */
-     CMD_QUIT("quit")
-     // TODO: scroll, log, dumplog, clearlog
+     CMD_QUIT("quit"),
+     // TODO: scroll, log, dumplog, clearlog     
+     // FIXME: implement registering new commands in ADocumentsWavesClient     
+     /* ------ CHAT COMMANDS ------ */
+	 /** saying something command (text) */
+     CMD_SAY("say", true),
+     /* ------ EDITOR COMMANDS ------ */
+	 /** saying something command (text) */
+     CMD_PUT("put", true)
      ;
 
      private static final Map<String,CommandTypeID> lookup 
@@ -76,4 +81,5 @@ public enum CommandTypeID {
      public static CommandTypeID fromName(String name) { 
           return lookup.get(name); 
      }
+     
 }

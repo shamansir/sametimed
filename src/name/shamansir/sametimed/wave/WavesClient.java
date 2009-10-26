@@ -229,7 +229,10 @@ public abstract class WavesClient <WaveletType extends AUpdatingWavelet> impleme
 					return false;
 				}
 			
-			default: return false;
+			default: { 
+					curWavelet.registerError("command " + command.getID() + " was not catched");
+					return false;
+				}
 		}
 	}
 		

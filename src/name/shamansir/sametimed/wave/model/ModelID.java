@@ -20,16 +20,17 @@ public enum ModelID {
 	INBOX_MODEL("inbox"),
 	/** participants list model (inner)  */	
 	USERSLIST_MODEL("users"),
-	/** chat model (inner, not pure)  */	
-	CHAT_MODEL("chat", true, false),
-	/** document model (inner, not pure)  */	
-	EDITOR_MODEL("document", true, false),
 	/** command console model (inner)  */	
 	CONSOLE_MODEL("console"),
 	/** errors box model (inner) */	
 	ERRORBOX_MODEL("errors"),
 	/** the whole wave model (outer, not pure) */	
-	FULLWAVE_MODEL("client", false, false)
+	FULLWAVE_MODEL("client", false, false),
+	// FIXME: implement registering models in ADocumentsWavelet 
+	/** chat model (inner, not pure)  */	
+	CHAT_MODEL("chat", true, false),
+	/** document model (inner, not pure)  */	
+	EDITOR_MODEL("document", true, false)	
     ;
 
     private static final Map<String, ModelID> lookup 

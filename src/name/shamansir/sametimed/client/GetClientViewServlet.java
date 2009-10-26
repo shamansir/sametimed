@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import name.shamansir.sametimed.wave.modules.chat.ChatWavesClient;
+import name.shamansir.sametimed.wave.modules.editor.EditorWavesClient;
 import name.shamansir.sametimed.wave.render.JSUpdatesListener;
 
 /**
@@ -53,16 +53,10 @@ public class GetClientViewServlet extends HttpServlet {
 			
 		}; */
 		
-		ChatWavesClient newClient = new ChatWavesClient() {
-			
-			/* uncomment it to enable editor */			
-			/*
-			@Override
-			protected WaveletWithEditor createWavelet(IWavesClientRenderer renderer) {
-				return new WaveletWithEditor(getViewID(), renderer);
-			} */
-			
-		};
+		// ChatWavesClient newClient = new ChatWavesClient() 
+		
+		EditorWavesClient newClient = new EditorWavesClient();
+		
 		newClient.getWavelet().addUpdatesListener(new JSUpdatesListener());
 		
 		String quot = useEscapedQuotes ? "\\\"" : "\"";

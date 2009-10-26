@@ -7,8 +7,25 @@ import name.shamansir.sametimed.wave.AUpdatingWavelet;
 import name.shamansir.sametimed.wave.WavesClient;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
+import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public abstract class ADocumentsWavesClient<WaveletType extends ADocumentsWavelet> extends WavesClient<WaveletType> {
+	
+	public ADocumentsWavesClient(IWavesClientRenderer renderer) {
+		super(renderer);
+		registerCommands();
+	}
+	
+	public ADocumentsWavesClient() {
+		super();
+		registerCommands();
+	}	
+	
+	protected abstract void registerCommands();
+	
+	protected void registerNewCommand(CommandTypeID command) {
+		// FIXME: implement
+	}
 
 	public boolean doCommand(Command command) {
 		ADocumentsWavelet curWavelet = getWavelet();

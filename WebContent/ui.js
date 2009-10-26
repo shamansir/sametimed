@@ -39,7 +39,8 @@ function renderUpdate(updateObj) {
 	ClientRenderer.renderUpdate(updateObj);
 }
 
-// use jquery.inherit plugin
+// use jquery.inherit plugin, move chat rendering to ChatClientRenderer,
+//					          move editor rendering to EditorClientRenderer(ChatClientRenderer),
 var ClientRenderer = {
 		
 	SEND_BTN_HANDLER: 'sendButtonOnClick',
@@ -64,7 +65,8 @@ var ClientRenderer = {
 		{ 'left': { id_postfix: '-left', name: 'Align Teft', cmd: 'left', text: 'L' },
 		  'center': { id_postfix: '-center', name: 'Center Text', cmd: 'center', text: 'C' },
 		  'right': { id_postfix: '-right', name: 'Align Right', cmd: 'right', text: 'R' },
-		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} } 
+		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} },
+		{ 'put': { id_postfix:'-put', name: 'Put Text', cmd: 'put', text:'Put'} }
 	],
 	
 	DIGEST_MAX_LENGTH: 14, // in symbols
@@ -163,6 +165,9 @@ var ClientRenderer = {
 				.attr('id', this.getModelHolderId("document", clientId))
 				.addClass('editor');
 		
+		var editorElmId = 'editor-content-' + clientId;
+		
+		// FIXME: do not draw buttons every time
 		var buttonsContainer = $('<ul />')
 				.addClass('editor-buttons');		
 		for (blockIdx in this.EDITOR_BUTTONS) {
@@ -177,7 +182,7 @@ var ClientRenderer = {
 							.attr('id', 'editor-' + clientId + '-button' + buttonData.id_postfix)
 							.attr('href', '#')
 							.attr('title', buttonData.name)
-							.attr('onclick', 'return ' + this.CMD_BTN_HANDLER + "(" + clientId + ",'" + buttonData.cmd + "')")
+							.attr('onclick', 'return ' + this.CMD_BTN_HANDLER + "(" + clientId + ",'" + buttonData.cmd + "','" + editorElmId + "')")
 							.addClass('editor-button')
 							.text(buttonData.text);
 				buttonWrapper.append(button);
@@ -188,11 +193,22 @@ var ClientRenderer = {
 		}
 		editorWrapper.append(buttonsContainer);
 		
+		var editingArea =  $('<textarea />')
+				.addClass('editor-document')
+				.attr('id', editorElmId);
+		for (textChunkIdx in documentModel) {
+			var textChunk = documentModel[textChunkIdx];
+			editingArea.append(textChunk.text);
+			// textChunk.style;
+		}
+		editorWrapper.append(editingArea);
+		
+		/*
 		for (textChunkIdx in documentModel) {
 			var textChunk = documentModel[textChunkIdx];
 			editorWrapper.append($('<span />').addClass('chunk').text(textChunk.text));
 			// textChunk.style;
-		}	
+		} */
 		
 		return editorWrapper;		
 	},

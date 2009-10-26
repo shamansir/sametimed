@@ -149,7 +149,11 @@ public abstract class ADocumentsWavelet extends AUpdatingWavelet {
 	private boolean documentPerformUndo(String documentID, ParticipantId userId) {
 		IOperableDocument opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
-		if ((opHandler != null) && (operableDoc != null)) {
+		if (opHandler != null) {
+			if (operableDoc == null) {
+				registerError("Document is empty, nothing to undo");
+				return false;
+			}
 			WaveletDocumentOperation undoOp = opHandler.getUndoOp(operableDoc, userId); 
 			if (undoOp == null) {
 				registerError("Error: " + userId + " hasn't written anything yet");
@@ -166,8 +170,9 @@ public abstract class ADocumentsWavelet extends AUpdatingWavelet {
 	private void documentPerformAppend(String documentID, String text, ParticipantId author) {
 		IOperableDocument opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
-		if ((opHandler != null) && (operableDoc != null)) {
-			performDocumentOperation(opHandler.getAppendOp(operableDoc, author, text));
+		if (opHandler != null) {
+			WaveletDocumentOperation appendOp = opHandler.getAppendOp(operableDoc, author, text);
+			if (appendOp != null) performDocumentOperation(appendOp);
 		} else {
 			registerError("document with id \'" + documentID + "\' is not found or have no handler");
 		}	

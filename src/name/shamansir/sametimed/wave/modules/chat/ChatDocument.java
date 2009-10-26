@@ -42,6 +42,7 @@ public class ChatDocument implements IOperableDocument {
 	public ChatDocument() {
 	}
 	
+	// FIXME: implement this as auto-generated/abstract method somehow, using document modeltype	
 	public List<ChatLine> getChatLines(BufferedDocOp srcDoc) {		
 	    if (srcDoc != null) {
 	    	LinesExtractionCursor linesCursor = new LinesExtractionCursor(outputMode);
@@ -53,7 +54,7 @@ public class ChatDocument implements IOperableDocument {
 		
 	}
 
-	public void setOutputMode(RenderMode outputMode) {
+	protected void setOutputMode(RenderMode outputMode) {
 		this.outputMode  = outputMode;		
 	}
 	

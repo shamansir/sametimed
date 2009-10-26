@@ -43,7 +43,8 @@ function createCommandXML(forClient, commandName, arguments, sourceDoc) {
 	// FIXME: rewrite with JQuery
 	var xml = '<command><name>' + commandName + '</name>';
 	xml += '<owner-id>' + forClient + '</owner-id>';
-	if ((commandName == 'say') || (commandName == 'undo')) {
+	if ((commandName == 'say') || (commandName == 'undo')
+		                       || (commandName == 'put')) {
 		xml += '<for-document>' + sourceDoc + '</for-document>';
 	}
 	for (argumentName in arguments) {
@@ -124,8 +125,18 @@ function getFullClient(username, clientsHolder) {
 
 /* ====== ONCLICK ====== */
 
-function cmdButtonOnClick(clientId, commandAlias) {
-	// FIXME: implement
+function cmdButtonOnClick(clientId, commandAlias, inputId) {
+	var arguments = {};
+	var documentHolder = document.getElementById(inputId);
+	if (commandAlias == 'put') {
+		arguments['text'] = documentHolder.value;
+	}
+	var cmdXML = createCommandXML(clientId, commandAlias, arguments, 'document');
+	if (cmdXML != '?') {
+		makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null, true);
+	} else {
+		alert('document command cannot be parsed');
+	}
 	return false;
 }
 

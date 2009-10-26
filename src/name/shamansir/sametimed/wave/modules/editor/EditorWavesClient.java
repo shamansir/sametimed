@@ -1,24 +1,25 @@
-package name.shamansir.sametimed.wave.modules.chat;
+package name.shamansir.sametimed.wave.modules.editor;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 
-import name.shamansir.sametimed.wave.modules.chat.WaveletWithChat;
-import name.shamansir.sametimed.wave.doc.ADocumentsWavesClient;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
+import name.shamansir.sametimed.wave.modules.chat.ChatWavesClient;
+import name.shamansir.sametimed.wave.modules.chat.WaveletWithChat;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
-public class ChatWavesClient extends ADocumentsWavesClient<WaveletWithChat> {
-	
-	@Override
-	protected void registerCommands() {
-		registerNewCommand(CommandTypeID.CMD_SAY);
-	}
+public class EditorWavesClient extends ChatWavesClient {
 
 	@Override
-	protected WaveletWithChat createWavelet(IWavesClientRenderer renderer) {
-		return new WaveletWithChat(getViewID(), renderer);
+	protected void registerCommands() {
+		super.registerCommands();
+		registerNewCommand(CommandTypeID.CMD_PUT);
+	}	
+	
+	@Override
+	protected WaveletWithEditor createWavelet(IWavesClientRenderer renderer) {
+		return new WaveletWithEditor(getViewID(), renderer);
 	}
 	
 	@Override
@@ -26,7 +27,7 @@ public class ChatWavesClient extends ADocumentsWavesClient<WaveletWithChat> {
 		WaveletWithChat curWavelet = getWavelet();
 		ClientBackend backend = getBackend();
 		
-		if (command.getType() == CommandTypeID.CMD_SAY) {
+		if (command.getType() == CommandTypeID.CMD_PUT) {
 			return curWavelet.onDocumentAppendMutation(
 					command.getRelatedDocumentID(),
 					StringEscapeUtils.unescapeXml(command.getArgument("text")),
@@ -34,6 +35,6 @@ public class ChatWavesClient extends ADocumentsWavesClient<WaveletWithChat> {
 		} else {
 			return super.doCommand(command);
 		}
-	}
-
+	}	
+	
 }

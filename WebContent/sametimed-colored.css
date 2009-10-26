@@ -102,7 +102,7 @@ form#add-client-form button {
     height: 150px;
 }
 
-.wave-client .inbox, .wave-client .userlist {
+.wave-client .inbox, .wave-cl69ient .userlist {
     width: 100px;   
 }
 
@@ -232,7 +232,17 @@ form#add-client-form button {
 .wave-client .chat .chat-line .author {
     color: #393;
     margin-right: 4px;
-} 
+}
+
+/* Editor styles */
+
+.wave-client .editor .editor-document {
+	width: 99%;
+	height: 75%;
+	overflow: auto;
+	border: 1px solid #ccc;
+	padding-right: 3px;
+}
 
 /* Editor buttons styles */
 
