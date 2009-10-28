@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import name.shamansir.sametimed.wave.doc.IOperableDocument;
+import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.modules.chat.cursor.LastUserLineCursor;
 import name.shamansir.sametimed.wave.modules.chat.cursor.LinesExtractionCursor;
@@ -45,13 +46,29 @@ public class ChatDocument implements IOperableDocument {
 	// FIXME: implement this as auto-generated/abstract method somehow, using document modeltype	
 	public List<ChatLine> getChatLines(BufferedDocOp srcDoc) {		
 	    if (srcDoc != null) {
-	    	LinesExtractionCursor linesCursor = new LinesExtractionCursor(outputMode);
-	    	srcDoc.apply(new InitializationCursorAdapter(linesCursor));
-	    	return linesCursor.getExtractedLines();
+	    	if (outputMode.equals(RenderMode.NORMAL)) {
+		    	LinesExtractionCursor linesCursor = new LinesExtractionCursor();
+		    	srcDoc.apply(new InitializationCursorAdapter(linesCursor));
+		    	return linesCursor.getExtractedLines();
+	    	} else if (outputMode.equals(RenderMode.XML)) {
+	    		XMLGeneratingCursor xmlCursor = new XMLGeneratingCursor();
+	    		srcDoc.apply(new InitializationCursorAdapter(xmlCursor));
+		    	return makeXMLChatLines(xmlCursor.getXMLLines());
+	    	} else {
+	    		return new ArrayList<ChatLine>();
+	    	}
 	    } else {
 	    	return new ArrayList<ChatLine>();
 	    }
 		
+	}
+	
+	protected List<ChatLine> makeXMLChatLines(List<String> xmlLines) {
+		List<ChatLine> xmlChatLines = new ArrayList<ChatLine>();
+		for (String xmlLine: xmlLines) {
+			xmlChatLines.add(new ChatLine("-", xmlLine));
+		}
+		return xmlChatLines;
 	}
 
 	protected void setOutputMode(RenderMode outputMode) {

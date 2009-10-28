@@ -30,7 +30,7 @@ public class WaveletWithEditor extends WaveletWithChat {
 	protected Map<String, IOperableDocument> registerOperationsHandlers(
 			Map<String, IOperableDocument> curHandlers) {
 		curHandlers.put(EditorDocument.DOCUMENT_ID, editorView);
-		return curHandlers;
+		return super.registerOperationsHandlers(curHandlers);
 	}	
 	
 	@Override

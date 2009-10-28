@@ -125,7 +125,9 @@ public abstract class AUpdatingWavelet {
 	/* ====== UPDATES & UPDATES LISTENERS OPERATIONS ====== */
 	
 	private void updateAll(boolean waveOpened) {
-		if (waveOpened) { // FIXME: NPE when running second time
+		if (waveOpened && (inbox != null)) { // FIXME: inbox must not be null if wave is opened
+						// NPE fires (if not checking inbox) when application is just started and
+						// some waves are already in the user's inbox at the server
 			inbox.setOpenWave(openedWave);
 		}
 		
