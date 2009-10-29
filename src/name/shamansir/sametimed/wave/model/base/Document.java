@@ -37,7 +37,8 @@ public class Document extends JSONiableValue implements IModelValue {
 		for (Iterator<TextChunk> iter = documentContent.iterator(); iter.hasNext(); ) {
 			TextChunk textChunk = iter.next();
 			jsonString += "{" + quot + "text"  + quot + ":" + quot + escapeJSONString(textChunk.getText())  + quot + "," +
-							    quot + "style" + quot + ":" + quot + escapeJSONString(textChunk.getStyle()) + quot + "}";
+							    quot + "style" + quot + ":" + quot + escapeJSONString(textChunk.getStyle()) + quot + "," +
+							    quot + "size"  + quot + ":" + textChunk.getLength() + "}";
 			if (iter.hasNext()) jsonString += ",";
 		}
 		return jsonString + "]";

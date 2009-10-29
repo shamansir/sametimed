@@ -5,9 +5,8 @@ import java.util.ArrayList;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
-public class XMLGeneratingCursor implements DocInitializationCursor {
+public class XMLGeneratingCursor implements ICursorWithResult<List<String>> {
 	
 	private boolean gotEnd;
 	private boolean gotCharacters;	
@@ -74,7 +73,7 @@ public class XMLGeneratingCursor implements DocInitializationCursor {
 	@Override
 	public void annotationBoundary(AnnotationBoundaryMap map) { }	
 	
-	public List<String> getXMLLines() {
+	public List<String> getResult() {
 		return xmlLines;
 	}	
 	

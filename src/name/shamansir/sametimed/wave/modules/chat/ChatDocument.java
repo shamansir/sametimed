@@ -3,14 +3,14 @@ package name.shamansir.sametimed.wave.modules.chat;
 import java.util.ArrayList;
 import java.util.List;
 
-import name.shamansir.sametimed.wave.doc.IOperableDocument;
+import name.shamansir.sametimed.wave.doc.AOperableDocument;
+import name.shamansir.sametimed.wave.doc.cursor.LastUserLineCursor;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
-import name.shamansir.sametimed.wave.modules.chat.cursor.LastUserLineCursor;
-import name.shamansir.sametimed.wave.modules.chat.cursor.LinesExtractionCursor;
+import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLineDeletionCursor;
+import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLinesExtractionCursor;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
-import org.waveprotocol.wave.examples.fedone.waveclient.console.ConsoleUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
@@ -34,26 +34,25 @@ import com.google.common.collect.ImmutableMap;
  * 
  */
 
-public class ChatDocument implements IOperableDocument {
+public class ChatDocument extends AOperableDocument {
 	
-	protected static final String DOCUMENT_ID = "main";
+	private static final String DOCUMENT_ID = "main";
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
 	public ChatDocument() {
+		super(DOCUMENT_ID);
 	}
 	
 	// FIXME: implement this as auto-generated/abstract method somehow, using document modeltype	
 	public List<ChatLine> getChatLines(BufferedDocOp srcDoc) {		
 	    if (srcDoc != null) {
-	    	if (outputMode.equals(RenderMode.NORMAL)) {
-		    	LinesExtractionCursor linesCursor = new LinesExtractionCursor();
-		    	srcDoc.apply(new InitializationCursorAdapter(linesCursor));
-		    	return linesCursor.getExtractedLines();
+	    	// TODO: use cursors as private variables?
+	    	if (outputMode.equals(RenderMode.NORMAL)) {	    		
+	    		return applyCursor(srcDoc, new ChatLinesExtractionCursor());
 	    	} else if (outputMode.equals(RenderMode.XML)) {
-	    		XMLGeneratingCursor xmlCursor = new XMLGeneratingCursor();
-	    		srcDoc.apply(new InitializationCursorAdapter(xmlCursor));
-		    	return makeXMLChatLines(xmlCursor.getXMLLines());
+		    	return makeXMLChatLines(
+		    			applyCursor(srcDoc, new XMLGeneratingCursor()));
 	    	} else {
 	    		return new ArrayList<ChatLine>();
 	    	}
@@ -83,6 +82,7 @@ public class ChatDocument implements IOperableDocument {
 	@Override
 	public WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc, ParticipantId author,
 			String text) {
+		// TODO: extract in method
 		int docSize = (srcDoc == null) ? 0 : ClientUtils
 				.findDocumentSize(srcDoc);
 		DocOpBuilder docOp = new DocOpBuilder();
@@ -96,24 +96,18 @@ public class ChatDocument implements IOperableDocument {
 		docOp.characters(text);
 		docOp.elementEnd();
 		
-		// FIXME:
-		// ATTENTION: this differs from console, first characters, then - elementEnd
-		//            console does end before characters
-		
-		return new WaveletDocumentOperation(DOCUMENT_ID, docOp.finish());
+		return createDocumentOperation(docOp.finish());
 
 	}
 
 	@Override
 	public WaveletDocumentOperation getUndoOp(BufferedDocOp srcDoc, ParticipantId userId) {
-		LastUserLineCursor lastLineCursor = new LastUserLineCursor(userId.getAddress()); 		
-		srcDoc.apply(new InitializationCursorAdapter(lastLineCursor));		
-		int lastLine = lastLineCursor.getComputedNum();
+		Integer lastLine = applyCursor(srcDoc, new LastUserLineCursor(userId.getAddress()));
 
 		// Delete the line
 		if (lastLine >= 0) {
-			return new WaveletDocumentOperation(
-					DOCUMENT_ID, ConsoleUtils.createLineDeletion(srcDoc, lastLine));
+			return createDocumentOperation(
+					applyCursor(srcDoc, new ChatLineDeletionCursor(lastLine)));
 		} else {
 			return null;
 		}

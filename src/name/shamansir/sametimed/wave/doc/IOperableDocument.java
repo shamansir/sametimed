@@ -7,10 +7,10 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 
 public interface IOperableDocument {
 	
-	public WaveletDocumentOperation getUndoOp(BufferedDocOp srcDoc, ParticipantId userId);
+	public abstract WaveletDocumentOperation getUndoOp(BufferedDocOp srcDoc, ParticipantId userId);
 	
-	public WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc, ParticipantId author, String text);
+	public abstract WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc, ParticipantId author, String text);
 
-	public void handleRenderModeChange(BufferedDocOp srcDoc, RenderMode mode);
+	public abstract void handleRenderModeChange(BufferedDocOp srcDoc, RenderMode mode);	
 
 }

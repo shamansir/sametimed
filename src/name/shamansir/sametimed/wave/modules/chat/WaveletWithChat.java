@@ -44,7 +44,7 @@ public class WaveletWithChat extends ADocumentsWavelet {
 	@Override
 	protected Map<String, IOperableDocument> registerOperationsHandlers(
 			Map<String, IOperableDocument> curHandlers) {
-		curHandlers.put(ChatDocument.DOCUMENT_ID, chatView);
+		curHandlers.put(chatView.getDocumentID(), chatView);
 		return curHandlers;
 	}
 	
@@ -57,7 +57,7 @@ public class WaveletWithChat extends ADocumentsWavelet {
 	@Override	
 	protected void updateDocumentsModels() {
 		if (isChatReady()) {
-			updateModel(ModelID.CHAT_MODEL, chatView.getChatLines(getDocument(ChatDocument.DOCUMENT_ID)));
+			updateModel(ModelID.CHAT_MODEL, chatView.getChatLines(getDocument(chatView.getDocumentID())));
 		}		
 	}
 	

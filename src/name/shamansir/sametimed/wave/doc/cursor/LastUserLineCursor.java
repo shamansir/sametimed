@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.modules.chat.cursor;
+package name.shamansir.sametimed.wave.doc.cursor;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -6,13 +6,12 @@ import name.shamansir.sametimed.wave.modules.chat.ChatTag;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
 // Find the last line written by the participant given by userId (by
 // counting the number of
 // <line></line> elements, and comparing to their authors).
 
-public class LastUserLineCursor implements DocInitializationCursor {
+public class LastUserLineCursor implements ICursorWithResult<Integer> {
 	
 	private final String userId;
 	private final AtomicInteger totalLines;
@@ -48,8 +47,8 @@ public class LastUserLineCursor implements DocInitializationCursor {
 	public void elementEnd() {
 	}
 	
-	public int getComputedNum() {
-		return lastLine.get();
+	public Integer getResult() {
+		return Integer.valueOf(lastLine.get());
 	}
 
 }

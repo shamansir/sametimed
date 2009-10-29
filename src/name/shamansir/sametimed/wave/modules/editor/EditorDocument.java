@@ -7,12 +7,16 @@ import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-import name.shamansir.sametimed.wave.doc.IOperableDocument;
+import name.shamansir.sametimed.wave.doc.AOperableDocument;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 
-public class EditorDocument implements IOperableDocument {
-	
+public class EditorDocument extends AOperableDocument {
+
 	protected static final String DOCUMENT_ID = "document";
+	
+	public EditorDocument() {
+		super(DOCUMENT_ID);
+	}	
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	

@@ -9,7 +9,7 @@ var DEFAULT_CLIENTS_HOLDER_ID = 'client-views';
  * 		inbox: {<int>: <inboxObj>, ...}, // waves list, inbox number to wave id string
  * 		users: [<string>, ...], // full addresses, one by one   
  * 		chat: [{author: <string>, text: <string>}, ...], // chat lines
- * 		document: [{text: <string>, style: <string>}, ...}], // document chunks
+ * 		document: [{text: <string>, style: <string>, size: <int>}, ...}], // document chunks
  * 		console: [<string>, ...], // console history
  * 		errors: [<string>, ...], // errors happend while using the client
  * }
