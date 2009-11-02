@@ -1,19 +1,22 @@
 package name.shamansir.sametimed.wave.modules.chat;
 
-import name.shamansir.sametimed.wave.doc.DocumentTag;
+import name.shamansir.sametimed.wave.doc.ADocumentTag;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
+import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-public class ChatTag extends DocumentTag {
+import com.google.common.collect.ImmutableMap;
+
+public class ChatTag extends ADocumentTag {
 	
 	public static final String AUTHOR_ATTR_NAME = "by";
-	public static final String LINE_TAG_NAME = "line";
+	public static final String TAG_NAME = "line";
 	
 	private ParticipantId author;
 	
 	public ChatTag(ParticipantId author, String content) {
-		super(LINE_TAG_NAME);
+		super(TAG_NAME);
 		this.setAuthor(author);
 		this.setContent(content);
 	}
@@ -39,38 +42,35 @@ public class ChatTag extends DocumentTag {
 	public ParticipantId getAuthor() {
 		return author;
 	}
-	
-	@Override
-	public DocumentTag initFromElement(String type, Attributes attrs, String characters) throws IllegalArgumentException {
-		if (type.equals(LINE_TAG_NAME)) {
-			if (!attrs
-					.containsKey(AUTHOR_ATTR_NAME)) {
-				throw new IllegalArgumentException(
-						"Line element must have author");
-			}
-			return new ChatTag(attrs.get(AUTHOR_ATTR_NAME), characters);
-		} else {
-			throw new IllegalArgumentException(
-					"Unsupported element type " + type);
-		}
-	}
-	
-	@Override
-	public DocumentTag initFromElement(String type, Attributes attrs) throws IllegalArgumentException {
-		if (type.equals(LINE_TAG_NAME)) {
-			if (!attrs
-					.containsKey(AUTHOR_ATTR_NAME)) {
-				throw new IllegalArgumentException(
-						"Line element must have author");
-			}
-			ChatTag newTag = new ChatTag();
-			newTag.setAuthor(attrs.get(AUTHOR_ATTR_NAME));
-			return newTag;
-		} else {
-			throw new IllegalArgumentException(
-					"Unsupported element type " + type);
-		}
-	}
-	
 
+	@Override
+	protected boolean checkAttributes(Attributes attrs) {
+		return attrs.containsKey(AUTHOR_ATTR_NAME);
+	}
+
+	@Override
+	protected boolean checkTagName(String tagName) {
+		return tagName.equals(TAG_NAME);
+	}
+
+	@Override
+	protected AttributesImpl compileAttributes() {
+		return new AttributesImpl(ImmutableMap.of(AUTHOR_ATTR_NAME, author.getAddress()));
+	}
+
+	@Override
+	protected void initFrom(Attributes attrs) {
+		setAuthor(attrs.get(AUTHOR_ATTR_NAME));
+	}
+
+	/*
+	protected static DocOpBuilder createTagFor(DocOpBuilder docOp,
+			ParticipantId author, String text) {
+		docOp.elementStart(TAG_NAME, new AttributesImpl(
+				ImmutableMap.of(AUTHOR_ATTR_NAME, author.getAddress())));
+		docOp.characters(text);
+		docOp.elementEnd();
+		return docOp;
+	} */
+	
 }

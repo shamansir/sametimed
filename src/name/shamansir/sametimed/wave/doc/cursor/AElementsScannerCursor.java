@@ -2,13 +2,13 @@ package name.shamansir.sametimed.wave.doc.cursor;
 
 import java.util.logging.Logger;
 
-import name.shamansir.sametimed.wave.doc.DocumentTag;
+import name.shamansir.sametimed.wave.doc.ADocumentTag;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
-public abstract class AElementsScannerCursor<TagType extends DocumentTag> implements DocInitializationCursor {
+public abstract class AElementsScannerCursor<TagType extends ADocumentTag> implements DocInitializationCursor {
 	
 	private static final Logger LOG = Logger.getLogger(AElementsScannerCursor.class.getName());
 	

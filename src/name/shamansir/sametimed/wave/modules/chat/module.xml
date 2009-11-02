@@ -17,11 +17,11 @@
     
     <client>    
         <client-commands>
-            <client-command id="CMD_SAY" alias="say">
-                <attributes>
+            <client-command id="CMD_SAY" alias="say" />
+               <!-- <attributes>
                     <attribute name="text" />
                 </attributes>
-            </client-command>
+            </client-command> --> 
         </client-commands>
         <client-class>ChatWavesClient</client-class>
     </client>

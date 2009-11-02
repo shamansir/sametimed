@@ -10,7 +10,11 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 import name.shamansir.sametimed.wave.doc.AOperableDocument;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 
-public class EditorDocument extends AOperableDocument {
+// TODO: This must be a tree-based document, so it will contain not only tags
+//       of one type, but the nested tags also. ChatDocument (or Calendar
+//       (if it does not support dates blocks)), either, is lined.
+
+public class EditorDocument extends AOperableDocument<List<TextChunk>> {
 
 	protected static final String DOCUMENT_ID = "document";
 	
@@ -20,7 +24,7 @@ public class EditorDocument extends AOperableDocument {
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
-	public List<TextChunk> getFullContent() {
+	public List<TextChunk> extract(BufferedDocOp srcDoc) {
 		// FIXME: implement
 		return null;
 	}

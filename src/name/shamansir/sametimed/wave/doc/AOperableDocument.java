@@ -6,7 +6,7 @@ import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorAdapter;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-public abstract class AOperableDocument implements IOperableDocument {
+public abstract class AOperableDocument<InnerType> implements IOperableDocument {
 	
 	private final String documentID;
 	
@@ -26,5 +26,7 @@ public abstract class AOperableDocument implements IOperableDocument {
 	public String getDocumentID() {
 		return documentID;
 	}
+	
+	public abstract InnerType extract(BufferedDocOp srcDoc);
 
 }

@@ -36,8 +36,14 @@ public enum CommandTypeID {
 	 /** saying something command (text) */
      CMD_SAY("say", true),
      /* ------ EDITOR COMMANDS ------ */
-	 /** saying something command (text) */
-     CMD_PUT("put", true)
+	 /** inserting something command (pos, text) */
+     CMD_PUT("put", true),
+	 /** deleting something command (pos, length) */
+     CMD_DELETE("del", true),
+	 /** reserve text place (pos) */
+     CMD_RESERVE("r", true),
+	 /** change style of some text (pos, length, style) */
+     CMD_STYLE("style", true)
      ;
 
      private static final Map<String,CommandTypeID> lookup 

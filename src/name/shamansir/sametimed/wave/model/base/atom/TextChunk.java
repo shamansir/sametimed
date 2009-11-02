@@ -11,12 +11,16 @@ package name.shamansir.sametimed.wave.model.base.atom;
 public class TextChunk {
 	
 	private String text;
-	private String style = "none";
+	private String style = "";
+	private String authors;
+	private boolean reserved;
 	private int length = 0;
 	
-	public TextChunk(String text, String style) {
+	public TextChunk(String text, String style, String authors, boolean reserved) {
 		this.text = text;
 		this.style = style;
+		this.authors = authors;
+		this.reserved = reserved;
 		this.length = text.length();
 	}
 	
@@ -31,5 +35,13 @@ public class TextChunk {
 	public int getLength() {
 		return length;
 	}
+	
+	public String getAuthors() {
+		return authors;
+	}	
+	
+	public boolean isReserved() {
+		return reserved;
+	}	
 
 }

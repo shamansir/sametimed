@@ -6,7 +6,7 @@ import name.shamansir.sametimed.wave.modules.chat.ChatTag;
 public class ChatLineDeletionCursor extends LineDeletionCursor {
 
 	public ChatLineDeletionCursor(int lineToDelete) {
-		super(lineToDelete, ChatTag.LINE_TAG_NAME);
+		super(lineToDelete, ChatTag.TAG_NAME);
 	}
 
 }

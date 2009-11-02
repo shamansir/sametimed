@@ -1,0 +1,114 @@
+#summary Installation Instructions for Sametimed Web Application
+
+= Sametimed: Installation Instructions =
+
+<wiki:toc max_depth="3" />
+
+----
+
+== Setup ==
+
+To make it work, you'll need to setup these application on the hosting machine:
+
+  * [http://www.igniterealtime.org/projects/openfire/ Openfire XMPP server]
+  * [http://code.google.com/p/wave-protocol/ Wave Protocol Server version 0.2]
+  * Any Web server (implementing J2EE Servlet Specs) to place `.war` to.
+
+Openfire and Wave Protocol servers are installed in one step, if you follow  [http://code.google.com/p/wave-protocol/wiki/Installation this tutorial].
+
+Deploying to [http://tomcat.apache.org/ Apache Tomcat] server, as an example, is described at the end of the page.
+
+    === Note on Development ===
+
+    For development I use [http://java.sun.com/javaee/ Java EE SDK 6] (Even JRE, for Servlets I use `servlets-api.jar` and nothing more)
+
+    So, as IDE for this project I use [http://eclipse.org/ Eclipse] with [http://code.google.com/p/RunJettyRun RunJettyRun] plugin.
+
+    The last is Web application server for me.
+
+    If you want to develop, you need to use this project as Eclipse Project and run from there, follow DevelopingSametimed instructions. 
+
+== Libraries ==
+
+Required libraries are included in `war/WEB-INF/lib` directory, but to mention that on build path:
+
+  * `commons-lang-2.4.jar`
+  * `commons-logging-1.1.1.jar`
+  * `dom4j-1.6.1.jar`
+  * `dwr-3-rc1.jar`
+  * `fedone-server-0.2.jar`
+  * `jaxen-1.1.1.jar` 
+  * `servlet-api-2.4.jar` (this one is optional - if your server supports Java EE specs, it will provide it)
+
+The `fedone-server` one is coming with `wave-protocol` server sources which are installed paralelly with the server.
+
+== Configuration ==
+
+To run the application you need to configure it before deploying. The only file to change is `WEB-INF/classes/waveserver.properties` file. If you kept defaults values, when you've installed openfire server, there is no need no change. The content describes the required changes, if not:
+
+{{{
+# equals to WAVE_SERVER_DOMAIN_NAME in run-config.sh of Federation Wave Protocol Server
+wave_server_domain=acmewave.com
+# equals to WAVE_SERVER_HOSTNAME in run-config.sh  
+wave_server_host=localhost
+# equals to WAVE_SERVER_PORT in run-config.sh
+wave_server_port=9876
+}}}
+
+You need to specify the same values as in `run-config.sh` file for `wave-protocol` server.
+
+== Running ==
+
+To run the application: 
+
+  # Start `wave-protocol` server by running `run-server.sh`.
+  # Deploy the application to the Web Application Server
+  # Point at http://localhost:8080/sametimed (or any address your Web Server describes)
+
+For testing purposes there is a possibility to create several wave clients - just enter the name you want and click "Get Client" button.
+
+----
+
+== Example: Deploying to Apache Tomcat ==
+
+First, as mentioned above, you need to install Openfire,,(>=3.6),,/Wave Protocol,,(0.2),, servers pair, following [http://code.google.com/p/wave-protocol/wiki/Installation these instructions]. Try to use these values for wave server configuration to save yourself from configuring `sametimed` web-app (leave openfire server configuration exactly as shown on the screenshots to make it work):
+
+  * Wave server domain (`WAVE_SERVER_DOMAIN_NAME`): `acmewave.com`
+  * Wave server port (`WAVE_SERVER_HOSTNAME`): `9876`
+  * Wave server host (`WAVE_SERVER_PORT`): `localhost`
+
+^Be warned that Wave Protocol server is also in development stage, so it may sometimes behave unusually.^
+
+If you are using application not for testing, then you _do_ need to set correct values and change web-app configuration, of course (or change `/etc/hosts` accordingly). I have issue 14 to make it easier in future. 
+
+You can use the [http://sametimed.googlecode.com/files/run-config.sh example `run-config.sh`] that is configured to use default/sametimed configurations.
+Also, I've provided [http://sametimed.googlecode.com/files/make-cert.sh `make-cert.sh`] and [http://sametimed.googlecode.com/files/make-ca-cert.sh `make-ca-cert.sh`] script which generate certificates (it generates `.cert`, not `.crt` file, because wave server requires `cert` files) for wave-server, you may put them into wave server dir. To use with the provided config file, you'll need to use:
+
+{{{
+$ cd <wave-protocol-server-dir>
+$ ./make-cert.sh acmewave.com
+$ ./make-ca-cert.sh acmewave.com
+$ ./run-server.sh
+}}}
+
+Do not forget to insert the line `127.0.0.1 acmewave.com` in your `/etc/hosts` file.
+
+Then, you need to download [http://tomcat.apache.org/download-60.cgi Apache Tomcat server] (any version you like) and install it as required for your OS. It is better to get it as `tar.gz` archive, if you are on Linux (substitute `~/Worktable` with any folder and please don't forget to copy `JAVA_HOME` export command in your `.bashrc`):
+
+{{{
+$ tar -xvzf ./apache-tomcat-6.0.20.tar.gz
+$ mv ./apache-tomcat-6.0.20.tar.gz ~/Worktable
+$ export JAVA_HOME=/usr/lib/jvm/java-6-sun
+$ cd ~/Worktable/
+$ ./bin/startup.sh
+}}}
+
+Now, download the last version of the web application from [http://code.google.com/p/sametimed/downloads/list this page], choose the one with `.tomcat.war` ending, if it is a new version - if not, choose a simple `.war` - the only difference in them is existence of `servlet-api.jar` library in the simple `.war` version.
+
+Deploy this application to the tomcat server. On Debian/UNIX it will be something like:
+
+{{{
+$ cp ~/Downloads/sametimed.b0.1.tomcat.war ~/Worktable/apache-tomcat-6.0.20/webapps
+}}}
+
+Because Tomcat uses the war-file name for web-application, it will be accessible with address http://localhost:8080/sametimed.b0.1.tomcat/ (or equal to the war-file name you've got). Otherwise, you can deploy it manually through [http://localhost:8080/manager your Tomcat Manager], there you can select any context path you like.

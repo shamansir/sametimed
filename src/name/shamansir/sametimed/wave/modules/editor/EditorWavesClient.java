@@ -15,6 +15,9 @@ public class EditorWavesClient extends ChatWavesClient {
 	protected void registerCommands() {
 		super.registerCommands();
 		registerNewCommand(CommandTypeID.CMD_PUT);
+		registerNewCommand(CommandTypeID.CMD_DELETE);
+		registerNewCommand(CommandTypeID.CMD_RESERVE);
+		registerNewCommand(CommandTypeID.CMD_STYLE);
 	}	
 	
 	@Override

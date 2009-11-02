@@ -14,16 +14,18 @@
     <document name="document">
         <document-model>EDITOR_MODEL</document-model>
         <document-class>EditorDocument</document-class>
-        <!-- <document-tag>EditorTag</document-tag> -->
+        <!-- <document-tags>
+        		<document-tag>EditorTag</document-tag>
+        	</document-tags> -->
     </document>
     
     <client>    
         <client-commands>
-            <client-command id="CMD_PUT" alias="put">
-                <attributes>
+            <client-command id="CMD_PUT" alias="put" />
+                <!-- <attributes>
                     <attribute name="text" />
                 </attributes>
-            </client-command>
+            </client-command> -->
         </client-commands>
         <client-class>EditorWavesClient</client-class>
     </client>

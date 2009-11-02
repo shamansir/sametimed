@@ -113,7 +113,7 @@ form#add-client-form button {
 .wave-client .editor {
     clear: left;
     width: 520px;   
-    height: 150px;
+    height: 350px;
 }
 
 .wave-client .console {
@@ -236,9 +236,10 @@ form#add-client-form button {
 
 /* Editor styles */
 
+.wave-client .editor .editor-wiki-area,
 .wave-client .editor .editor-document {
 	width: 99%;
-	height: 75%;
+	height: 45%;
 	overflow: auto;
 	border: 1px solid #ccc;
 	padding-right: 3px;

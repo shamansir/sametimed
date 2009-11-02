@@ -9,7 +9,9 @@ var DEFAULT_CLIENTS_HOLDER_ID = 'client-views';
  * 		inbox: {<int>: <inboxObj>, ...}, // waves list, inbox number to wave id string
  * 		users: [<string>, ...], // full addresses, one by one   
  * 		chat: [{author: <string>, text: <string>}, ...], // chat lines
- * 		document: [{text: <string>, style: <string>, size: <int>}, ...}], // document chunks
+ * 		document: 
+ * 			[{text: <string>, style: <string>, authors: <string>,  
+ *            reserved: boolean, size: <int>}, ...}], // document chunks
  * 		console: [<string>, ...], // console history
  * 		errors: [<string>, ...], // errors happend while using the client
  * }
@@ -86,11 +88,12 @@ var ClientRenderer = {
 		clientWrapper.append(this.createInbox(clientId, waveModel.inbox));
 		clientWrapper.append(this.createUsersList(clientId, waveModel.users));
 		
-		if (waveModel.chat)     clientWrapper.append(this.createChat(clientId, waveModel.chat));
-		if (waveModel.document) clientWrapper.append(this.createEditor(clientId, waveModel.document));
+		if (waveModel.chat) clientWrapper.append(this.createChat(clientId, waveModel.chat));
 		
-		clientWrapper.append(this.createConsole(clientId, waveModel.console));
-		clientWrapper.append(this.createErrorBox(clientId, waveModel.errors));
+		clientWrapper.append(this.createConsole(clientId, waveModel.console));		
+		clientWrapper.append(this.createErrorBox(clientId, waveModel.errors));		
+		
+		if (waveModel.document) clientWrapper.append(this.createEditor(clientId, waveModel.document));
 		
 		return clientWrapper;
 	},
@@ -193,15 +196,27 @@ var ClientRenderer = {
 		}
 		editorWrapper.append(buttonsContainer);
 		
-		var editingArea =  $('<textarea />')
-				.addClass('editor-document')
+		var wikiEditingArea =  $('<textarea />')
+				.addClass('editor-wiki-area')
 				.attr('id', editorElmId);
+		// new EditorController(); attach documentModel + clientId
 		for (textChunkIdx in documentModel) {
 			var textChunk = documentModel[textChunkIdx];
-			editingArea.append(textChunk.text);
+			wikiEditingArea.append(textChunk.text);
+			// textChunk.style; // textChunk.size; // textChunk.reserved; // textChunk.authors;
+		}
+		editorWrapper.append(wikiEditingArea);
+		
+		var documentTextArea =  $('<div />')
+			.addClass('editor-document')
+			.attr('id', editorElmId);
+		// new EditorController(); attach documentModel + clientId
+		for (textChunkIdx in documentModel) {
+			var textChunk = documentModel[textChunkIdx];
+			wikiEditingArea.append(textChunk.text);
 			// textChunk.style;
 		}
-		editorWrapper.append(editingArea);
+		editorWrapper.append(documentTextArea);		
 		
 		/*
 		for (textChunkIdx in documentModel) {
@@ -291,7 +306,7 @@ var ClientRenderer = {
 
 	}
 		
-}
+};
 
 function blockEnter(evt) {
     evt = (evt) ? evt : event;

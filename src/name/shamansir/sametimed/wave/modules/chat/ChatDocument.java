@@ -4,23 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import name.shamansir.sametimed.wave.doc.AOperableDocument;
-import name.shamansir.sametimed.wave.doc.cursor.LastUserLineCursor;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLineDeletionCursor;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLinesExtractionCursor;
+import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLastUserLineCursor;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
-import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
-import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorAdapter;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
-
-import com.google.common.collect.ImmutableMap;
-
 
 /**
  * 
@@ -34,7 +29,7 @@ import com.google.common.collect.ImmutableMap;
  * 
  */
 
-public class ChatDocument extends AOperableDocument {
+public class ChatDocument extends AOperableDocument<List<ChatLine>> {
 	
 	private static final String DOCUMENT_ID = "main";
 	
@@ -44,8 +39,8 @@ public class ChatDocument extends AOperableDocument {
 		super(DOCUMENT_ID);
 	}
 	
-	// FIXME: implement this as auto-generated/abstract method somehow, using document modeltype	
-	public List<ChatLine> getChatLines(BufferedDocOp srcDoc) {		
+	@Override	
+	public List<ChatLine> extract(BufferedDocOp srcDoc) {		
 	    if (srcDoc != null) {
 	    	// TODO: use cursors as private variables?
 	    	if (outputMode.equals(RenderMode.NORMAL)) {	    		
@@ -82,7 +77,6 @@ public class ChatDocument extends AOperableDocument {
 	@Override
 	public WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc, ParticipantId author,
 			String text) {
-		// TODO: extract in method
 		int docSize = (srcDoc == null) ? 0 : ClientUtils
 				.findDocumentSize(srcDoc);
 		DocOpBuilder docOp = new DocOpBuilder();
@@ -91,10 +85,7 @@ public class ChatDocument extends AOperableDocument {
 			docOp.retain(docSize);
 		}
 
-		docOp.elementStart(ChatTag.LINE_TAG_NAME, new AttributesImpl(
-				ImmutableMap.of(ChatTag.AUTHOR_ATTR_NAME, author.getAddress())));
-		docOp.characters(text);
-		docOp.elementEnd();
+		docOp = (new ChatTag(author, text)).createTagFor(docOp);
 		
 		return createDocumentOperation(docOp.finish());
 
@@ -102,7 +93,7 @@ public class ChatDocument extends AOperableDocument {
 
 	@Override
 	public WaveletDocumentOperation getUndoOp(BufferedDocOp srcDoc, ParticipantId userId) {
-		Integer lastLine = applyCursor(srcDoc, new LastUserLineCursor(userId.getAddress()));
+		Integer lastLine = applyCursor(srcDoc, new ChatLastUserLineCursor(userId.getAddress()));
 
 		// Delete the line
 		if (lastLine >= 0) {

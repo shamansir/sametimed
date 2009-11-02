@@ -150,6 +150,7 @@ public class Command implements IServerInfoPackage {
 		return arguments.get(name);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public boolean execute() {
 		WavesClient client = WavesClient.get(clientId); 
 		return (client != null) ? client.doCommand(this) : false;

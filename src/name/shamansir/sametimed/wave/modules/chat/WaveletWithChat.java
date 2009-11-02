@@ -57,7 +57,7 @@ public class WaveletWithChat extends ADocumentsWavelet {
 	@Override	
 	protected void updateDocumentsModels() {
 		if (isChatReady()) {
-			updateModel(ModelID.CHAT_MODEL, chatView.getChatLines(getDocument(chatView.getDocumentID())));
+			updateModel(ModelID.CHAT_MODEL, chatView.extract(getDocument(chatView.getDocumentID())));
 		}		
 	}
 	

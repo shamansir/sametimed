@@ -31,7 +31,8 @@ public class ChatLinesExtractionCursor extends AElementsScannerCursor<ChatTag> i
 	protected ChatTag createTag(String tagName, Attributes attrs) throws IllegalArgumentException {
 		// FIXME: must use static method or factory
 		ChatTag newTag = new ChatTag();
-		return (ChatTag)newTag.initFromElement(tagName, attrs);
+		newTag.initFromElement(tagName, attrs);
+		return newTag;
 	}
 
 }
