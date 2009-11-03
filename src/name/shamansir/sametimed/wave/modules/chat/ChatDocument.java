@@ -10,7 +10,6 @@ import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLineDeletionCursor;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLinesExtractionCursor;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLastUserLineCursor;
 
-import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
@@ -60,7 +59,7 @@ public class ChatDocument extends AOperableDocument<List<ChatLine>> {
 	protected List<ChatLine> makeXMLChatLines(List<String> xmlLines) {
 		List<ChatLine> xmlChatLines = new ArrayList<ChatLine>();
 		for (String xmlLine: xmlLines) {
-			xmlChatLines.add(new ChatLine("-", xmlLine));
+			xmlChatLines.add(ChatLine.justWithContent(xmlLine));
 		}
 		return xmlChatLines;
 	}
@@ -77,16 +76,8 @@ public class ChatDocument extends AOperableDocument<List<ChatLine>> {
 	@Override
 	public WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc, ParticipantId author,
 			String text) {
-		int docSize = (srcDoc == null) ? 0 : ClientUtils
-				.findDocumentSize(srcDoc);
-		DocOpBuilder docOp = new DocOpBuilder();
-
-		if (docSize > 0) {
-			docOp.retain(docSize);
-		}
-
-		docOp = (new ChatTag(author, text)).createTagFor(docOp);
-		
+		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), srcDoc);
+		docOp = (new ChatTag(author, text)).createTagFor(docOp);		
 		return createDocumentOperation(docOp.finish());
 
 	}

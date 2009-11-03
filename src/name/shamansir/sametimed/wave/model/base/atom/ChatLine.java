@@ -26,5 +26,9 @@ public class ChatLine {
 	public String getText() {
 		return text;
 	}	
+	
+	public static ChatLine justWithContent(String content) {
+		return new ChatLine("-", content);		
+	}
 
 }

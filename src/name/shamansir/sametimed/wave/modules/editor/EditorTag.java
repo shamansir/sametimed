@@ -1,9 +1,5 @@
 package name.shamansir.sametimed.wave.modules.editor;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import name.shamansir.sametimed.wave.doc.ADocumentTag;
 import name.shamansir.sametimed.wave.modules.editor.util.TextStyle;
 
@@ -18,46 +14,61 @@ import com.google.common.collect.ImmutableMap;
 
 public class EditorTag extends ADocumentTag {
 	
-	private final static String TAG_NAME = "chunk";
-	private final static String AUTHORS_ATTR_NAME = "authors"; // FIXME: just one author for a chunk
-	private final static String RESERVED_ATTR_NAME = "reserved";
-	private final static String STYLE_ATTR_NAME = "style";
+	public final static String TAG_NAME = "chunk";
+	public final static String ID_ATTR_NAME = "id";
+	public final static String AUTHOR_ATTR_NAME = "author"; // FIXME: just one author for a chunk
+	public final static String RESERVED_ATTR_NAME = "reserved";
+	public final static String STYLE_ATTR_NAME = "style";
 	
-	private List<ParticipantId> authors;
+	private int id;
+	private ParticipantId author;
 	private boolean isReserved;
 	private TextStyle style = null;
 
-	public EditorTag(List<ParticipantId> authors, boolean isReserved, TextStyle style, String content) {
+	public EditorTag(int id, ParticipantId author, String content, TextStyle style, boolean isReserved) {
 		super(TAG_NAME);
-		setAuthors(authors);
+		setAuthor(author);
 		setReserved(isReserved);
 		setStyle(style);
 		setContent(content);
 	}
 	
-	public EditorTag(String authors, boolean isReserved, String style, String content) {
-		this(parseAuthors(authors), isReserved, TextStyle.fromString(style), content);
+	public EditorTag(int id, String author, String content, String style, boolean isReserved) {
+		this(id, parseAuthorAttr(author), content, TextStyle.fromString(style), isReserved);
 	}	
 	
-	public EditorTag(List<ParticipantId> authors, boolean isReserved, String content) {
-		this(authors, isReserved, null, content);
+	public EditorTag(int id, ParticipantId author, String content, boolean isReserved) {
+		this(id, author, content, null, isReserved);
 	}	
 	
-	public EditorTag(String authors, boolean isReserved, String content) {
-		this(parseAuthors(authors), isReserved, null, content);
+	public EditorTag(int id, String author, String content, boolean isReserved) {
+		this(id, parseAuthorAttr(author), content, null, isReserved);
 	}	
 	
-	public EditorTag(String authors, boolean isReserved) {
-		this(parseAuthors(authors), isReserved, null, "");
+	public EditorTag(int id, String author, boolean isReserved) {
+		this(id, parseAuthorAttr(author), "", null, isReserved);
 	}		
 
-	public List<ParticipantId> getAuthors() {
-		return authors;
+	public EditorTag() {
+		this(0, (ParticipantId)null, "", false);
+	}
+	
+	public int getID() {
+		return this.id;
+	}
+	
+	public void setID(int id) {
+		this.id = id; 
+		setAttribute(ID_ATTR_NAME, idAttr(id));
+	}	
+
+	public ParticipantId getAuthor() {
+		return author;
 	}
 
-	public void setAuthors(List<ParticipantId> authors) {
-		this.authors = authors;
-		setAttribute(AUTHORS_ATTR_NAME, compileAuthorsList(authors));
+	public void setAuthor(ParticipantId author) {
+		this.author = author;
+		setAttribute(AUTHOR_ATTR_NAME, authorAttr(author));
 	}
 
 	public boolean isReserved() {
@@ -77,6 +88,14 @@ public class EditorTag extends ADocumentTag {
 		setAttribute(STYLE_ATTR_NAME, styleAttr(style));
 	}
 	
+	private static String idAttr(int id) {
+		return String.valueOf(id);
+	}
+	
+	private static int parseIDAttr(String idString) {
+		return Integer.valueOf(idString);
+	}
+	
 	private static String reservedAttr(boolean isReserved) {
 		return isReserved ? "reserved" : "";
 	}
@@ -91,25 +110,16 @@ public class EditorTag extends ADocumentTag {
 	
 	private static TextStyle parseStyleAttr(String styleString) {
 		return TextStyle.fromString(styleString);
-	}	
-	
-	private static List<ParticipantId> parseAuthors(String authorsList) {		
-		String[] authors = authorsList.split(",");
-		List<ParticipantId> resultList = new ArrayList<ParticipantId>();
-		for (String author: authors) {
-			resultList.add(new ParticipantId(author));
-		}
-		return resultList;
 	}
 	
-	private static String compileAuthorsList(List<ParticipantId> authorsList) {
-		String resultStr = "";
-		for (Iterator<ParticipantId> iter = authorsList.iterator(); iter.hasNext(); ) {
-			resultStr += iter.next().getAddress();
-			if (iter.hasNext()) resultStr += ",";
-		}
-		return resultStr;
+	private static String authorAttr(ParticipantId author) {
+		return (author != null) ? author.getAddress() : "?";
 	}
+	
+	private static ParticipantId parseAuthorAttr(String author) {
+		return (!author.equals("?")) ? new ParticipantId(author) : null;
+	}
+	
 	
 	@Override
 	protected boolean checkTagName(String tagName) {
@@ -118,14 +128,16 @@ public class EditorTag extends ADocumentTag {
 	
 	@Override
 	protected boolean checkAttributes(Attributes attrs) {
-		return attrs.containsKey(AUTHORS_ATTR_NAME) &&
+		return attrs.containsKey(ID_ATTR_NAME) &&
+			   attrs.containsKey(AUTHOR_ATTR_NAME) &&
 			   attrs.containsKey(RESERVED_ATTR_NAME) &&
 			   attrs.containsKey(STYLE_ATTR_NAME);
 	}
 
 	@Override
 	protected void initFrom(Attributes attrs) {
-		setAuthors(parseAuthors(attrs.get(AUTHORS_ATTR_NAME)));
+		setID(parseIDAttr(attrs.get(ID_ATTR_NAME)));
+		setAuthor(parseAuthorAttr(attrs.get(AUTHOR_ATTR_NAME)));
 		setReserved(parseReservedAttr(attrs.get(RESERVED_ATTR_NAME)));
 		setStyle(parseStyleAttr(attrs.get(STYLE_ATTR_NAME)));
 	}
@@ -133,7 +145,8 @@ public class EditorTag extends ADocumentTag {
 	@Override
 	protected AttributesImpl compileAttributes() {
 		return new AttributesImpl(
-				ImmutableMap.of(AUTHORS_ATTR_NAME, compileAuthorsList(authors),
+				ImmutableMap.of(ID_ATTR_NAME, idAttr(id),
+							    AUTHOR_ATTR_NAME, authorAttr(author),
 				                RESERVED_ATTR_NAME, reservedAttr(isReserved),
 				                STYLE_ATTR_NAME, styleAttr(style)));
 	}

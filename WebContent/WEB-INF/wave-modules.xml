@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- It is just a stub for future implementation, 
+     this file do not affects application behavior for the moment-->  
+
+<wave-modules>
+
+	<!-- chat -->
+
+	<module alias="chat">
+
+	    <model id="CHAT_MODEL" alias="chat">
+	        <model-class>ChatModel</model-class>
+	        <model-base>ChatLines</model-base>
+	        <model-atom>ChatLine</model-atom>
+	    </model>
+	
+	    <document name="main">
+	        <document-model>CHAT_MODEL</document-model>
+	        <document-class>ChatDocument</document-class>
+	        <!-- <document-tag>ChatTag</document-tag> -->
+	    </document>
+	    
+	    <client>    
+	        <client-commands>
+	            <client-command id="CMD_SAY" alias="say" /> 
+	        </client-commands>
+	        <client-class>ChatWavesClient</client-class>
+	    </client>
+	    
+	    <wavelet>
+	        <wavelet-documents>
+	            <document-name>main</document-name>
+	        </wavelet-documents>
+	        <wavelet-class>WaveletWithChat</wavelet-class>
+	    </wavelet>
+	    
+	</module>
+	
+	<!-- editor -->
+
+	<module alias="editor">
+	
+	    <extends>chat</extends>
+	
+	    <model id="EDITOR_MODEL" alias="document">
+	        <model-class>DocumentModel</model-class>
+	        <model-base>Document</model-base>
+	        <model-atom>TextChuck</model-atom>
+	    </model>
+	
+	    <document name="document">
+	        <document-model>EDITOR_MODEL</document-model>
+	        <document-class>EditorDocument</document-class>
+	        <!-- <document-tags>
+	        		<document-tag>EditorTag</document-tag>
+	        	</document-tags> -->
+	    </document>
+	    
+	    <client>    
+	        <client-commands>
+	            <client-command id="CMD_PUT"     alias="put" />
+	            <client-command id="CMD_DELETE"  alias="del" />
+	            <client-command id="CMD_RESERVE" alias="r" />
+	            <client-command id="CMD_STYLE"   alias="style" />
+	        </client-commands>
+	        <client-class>EditorWavesClient</client-class>
+	    </client>
+	    
+	    <wavelet>
+	        <wavelet-documents>
+	            <document-name>document</document-name>
+	        </wavelet-documents>
+	        <wavelet-class>WaveletWithEditor</wavelet-class>
+	    </wavelet>
+	    
+	</module>
+
+</wave-modules>

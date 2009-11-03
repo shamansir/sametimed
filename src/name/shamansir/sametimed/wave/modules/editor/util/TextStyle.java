@@ -43,6 +43,7 @@ public class TextStyle {
 		} else throw new IllegalArgumentException("Style string \"" + styleString + "\" is not matches internal regular expression: " + STYLE_STR_RE);
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer result = new StringBuffer();
 		if (isBold) result.append('b');

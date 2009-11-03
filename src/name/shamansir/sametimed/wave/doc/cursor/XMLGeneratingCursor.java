@@ -76,6 +76,5 @@ public class XMLGeneratingCursor implements ICursorWithResult<List<String>> {
 	public List<String> getResult() {
 		return xmlLines;
 	}	
-	
 
 }

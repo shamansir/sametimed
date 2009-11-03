@@ -10,7 +10,7 @@ var DEFAULT_CLIENTS_HOLDER_ID = 'client-views';
  * 		users: [<string>, ...], // full addresses, one by one   
  * 		chat: [{author: <string>, text: <string>}, ...], // chat lines
  * 		document: 
- * 			[{text: <string>, style: <string>, authors: <string>,  
+ * 			[{id: <int>, text: <string>, style: <string>, author: <string>,  
  *            reserved: boolean, size: <int>}, ...}], // document chunks
  * 		console: [<string>, ...], // console history
  * 		errors: [<string>, ...], // errors happend while using the client
@@ -203,7 +203,8 @@ var ClientRenderer = {
 		for (textChunkIdx in documentModel) {
 			var textChunk = documentModel[textChunkIdx];
 			wikiEditingArea.append(textChunk.text);
-			// textChunk.style; // textChunk.size; // textChunk.reserved; // textChunk.authors;
+			// textChunk.id; // textChunk.style; // textChunk.size; 
+			// textChunk.reserved; // textChunk.author;
 		}
 		editorWrapper.append(wikiEditingArea);
 		
