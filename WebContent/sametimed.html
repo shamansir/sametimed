@@ -21,6 +21,14 @@
     <script type="text/javascript">
          $(document).ready(function(){
              dwr.engine.setActiveReverseAjax(true);
+             clientRenderer = new ClientRenderer({
+                 	modules: { 'chat': { renderAfter: 'users', 
+                           			     renderer: new ChatBoxRenderer() },
+                     	       'document': { renderAfter: 'errors', 
+       	                                     renderer: new EditorBoxRenderer(),
+       	                                     styleClass: 'editor' }
+             				 }
+             	});
          });    
     </script>
     
