@@ -104,7 +104,7 @@ function parseUpdateMessage(updateMessage) {
 	return {
 			clientId: ownerId,
 			modelType: typeStr,
-			modelValue: JSON.parse(unescapeXML(valueStr))
+			modelValue: $.evalJSON(unescapeXML(valueStr))
 		};
 }
 
@@ -115,12 +115,20 @@ function updateReceived(updateMessageXML) {
 /* ====== GET FULL CLIENT ====== */
 
 function getFullClient(username, clientsHolder) {
-	var addClientFunc = function(response, responseText) {
-			if (responseText) {
-				renderClient(responseText, clientsHolder);
-			}
-		};
-	makeRequest(CLIENT_RECEIVER_URL, 'username=' + username + '&ueq=false', addClientFunc, true);	
+	$.ajax({ url: CLIENT_RECEIVER_URL,
+		     type: 'POST',	
+		     dataType: 'json',
+		     data: { 'username': username,
+					 'ueq': false 		// ueq == use escaped quotes in response
+			       },		   
+		     success: function(waveModelObj) {
+			 			renderClient(waveModelObj, clientsHolder);
+				      },
+		     error: function(request, textStatus, error) {
+				    	// FIXME: implement
+				    }
+		   });
+	// makeRequest(CLIENT_RECEIVER_URL, 'username=' + username + '&ueq=false', addClientFunc, true);	
 }
 
 /* ====== ONCLICK ====== */
@@ -133,7 +141,17 @@ function cmdButtonOnClick(clientId, commandAlias, inputId) {
 	}
 	var cmdXML = createCommandXML(clientId, commandAlias, arguments, 'document');
 	if (cmdXML != '?') {
-		makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null, true);
+		$.ajax({ url: CMD_EXECUTOR_URL,
+		     type: 'POST',			     
+		     dataType: 'json',
+		     data: { 'clientId': clientId,
+					 'cmdXML': encodeURIComponent(cmdXML)
+			       },
+		     error: function(request, textStatus, error) {
+				    	// FIXME: implement
+				    }
+		   });
+		// makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null, true);
 	} else {
 		alert('document command cannot be parsed');
 	}
@@ -150,10 +168,20 @@ function sendButtonOnClick(clientId, inputId) {
 		if (consoleLine.length > 0) {
 			var cmdXML = parseCommandLine(clientId, consoleLine, 'main');
 			if (cmdXML != '?') {
-				/* var clearInputFunc = function(request, response) {
-					consoleInputElm.value = "";
-				}; */
-				makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null /*clearInputFunc*/, true);
+				$.ajax({ url: CMD_EXECUTOR_URL,
+				     type: 'POST',	
+				     dataType: 'json',				     
+				     data: { 'clientId': clientId,
+							 'cmdXML': encodeURIComponent(cmdXML)
+					       }, /*
+					 success: function() {
+					 			consoleInputElm.value = "";
+					          }, */
+				     error: function(request, textStatus, error) {
+						    	// FIXME: implement
+						    }
+				   });
+				// makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null /*clearInputFunc*/, true);
 			} else {
 				alert('console command cannot be parsed');
 			}

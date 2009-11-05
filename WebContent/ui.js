@@ -24,8 +24,8 @@ var DEFAULT_CLIENTS_HOLDER_ID = 'client-views';
  * }
  */
 
-function renderClient(waveModelStr, holder) {
-	var waveModelObj = JSON.parse(waveModelStr);
+function renderClient(waveModelObj, holder) {
+	//var waveModelObj = JSON.parse(waveModelStr);
 	if (!waveModelObj.error) {
 		var clientsHolder = holder ? holder : $('#' + DEFAULT_CLIENTS_HOLDER_ID);
 		clientsHolder.append(ClientRenderer.createClient(waveModelObj));
@@ -64,7 +64,7 @@ var ClientRenderer = {
 		{ 'bold': { id_postfix: '-bold', name: 'Bold', cmd: 'bold', text: 'B' },
 		  'italic': { id_postfix: '-italic', name: 'Italic', cmd: 'italic', text: 'I' },
 		  'underline': { id_postfix: '-uline', name: 'Underline', cmd: 'uline', text: 'U' } },
-		{ 'left': { id_postfix: '-left', name: 'Align Teft', cmd: 'left', text: 'L' },
+		{ 'left': { id_postfix: '-left', name: 'Align Left', cmd: 'left', text: 'L' },
 		  'center': { id_postfix: '-center', name: 'Center Text', cmd: 'center', text: 'C' },
 		  'right': { id_postfix: '-right', name: 'Align Right', cmd: 'right', text: 'R' },
 		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} },
@@ -202,10 +202,12 @@ var ClientRenderer = {
 		// new EditorController(); attach documentModel + clientId
 		for (textChunkIdx in documentModel) {
 			var textChunk = documentModel[textChunkIdx];
-			wikiEditingArea.append(textChunk.text);
+			wikiEditingArea.append(textChunk.text);			
 			// textChunk.id; // textChunk.style; // textChunk.size; 
 			// textChunk.reserved; // textChunk.author;
 		}
+		wikiEditingArea.keydown(onEditorKeyDownFunc);
+		wikiEditingArea.keyup(onEditorKeyUpFunc);
 		editorWrapper.append(wikiEditingArea);
 		
 		var documentTextArea =  $('<div />')
@@ -241,14 +243,12 @@ var ClientRenderer = {
 		consoleWrapper.append($('<input />')
 				.attr('id', inputElmId)
 				.attr('type', 'text')
-				.addClass('gwt-TextBox')
 				.attr('onkeydown', 'return blockEnter(event);'));
 				
 		consoleWrapper.append($('<input />')
 				.attr('type', 'button')
 				.attr('title', 'send')
 				.attr('value', 'send')
-				.addClass('gwt-Button')
 				.attr('onclick', 'return ' + this.SEND_BTN_HANDLER +
 						'(' + clientId + ',\'' + inputElmId + '\')'));
 				/* .click(...)); */		
