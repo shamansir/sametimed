@@ -36,7 +36,7 @@ public class GetClientViewServlet extends HttpServlet {
 		
 		String responseStr = "";
 		
-		response.setContentType("text/plain");		
+		response.setContentType("application/json");
 		response.setCharacterEncoding("UTF-8");		
 		
 		String username = (String)request.getParameter("username");

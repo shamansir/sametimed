@@ -1,6 +1,7 @@
 package name.shamansir.sametimed.wave.messaging;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -33,13 +34,18 @@ public class CommandsReceiverServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// int clientId = Integer.valueOf(request.getParameter("clientId"));
-		String commandXML = request.getParameter("cmdXML");
-		Command command = null;
-		try {
-			 command = Command.fromXMLString(commandXML);
-			 command.execute();
-		} catch (DocumentException e) {
-			LOG.severe("Failed to extract command data on the server side from " + commandXML);
+		if (request.getParameter("cmdXML") != null) {
+			String commandXML = URLDecoder.decode(request.getParameter("cmdXML"), "UTF-8");
+			LOG.info("Command: " + commandXML);
+			Command command = null;
+			try {
+				 command = Command.fromXMLString(commandXML);
+				 command.execute();
+			} catch (DocumentException e) {
+				LOG.severe("Failed to extract command data on the server side from " + commandXML);
+			}
+		} else {
+			LOG.severe("No command were passed to the Commands Receiver Servlet");
 		}
 		/* PrintWriter responseWriter = response.getWriter();
 		if (command != null) {
