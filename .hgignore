@@ -1,7 +1,9 @@
-syntax: regexp
+syntax: glob
+sametimed.*.war
 sametimed.*.eclipse-files.zip
-^\.externalToolBuilders$
-^\.settings$
-^\.classpath$
-^\.project$
-^build$
+.externalToolBuilders
+.settings
+.classpath
+.project
+build
+doc
