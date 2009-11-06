@@ -1,0 +1,7 @@
+syntax: regexp
+sametimed.*.eclipse-files.zip
+^\.externalToolBuilders$
+^\.settings$
+^\.classpath$
+^\.project$
+^build$
