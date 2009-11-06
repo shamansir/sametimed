@@ -2,7 +2,9 @@
 <!-- It is just a stub for future implementation, 
      this file do not affects application behavior for the moment-->
 
-<wave-client>
+<wave-client xmlns="http://www.shamansir.name/wave-client"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.shamansir.name/wave-client ./wave-client.xsd">
 
 	<enabled-modules>
 		<module-alias>chat</module-alias>

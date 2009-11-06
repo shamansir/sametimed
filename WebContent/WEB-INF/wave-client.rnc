@@ -1,0 +1,10 @@
+default namespace = "http://www.shamansir.name/wave-client"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+
+start =
+  element wave-client {
+    element enabled-modules {
+      element module-alias { module-alias }+
+    }
+  }
+  module-alias  = text

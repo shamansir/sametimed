@@ -1,3 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.shamansir.name/wave-modules" xmlns:tns="http://www.shamansir.name/wave-modules" elementFormDefault="qualified">
-</schema>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:client="http://www.shamansir.name/wave-client"
+    xmlns:generics="http://www.shamansir.name/wave-generics"
+    targetNamespace="http://www.shamansir.name/wave-client" 
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+    
+	<xsd:import namespace="http://www.shamansir.name/wave-generics" schemaLocation="./wave-generics.xsd" />    
+
+    <xsd:element name="wave-client" type="client:WaveClientType" />
+
+    <xsd:complexType name="WaveClientType">
+        <xsd:sequence>
+            <xsd:element name="enabled-modules" type="client:EnabledModulesList" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="EnabledModulesList">
+        <xsd:sequence>
+            <xsd:element name="module-alias" maxOccurs="unbounded" type="generics:ModuleAlias" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+</xsd:schema>
