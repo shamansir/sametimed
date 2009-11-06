@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- It is just a stub for future implementation, 
+     this file do not affects application behavior for the moment-->
+
+<wave-client>
+
+	<enabled-modules>
+		<module-alias>chat</module-alias>
+		<module-alias>editor</module-alias>
+	</enabled-modules>
+	
+</wave-client>
