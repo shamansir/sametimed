@@ -57,6 +57,22 @@ function blockEnter(evt) {
     }
 }
 
+function createMethodReference(obj, func) {
+	return function() {
+		func.apply(obj, arguments);
+	};
+}
+
+/* ==========================/ IBOXRENDER /================================== */
+
+var IBoxRenderer = $.inherit({
+	
+	renderBox: function(clientId, moduleData, chatModel) {},
+	
+	doAutoScroll: function() { return false; }
+		
+});
+
 /* ========================/ CLIENT RENDERER /=============================== */
 
 var ClientRenderer = $.inherit({
@@ -244,12 +260,12 @@ var ClientRenderer = $.inherit({
 		var modelWrapper = null;
 		var blockAutoScroll = false;
 		var holderId = null;
-		if (blockData) {
+		if (blockData) { // if it is the inner block to update
 			holderId = this.getModelHolderId(modelType, clientId); 
 			modelWrapper = this[blockData.renderer](clientId, blockData, model);
 			 	           // ATTENTION: calling a rendering method here			
 			blockAutoScroll = blockData.autoScroll;
-		} else if (this.modules[modelType]) {
+		} else if (this.modules[modelType]) { // if it is the module to update
 			var moduleData = this.prepareModuleData(clientId, modelType, this.modules[modelType]);
 			var moduleRenderer = moduleData.renderer;			
 			holderId = moduleData.holderId;	
@@ -307,135 +323,5 @@ var ClientRenderer = $.inherit({
 	IDS_PREFIX: 'client-',
 	
 	DIGEST_MAX_LENGTH: 14 // in symbols
-	
-});
-
-
-var IBoxRenderer = $.inherit({
-	
-	renderBox: function(clientId, moduleData, chatModel) {}
-		
-});
-
-/* ============================/ CHAT BOX /================================== */
-
-var ChatBoxRenderer = $.inherit(
-	
-	IBoxRenderer, {
-	
-	__constructor: function() {},
-	
-	renderBox: function(clientId, moduleData, chatModel) {
-		var chatWrapper = $('<div />')
-				.attr('id', moduleData.holderId)
-				.addClass(moduleData.styleClass);
-		
-		for (chatLineIdx in chatModel) {
-			var chatLine = chatModel[chatLineIdx];
-			var chatLineElm = $('<span />').addClass('chat-line');
-			chatLineElm.append($('<span />').addClass('author').text(chatLine.author));
-			chatLineElm.append($('<span />').addClass('line').text(chatLine.text));
-			chatWrapper.append(chatLineElm);
-		}	
-		
-		return chatWrapper;
-	},
-	
-	doAutoScroll: function() { return true; }
-	
-});
-
-/* ==========================/ EDITOR BOX /================================== */
-
-var EditorBoxRenderer = $.inherit(
-		
-	
-	IBoxRenderer, {
-	
-	__constructor: function() {},
-	
-	renderBox: function(clientId, moduleData, documentModel) {
-		var editorWrapper = $('<div />')
-				.attr('id', moduleData.holderId)
-				.addClass(moduleData.styleClass);
-		
-		var editorElmId = 'editor-content-' + clientId;
-		
-		// FIXME: do not draw buttons every time
-		var buttonsContainer = $('<ul />')
-				.addClass('editor-buttons');		
-		for (blockIdx in this.__self.EDITOR_BUTTONS) {
-			var blockData = this.__self.EDITOR_BUTTONS[blockIdx];
-			var blockWrapper = $('<li />');
-			var buttonsBlock = $('<ul />')
-					.addClass('editor-buttons-block');
-			for (buttonAlias in blockData) {
-				var buttonData = blockData[buttonAlias];
-				var buttonWrapper = $('<li />');
-				var button = $('<a />')
-							.attr('id', 'editor-' + clientId + '-button' + buttonData.id_postfix)
-							.attr('href', '#')
-							.attr('title', buttonData.name)
-							.attr('onclick', 'return ' + this.__self.CMD_BTN_HANDLER + "(" + clientId + ",'" + buttonData.cmd + "','" + editorElmId + "')")
-							.addClass('editor-button')
-							.text(buttonData.text);
-				buttonWrapper.append(button);
-				buttonsBlock.append(buttonWrapper);
-			}
-			blockWrapper.append(buttonsBlock);
-			buttonsContainer.append(blockWrapper);
-		}
-		editorWrapper.append(buttonsContainer);
-		
-		var wikiEditingArea =  $('<textarea />')
-				.addClass('editor-wiki-area')
-				.attr('id', editorElmId);
-		// new EditorController(); attach documentModel + clientId
-		for (textChunkIdx in documentModel) {
-			var textChunk = documentModel[textChunkIdx];
-			wikiEditingArea.append(textChunk.text);			
-			// textChunk.id; // textChunk.style; // textChunk.size; 
-			// textChunk.reserved; // textChunk.author;
-		}
-		wikiEditingArea.keydown(onEditorKeyDownFunc);
-		wikiEditingArea.keyup(onEditorKeyUpFunc);
-		editorWrapper.append(wikiEditingArea);
-		
-		var documentTextArea =  $('<div />')
-			.addClass('editor-document')
-			.attr('id', editorElmId);
-		// new EditorController(); attach documentModel + clientId
-		for (textChunkIdx in documentModel) {
-			var textChunk = documentModel[textChunkIdx];
-			wikiEditingArea.append(textChunk.text);
-			// textChunk.style;
-		}
-		editorWrapper.append(documentTextArea);		
-		
-		/*
-		for (textChunkIdx in documentModel) {
-			var textChunk = documentModel[textChunkIdx];
-			editorWrapper.append($('<span />').addClass('chunk').text(textChunk.text));
-			// textChunk.style;
-		} */
-		
-		return editorWrapper;		
-	},
-	
-	doAutoScroll: function() { return false; }
-	
-}, {  // static
-	
-	CMD_BTN_HANDLER: 'cmdButtonOnClick',
-	
-	EDITOR_BUTTONS: [
- 		{ 'bold': { id_postfix: '-bold', name: 'Bold', cmd: 'bold', text: 'B' },
- 		  'italic': { id_postfix: '-italic', name: 'Italic', cmd: 'italic', text: 'I' },
- 		  'underline': { id_postfix: '-uline', name: 'Underline', cmd: 'uline', text: 'U' } },
- 		{ 'left': { id_postfix: '-left', name: 'Align Left', cmd: 'left', text: 'L' },
- 		  'center': { id_postfix: '-center', name: 'Center Text', cmd: 'center', text: 'C' },
- 		  'right': { id_postfix: '-right', name: 'Align Right', cmd: 'right', text: 'R' },
- 		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} },
- 		{ 'put': { id_postfix:'-put', name: 'Put Text', cmd: 'put', text:'Put'} } ]	
 	
 });
