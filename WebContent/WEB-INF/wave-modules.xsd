@@ -1,3 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.shamansir.name/wave-modules" xmlns:tns="http://www.shamansir.name/wave-modules" elementFormDefault="qualified">
-</schema>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:modules="http://www.shamansir.name/wave-modules"
+    xmlns:generics="http://www.shamansir.name/wave-generics"
+    targetNamespace="http://www.shamansir.name/wave-modules" 
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.shamansir.name/wave-generics"
+        schemaLocation="./wave-generics.xsd" />
+
+    <xsd:element name="wave-modules" type="modules:WaveModulesType" />
+
+    <xsd:complexType name="WaveModulesType">
+        <xsd:sequence>
+            <xsd:element name="module" maxOccurs="unbounded" type="modules:WaveModuleType" />
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="WaveModuleType">
+		<xsd:sequence>
+			<xsd:element name="extends" minOccurs="0" type="generics:ModuleAlias" />
+			<xsd:element name="model" type="modules:ModuleModelType" />
+			<xsd:choice>
+				<xsd:element name="upright-document" type="modules:UprightDocumentType" />
+				<xsd:element name="structured-document" type="modules:StructuredDocumentType" />
+			</xsd:choice>
+			<xsd:element name="client" type="modules:ClientConfigurationType" />
+			<xsd:element name="wavelet" type="modules:WaveletConfigurationType" />
+		</xsd:sequence>
+		<xsd:attribute name="alias" type="generics:ModuleAlias" use="required" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="ModuleModelType">
+        <xsd:sequence>
+            <xsd:element name="model-class" type="generics:JavaClassName" />
+            <xsd:element name="model-base" type="generics:JavaClassName" />
+            <xsd:element name="model-atom" type="generics:JavaClassName" />
+        </xsd:sequence>
+        <xsd:attribute name="id" type="generics:ModelID" use="required" />
+        <xsd:attribute name="alias" type="generics:ModelAlias" use="required" />
+    </xsd:complexType>    
+    
+    <xsd:complexType name="UprightDocumentType">
+        <xsd:sequence>
+            <xsd:element name="document-model" type="generics:ModelID" />
+            <xsd:element name="document-class" type="generics:JavaClassName" />
+            <xsd:element name="document-tag" type="generics:JavaClassName" />
+        </xsd:sequence>
+        <xsd:attribute name="name" type="generics:DocumentName" use="required" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="StructuredDocumentType">
+        <xsd:sequence>
+            <xsd:element name="document-model" type="generics:ModelID" />
+            <xsd:element name="document-class" type="generics:JavaClassName" />
+            <xsd:element name="document-tags" type="modules:StructuredDocumentTagsType" />
+        </xsd:sequence>
+        <xsd:attribute name="name" type="generics:DocumentName" use="required" />
+    </xsd:complexType>    
+    
+    <xsd:complexType name="StructuredDocumentTagsType">
+        <xsd:sequence>
+            <xsd:element name="document-root-tag" type="generics:JavaClassName" />
+            <xsd:element name="document-child-tags" type="modules:StructuredDocumentChildTagsType" />
+        </xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="StructuredDocumentChildTagsType">
+    	<xsd:sequence>
+    		<xsd:element name="child-tag" maxOccurs="unbounded" type="generics:JavaClassName" />
+    	</xsd:sequence>
+    </xsd:complexType>
+        
+    <xsd:complexType name="ClientConfigurationType">
+    	<xsd:sequence>
+    		<xsd:element name="client-commands" type="modules:ClientCommandsListType" />
+    		<xsd:element name="client-class" type="generics:JavaClassName" />
+    	</xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ClientCommandsListType">
+    	<xsd:sequence>
+    		<xsd:element name="client-command" maxOccurs="unbounded" type="modules:ClientCommandType" />    		
+    	</xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="ClientCommandType">
+    	<xsd:attribute name="id" type="generics:CommandID" use="required" />
+        <xsd:attribute name="alias" type="generics:CommandAlias" use="required" />
+    </xsd:complexType>
+    
+    <xsd:complexType name="WaveletConfigurationType">
+    	<xsd:sequence>
+    		<xsd:element name="wavelet-documents" type="modules:WaveletDocumentsListType" />
+    		<xsd:element name="wavelet-class" type="generics:JavaClassName" />   		
+    	</xsd:sequence>
+    </xsd:complexType>
+    
+    <xsd:complexType name="WaveletDocumentsListType">
+    	<xsd:sequence>
+    		<xsd:element name="document-name" maxOccurs="unbounded" type="generics:DocumentName" />		
+    	</xsd:sequence>
+    </xsd:complexType>    
+        
+</xsd:schema>

@@ -2,7 +2,9 @@
 <!-- It is just a stub for future implementation, 
      this file do not affects application behavior for the moment-->  
 
-<wave-modules>
+<wave-modules xmlns="http://www.shamansir.name/wave-modules"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.shamansir.name/wave-modules ./wave-modules.xsd">
 
 	<!-- chat -->
 
@@ -14,11 +16,11 @@
 	        <model-atom>ChatLine</model-atom>
 	    </model>
 	
-	    <document name="main">
+	    <upright-document name="main">
 	        <document-model>CHAT_MODEL</document-model>
-	        <document-class>ChatDocument</document-class>
-	        <!-- <document-tag>ChatTag</document-tag> -->
-	    </document>
+	        <document-class>ChatDocument</document-class>	        
+	        <document-tag>ChatTag</document-tag>
+	    </upright-document>
 	    
 	    <client>    
 	        <client-commands>
@@ -48,13 +50,16 @@
 	        <model-atom>TextChuck</model-atom>
 	    </model>
 	
-	    <document name="document">
+	    <structured-document name="document">
 	        <document-model>EDITOR_MODEL</document-model>
 	        <document-class>EditorDocument</document-class>
-	        <!-- <document-tags>
-	        		<document-tag>EditorTag</document-tag>
-	        	</document-tags> -->
-	    </document>
+	        <document-tags>
+	        	<document-root-tag>EditorTag</document-root-tag>
+	        	<document-child-tags>
+	        		<child-tag>BlahTag</child-tag>
+	        	</document-child-tags>
+	        </document-tags>
+	    </structured-document>
 	    
 	    <client>    
 	        <client-commands>
