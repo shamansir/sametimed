@@ -8,6 +8,7 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 
+// TODO: use Atomic types? 
 public abstract class ADocumentTag {
 	
 	private final static String DEFAULT_CONTENT = "-empty-";	

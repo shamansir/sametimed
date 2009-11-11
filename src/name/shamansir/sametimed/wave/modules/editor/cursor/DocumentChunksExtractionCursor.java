@@ -1,7 +1,10 @@
 package name.shamansir.sametimed.wave.modules.editor.cursor;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import name.shamansir.sametimed.wave.doc.cursor.AElementsScannerCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
@@ -12,11 +15,11 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 
 public class DocumentChunksExtractionCursor extends AElementsScannerCursor<EditorTag> implements ICursorWithResult<List<TextChunk>> {
 	
-	private final List<TextChunk> textChunks;
+	private final Queue<TextChunk> textChunks;
 	
 	public DocumentChunksExtractionCursor() {
 		super();
-		this.textChunks = new ArrayList<TextChunk>();
+		this.textChunks = new ConcurrentLinkedQueue<TextChunk>();
 	}
 		
 	protected void applyTag(EditorTag tag) {
@@ -27,8 +30,8 @@ public class DocumentChunksExtractionCursor extends AElementsScannerCursor<Edito
 									 tag.isReserved()));
 	}
 	
-	public List<TextChunk> getResult() {
-		return textChunks;
+	public List<TextChunk> getResult() { // FIXME: do not create a new list?
+		return Collections.unmodifiableList(new LinkedList<TextChunk>(textChunks));
 	}
 
 	@Override

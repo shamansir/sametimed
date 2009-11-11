@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import name.shamansir.sametimed.wave.doc.ADocumentTag;
@@ -12,18 +13,18 @@ public abstract class AElementsScannerCursor<TagType extends ADocumentTag> imple
 	
 	private static final Logger LOG = Logger.getLogger(AElementsScannerCursor.class.getName());
 	
-	private boolean gotEnd;
-	private boolean gotCharacters;
-	private boolean skipElement; 
+	private AtomicBoolean gotEnd;
+	private AtomicBoolean gotCharacters;
+	private AtomicBoolean skipElement; 
 	
 	private TagType currentTag;
 	
 	public AElementsScannerCursor() {			
 		this.currentTag = null;
 		
-		this.skipElement = false;
-		this.gotCharacters = false;	// used to determine the flow order
-		this.gotEnd = false; // used to determine the flow order
+		this.skipElement = new AtomicBoolean(false);
+		this.gotCharacters = new AtomicBoolean(false);	// used to determine the flow order
+		this.gotEnd = new AtomicBoolean(false); // used to determine the flow order
 		
 	}
 	
@@ -32,34 +33,34 @@ public abstract class AElementsScannerCursor<TagType extends ADocumentTag> imple
 	
 	@Override
 	public void elementStart(String type, Attributes attrs) {
-		this.skipElement = false;
-		this.gotCharacters = false;		
-		this.gotEnd = false;
+		this.skipElement.set(false);
+		this.gotCharacters.set(false);		
+		this.gotEnd.set(false);
 		
 		try {
 			currentTag = createTag(type, attrs);
-			if (currentTag == null) this.skipElement = true;
+			if (currentTag == null) this.skipElement.set(true);
 		} catch (IllegalArgumentException iae) {
 			LOG.warning("exception thrown while parsing element " + type +
 					" with attrs " + attrs + ": " + iae.getMessage());
-			this.skipElement = true;
+			this.skipElement.set(true);
 		}
 	}	
 
 	@Override
 	public void characters(String chars) {
-		if (!this.skipElement) {
+		if (!this.skipElement.get()) {
 			currentTag.setContent(chars);			
-			if (this.gotEnd) applyTag(currentTag);			
-			this.gotCharacters = true;
+			if (this.gotEnd.get()) applyTag(currentTag);			
+			this.gotCharacters.set(true);
 		}
 	}
 
 	@Override
 	public void elementEnd() {
-		if (!this.skipElement) {
-			if (this.gotCharacters) applyTag(currentTag);
-			this.gotEnd = true;
+		if (!this.skipElement.get()) {
+			if (this.gotCharacters.get()) applyTag(currentTag);
+			this.gotEnd.set(true);
 		}
 	}
 	

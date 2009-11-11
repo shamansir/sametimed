@@ -1,7 +1,10 @@
 package name.shamansir.sametimed.wave.modules.chat.cursor;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
@@ -12,19 +15,19 @@ import name.shamansir.sametimed.wave.modules.chat.ChatTag;
 
 public class ChatLinesExtractionCursor extends AElementsScannerCursor<ChatTag> implements ICursorWithResult<List<ChatLine>> {
 	
-	private final List<ChatLine> chatLines;
+	private final Queue<ChatLine> chatLines;
 	
 	public ChatLinesExtractionCursor() {
 		super();
-		this.chatLines = new ArrayList<ChatLine>();
+		this.chatLines = new ConcurrentLinkedQueue<ChatLine>();
 	}
 		
 	protected void applyTag(ChatTag tag) {
 		chatLines.add(new ChatLine(tag.getAuthor().toString(), tag.getContent()));
 	}
 	
-	public List<ChatLine> getResult() {
-		return chatLines;
+	public List<ChatLine> getResult() { // FIXME: do not create a new list?
+		return Collections.unmodifiableList(new LinkedList<ChatLine>(chatLines));
 	}
 
 	@Override

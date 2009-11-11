@@ -69,7 +69,7 @@ public abstract class WavesClient <WaveletType extends AUpdatingWavelet> impleme
 	
 	/* GETTERS */
 	
-	protected int generateViewId() {
+	protected synchronized int generateViewId() {
 		int newId = LAST_VIEW_ID + 1;
 		LAST_VIEW_ID = newId;
 		return newId;
@@ -136,7 +136,7 @@ public abstract class WavesClient <WaveletType extends AUpdatingWavelet> impleme
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static void registerClient(int clientId, WavesClient client) {
+	private synchronized static void registerClient(int clientId, WavesClient client) {
 		registeredClients.put(Integer.valueOf(clientId), client);
 	}
 	

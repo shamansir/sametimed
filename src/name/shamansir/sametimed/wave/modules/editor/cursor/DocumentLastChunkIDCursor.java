@@ -1,5 +1,7 @@
 package name.shamansir.sametimed.wave.modules.editor.cursor;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
@@ -10,7 +12,7 @@ import name.shamansir.sametimed.wave.modules.editor.EditorTag;
 
 public class DocumentLastChunkIDCursor implements ICursorWithResult<Integer> {
 
-	private int lastID = 0;
+	private final AtomicInteger lastID = new AtomicInteger(0);
 	
 	@Override
 	public void characters(String chars) { }
@@ -22,7 +24,7 @@ public class DocumentLastChunkIDCursor implements ICursorWithResult<Integer> {
 	public void elementStart(String type, Attributes attrs) {
 		if (type.equals(EditorTag.TAG_NAME)) {
 			if (attrs.get(EditorTag.ID_ATTR_NAME) != null) {
-				lastID = Integer.valueOf(attrs.get(EditorTag.ID_ATTR_NAME));
+				lastID.set(Integer.valueOf(attrs.get(EditorTag.ID_ATTR_NAME)));
 			}
 		}
 	}
@@ -33,7 +35,7 @@ public class DocumentLastChunkIDCursor implements ICursorWithResult<Integer> {
 	
 	@Override
 	public Integer getResult() {
-		return lastID;
+		return lastID.get();
 	}	
 
 }
