@@ -139,10 +139,12 @@ public abstract class ADocumentsWavelet extends AUpdatingWavelet {
 	private void documentChangeRenderMode(String documentID, RenderMode mode) {
 		IOperableDocument opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
-		if ((opHandler != null) && (operableDoc != null)) {
-			opHandler.handleRenderModeChange(operableDoc, mode);
+		if (opHandler != null) {
+			if (operableDoc != null) { // if document already created
+				opHandler.handleRenderModeChange(operableDoc, mode);
+			}
 		} else {
-			registerError("document with id " + documentID + "is not found or have no handler");
+			registerError("document with id \'" + documentID + "\' is not found or have no handler");
 		}
 	}
 	
