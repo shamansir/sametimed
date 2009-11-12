@@ -70,7 +70,7 @@ public abstract class ADocumentTag {
 				throw new IllegalArgumentException(
 						"There are not correct arguments in the tag " + name + " " + attrs);
 			}			
-			initFrom(attrs);
+			initAttributes(attrs);
 			setContent((content != null) ? content : "");
 		} else {
 			throw new IllegalArgumentException(
@@ -97,7 +97,7 @@ public abstract class ADocumentTag {
 	protected abstract boolean checkTagName(String tagName);
 	protected abstract boolean checkAttributes(Attributes attrs);
 	
-	protected abstract void initFrom(Attributes attrs);
+	protected abstract void initAttributes(Attributes attrs);
 	protected abstract AttributesImpl compileAttributes();
 	
 }

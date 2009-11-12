@@ -34,10 +34,7 @@ function renderClient(waveModelObj, holder) {
 		var clientsHolder = holder ? holder : $('#' + DEFAULT_CLIENTS_HOLDER_ID);
 		clientsHolder.append(clientRenderer.createClient(waveModelObj));
 	} else {
-		$('#error')
-			.removeClass('no-errors')
-			.addClass('have-errors')
-			.append($('<span />').text(waveModelObj.error));
+		showGeneralError(waveModelObj.error);
 	}
 }
 
@@ -51,7 +48,13 @@ var IBoxRenderer = $.inherit({
 	
 	renderBox: function(clientId, moduleData, chatModel) {},
 	
-	doAutoScroll: function() { return false; }
+	doAutoScroll: function() { return false; },
+	
+	prepareUpdate: function(clientId) {},
+	
+	beforeUpdate: function(clientId) {},
+	
+	afterUpdate: function(clientId) {}
 		
 });
 
@@ -242,6 +245,11 @@ var ClientRenderer = $.inherit({
 		var modelWrapper = null;
 		var blockAutoScroll = false;
 		var holderId = null;
+		
+		var prepareUpdateCallback = null;
+		var beforeUpdateCallback = null;
+		var afterUpdateCallback = null;
+		
 		if (blockData) { // if it is the inner block to update
 			holderId = this.getModelHolderId(modelType, clientId); 
 			modelWrapper = this[blockData.renderer](clientId, blockData, model);
@@ -250,17 +258,26 @@ var ClientRenderer = $.inherit({
 		} else if (this.modules[modelType]) { // if it is the module to update
 			var moduleData = this.prepareModuleData(clientId, modelType, this.modules[modelType]);
 			var moduleRenderer = moduleData.renderer;			
-			holderId = moduleData.holderId;	
+			holderId = moduleData.holderId;
+			
+			prepareUpdateCallback = createMethodReference(moduleRenderer, moduleRenderer.prepareUpdate);
+			beforeUpdateCallback  = createMethodReference(moduleRenderer, moduleRenderer.beforeUpdate);
+			afterUpdateCallback   = createMethodReference(moduleRenderer, moduleRenderer.afterUpdate);
+			
+			if (prepareUpdateCallback) prepareUpdateCallback(clientId);
+			
 			modelWrapper = moduleRenderer.renderBox(clientId, moduleData, model);
 			blockAutoScroll = moduleRenderer.doAutoScroll();
 		}
 		
 		if (modelWrapper != null) {
+			if (beforeUpdateCallback) beforeUpdateCallback(clientId); 
 			$('#' + holderId).replaceWith(modelWrapper);
 			if (blockAutoScroll) {
 				modelWrapper.attr("scrollTop", modelWrapper.height());
 			}
-		}
+			if (afterUpdateCallback) afterUpdateCallback(clientId);
+		}		
 
 	}
 		

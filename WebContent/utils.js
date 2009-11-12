@@ -1,3 +1,14 @@
+var ERROR_BOX_ID = 'error';
+
+/* ====== SHOW_ERROR ==== */
+
+function showGeneralError(errorText) {
+	$('#' + ERROR_BOX_ID)
+		.removeClass('no-errors')
+		.addClass('have-errors')
+		.append($('<span />').text(errorText));
+}
+
 /* ==============================/ UTILS /=================================== */
 
 function blockEnter(evt) {

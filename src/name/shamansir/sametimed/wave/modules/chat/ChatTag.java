@@ -59,7 +59,7 @@ public class ChatTag extends ADocumentTag {
 	}
 
 	@Override
-	protected void initFrom(Attributes attrs) {
+	protected void initAttributes(Attributes attrs) {
 		setAuthor(attrs.get(AUTHOR_ATTR_NAME));
 	}
 

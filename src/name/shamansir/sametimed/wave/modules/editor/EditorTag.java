@@ -27,6 +27,7 @@ public class EditorTag extends ADocumentTag {
 
 	public EditorTag(int id, ParticipantId author, String content, TextStyle style, boolean isReserved) {
 		super(TAG_NAME);
+		setID(id);
 		setAuthor(author);
 		setReserved(isReserved);
 		setStyle(style);
@@ -135,7 +136,7 @@ public class EditorTag extends ADocumentTag {
 	}
 
 	@Override
-	protected void initFrom(Attributes attrs) {
+	protected void initAttributes(Attributes attrs) {
 		setID(parseIDAttr(attrs.get(ID_ATTR_NAME)));
 		setAuthor(parseAuthorAttr(attrs.get(AUTHOR_ATTR_NAME)));
 		setReserved(parseReservedAttr(attrs.get(RESERVED_ATTR_NAME)));

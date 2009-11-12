@@ -1,6 +1,7 @@
 package name.shamansir.sametimed.wave.messaging;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.util.logging.Logger;
 
@@ -34,6 +35,7 @@ public class CommandsReceiverServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		// int clientId = Integer.valueOf(request.getParameter("clientId"));
+		String errorString = null;
 		if (request.getParameter("cmdXML") != null) {
 			String commandXML = URLDecoder.decode(request.getParameter("cmdXML"), "UTF-8");
 			LOG.info("Command: " + commandXML);
@@ -42,10 +44,12 @@ public class CommandsReceiverServlet extends HttpServlet {
 				 command = Command.fromXMLString(commandXML);
 				 command.execute();
 			} catch (DocumentException e) {
-				LOG.severe("Failed to extract command data on the server side from " + commandXML);
+				errorString = "Failed to extract command data on the server side from " + commandXML;
+				LOG.severe(errorString);
 			}
 		} else {
-			LOG.severe("No command were passed to the Commands Receiver Servlet");
+			errorString = "No command were passed to the Commands Receiver Servlet";
+			LOG.severe(errorString);
 		}
 		/* PrintWriter responseWriter = response.getWriter();
 		if (command != null) {
@@ -53,7 +57,21 @@ public class CommandsReceiverServlet extends HttpServlet {
 			// responseWriter.write(command.getPanelsToRedrawContent());			
 		} else {
 			responseWriter.write("");
-		} */		
+		} */
+		PrintWriter responseWriter = response.getWriter();
+		if (errorString == null) {
+			responseWriter.write(createOkXMLStatus());
+		} else {
+			responseWriter.write(createErrorXMLStatus(errorString));
+		}
 	}
+	
+	private static String createOkXMLStatus() {
+		return "<result><status>ok</status></result>";
+	}
+	
+	private static String createErrorXMLStatus(String errorText) {
+		return "<result><status>error</status><text>" + errorText + "</text></result>"; 
+	}	
 	
 }

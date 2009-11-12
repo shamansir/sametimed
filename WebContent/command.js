@@ -15,7 +15,7 @@ function unescapeXML(xmlStr) {
 }
 
 var CLIENT_RECEIVER_URL = './get_client_view'; 
-var CMD_EXECUTOR_URL = './cmd_exec'; 
+var CMD_EXECUTOR_URL = './cmd_exec';
 
 /* ====== COMMANDS ====== */
 
@@ -96,6 +96,7 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 /* ====== MESSAGES ====== */
 
 function parseUpdateMessage(updateMessage) {
+	//console.log('parseUpdate', updateMessage);
 	var msgRoot = $(updateMessage);
 	var msgType = msgRoot.find('name').text();
 	var ownerId = msgRoot.find('owner-id').text();
@@ -122,10 +123,10 @@ function getFullClient(username, clientsHolder) {
 					 'ueq': false 		// ueq == use escaped quotes in response
 			       },		   
 		     success: function(waveModelObj) {
-			 			renderClient(waveModelObj, clientsHolder);
+			 		  	  renderClient(waveModelObj, clientsHolder);
 				      },
 		     error: function(request, textStatus, error) {
-				    	// FIXME: implement
+				    	  showGeneralError(error + ': ' + textStatus);
 				    }
 		   });
 	// makeRequest(CLIENT_RECEIVER_URL, 'username=' + username + '&ueq=false', addClientFunc, true);	
@@ -143,14 +144,15 @@ function cmdButtonOnClick(clientId, commandAlias, inputId) {
 	if (cmdXML != '?') {
 		$.ajax({ url: CMD_EXECUTOR_URL,
 		     type: 'POST',			     
-		     dataType: 'json',
+		     dataType: 'xml',
 		     data: { 'clientId': clientId,
 					 'cmdXML': encodeURIComponent(cmdXML)
-			       },
+			       },			       
 		     error: function(request, textStatus, error) {
-				    	// FIXME: implement
+			    	   console.log('send from cmd button failed', textStatus);	    	   
+			    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
 				    }
-		   });
+		   });		
 		// makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null, true);
 	} else {
 		alert('document command cannot be parsed');
@@ -170,7 +172,7 @@ function sendButtonOnClick(clientId, inputId) {
 			if (cmdXML != '?') {
 				$.ajax({ url: CMD_EXECUTOR_URL,
 				     type: 'POST',	
-				     dataType: 'json',				     
+				     dataType: 'xml',				     
 				     data: { 'clientId': clientId,
 							 'cmdXML': encodeURIComponent(cmdXML)
 					       }, /*
@@ -178,7 +180,8 @@ function sendButtonOnClick(clientId, inputId) {
 					 			consoleInputElm.value = "";
 					          }, */
 				     error: function(request, textStatus, error) {
-						    	// FIXME: implement
+					    	   console.log('cmd button send failed', textStatus);
+					    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
 						    }
 				   });
 				// makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null /*clearInputFunc*/, true);

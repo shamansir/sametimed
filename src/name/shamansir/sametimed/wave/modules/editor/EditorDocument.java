@@ -65,6 +65,7 @@ public class EditorDocument extends AOperableDocument<List<TextChunk>> {
 		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), srcDoc);
 		// appending is performed only here (for the moment), so we can freely be sure
 		// that chunks ID-s will increment one-by-one
+		// FIXME: the chunks id is not written correctly 
 		docOp = (new EditorTag(lastID + 1, author, text, false)).createTagFor(docOp);		
 		return createDocumentOperation(docOp.finish());
 	}

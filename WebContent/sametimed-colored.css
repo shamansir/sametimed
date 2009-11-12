@@ -55,7 +55,10 @@ form#add-client-form button {
     margin: 5px;
     padding: 5px;
     background-color: #fee;
-    border: 1px solid #c00; 
+    border: 1px solid #c00;
+    position: fixed;
+    top: 5px;
+    right: 5px;     
 }
 
 /*div#error*/ .have-errors span {

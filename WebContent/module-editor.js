@@ -11,11 +11,14 @@ var EditorBoxRenderer = $.inherit(
 				.attr('id', moduleData.holderId)
 				.addClass(moduleData.styleClass);
 		
-		var editorElmId = 'editor-content-' + clientId;
+		var editorElmId = this.getEditorElmId(clientId);
 		
 		editorWrapper.append(this.__prepareButtons(editorElmId, clientId));
-		editorWrapper.append(this.__prepareWikiEditor(editorElmId, documentModel));
-		editorWrapper.append(this.__preparePreviewArea(editorElmId + '-result', documentModel));
+		
+		var documentEditor = new DocumentEditor(clientId, editorElmId, documentModel);				
+		
+		editorWrapper.append(documentEditor.getEditorElm());
+		editorWrapper.append(documentEditor.getPreviewElm());
 				
 		return editorWrapper;
 	},
@@ -35,7 +38,11 @@ var EditorBoxRenderer = $.inherit(
 							.attr('id', 'editor-' + clientId + '-button' + buttonData.id_postfix)
 							.attr('href', '#')
 							.attr('title', buttonData.name)
-							.attr('onclick', 'return ' + this.__self.CMD_BTN_HANDLER + "(" + clientId + ",'" + buttonData.cmd + "','" + elmId + "')")
+							.attr('onclick', 'return ' + 
+									this.__self.CMD_BTN_HANDLER + 
+										"(" + clientId + ",'" 
+										    + buttonData.cmd + "','" 
+										    + elmId + "')")
 							.addClass('editor-button')
 							.text(buttonData.text);
 				buttonWrapper.append(button);
@@ -47,42 +54,19 @@ var EditorBoxRenderer = $.inherit(
 		return buttonsContainer;
 	},
 	
-	__prepareWikiEditor: function(emlId, documentModel) {
-		var wikiEditingArea =  $('<textarea />')
-				.addClass('editor-wiki-area')
-				.attr('id', emlId);
-		// new EditorController(); attach documentModel + clientId
-		for (textChunkIdx in documentModel) {
-			var textChunk = documentModel[textChunkIdx];
-			wikiEditingArea.append(textChunk.text);			
-			// textChunk.id; // textChunk.style; // textChunk.size; 
-			// textChunk.reserved; // textChunk.author;
-		}
-		wikiEditingArea.keydown(createMethodReference(this, this.editorOnKeyDown));
-		wikiEditingArea.keyup(createMethodReference(this, this.editorOnKeyUp));
-		return wikiEditingArea;
+	prepareUpdate: function(clientId) {
+		// FIXME: use DocumentEditor lock method somehow
+		$('#' + this.getEditorElmId(clientId)).attr('readonly', 'readonly');
 	},
 	
-	__preparePreviewArea: function(emlId, documentModel) {
-		var previewArea =  $('<div />')
-			.addClass('editor-document')
-			.attr('id', emlId + '-result');
-		// new EditorController(); attach documentModel + clientId
-		for (textChunkIdx in documentModel) {
-			var textChunk = documentModel[textChunkIdx];
-			previewArea.append(textChunk.text);
-			// textChunk.style;
-		}
-		return previewArea;
-	},
+	afterUpdate: function(clientId) {
+		// FIXME: use DocumentEditor unlock method somehow
+		$('#' + this.getEditorElmId(clientId)).attr('readonly', '');
+	},	
 	
-	editorOnKeyDown: function(event) {
-		// console.log(event);
-	},
-	
-	editorOnKeyUp: function(event) {
-		// console.log(event);
-	}	
+	getEditorElmId: function(clientId) {
+		return 'editor-content-' + clientId;
+	}
 	
 }, {  // static
 	
@@ -97,5 +81,91 @@ var EditorBoxRenderer = $.inherit(
  		  'right': { id_postfix: '-right', name: 'Align Right', cmd: 'right', text: 'R' },
  		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} },
  		{ 'put': { id_postfix:'-put', name: 'Put Text', cmd: 'put', text:'Put'} } ]	
+	
+});
+
+/* =======================/ DOCUMENT HANDLER /=============================== */
+
+var DocumentEditor = $.inherit({
+	
+	__constructor: function(clientId, elmId, documentModel) {
+		this.clientId = clientId;
+		this.documentModel = documentModel;
+				
+		this.editorElm = this.createEditor(elmId, documentModel); // jQuery object
+		this.previewElm = this.createPreview(elmId + '-result', documentModel); // jQuery object
+		
+		this.lock();
+		
+		this.editorElm.attr('client', clientId);
+		this.previewElm.attr('client', clientId);
+		
+		this.initWithDocument(this.editorElm, documentModel, 'wiki');
+		this.initWithDocument(this.previewElm, documentModel, 'styled');
+		
+		this.editorElm.keydown(createMethodReference(this, this.onKeyDown));
+		this.editorElm.keyup(createMethodReference(this, this.onKeyUp));
+		
+		var timerEventHandler = createMethodReference(this, this.onTimer); 
+		
+		setInterval(function() { timerEventHandler(); }, this.__self.COMMIT_CHECK_PERIOD);
+		
+		// this.unlock(); // unlock will be called after update
+		
+	},
+	
+	createEditor: function(elmId, documentModel) {
+		return $('<textarea />')
+			.addClass('editor-wiki-area')
+			.attr('id', elmId);
+	},
+	
+	createPreview: function(elmId, documentModel) {
+		return $('<div />')
+			.addClass('editor-document')
+			.attr('id', elmId);
+	},	
+	
+	getEditorElm: function() {
+		return this.editorElm;
+	},
+	
+	getPreviewElm: function() {
+		return this.previewElm;
+	},	
+
+	onKeyDown: function(event) {
+		// console.log('keydown:', event, event.originalEvent.which);
+	},
+	
+	onKeyUp: function(event) {
+		// console.log('keyup:', event, event.originalEvent.which);
+	},
+	
+	onTimer: function() {
+		// console.log('ontimer'); 
+	},
+	
+	lock: function() {
+		this.editorElm.attr('readonly', 'readonly');
+	},
+	
+	unlock: function() {
+		this.editorElm.attr('readonly', '');
+	},	
+	
+	initWithDocument: function(holderElm, documentModel, mode) {
+		//holderElm.val('');
+		for (textChunkIdx in documentModel) {
+			var textChunk = documentModel[textChunkIdx];
+			holderElm.append(textChunk.text);
+			// textChunk.id; // textChunk.style; // textChunk.size; 
+			// textChunk.reserved; // textChunk.author;
+		}		
+	}
+	
+}, { // static
+	
+	COMMIT_CHECK_PERIOD: 500
 	
 });
