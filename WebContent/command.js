@@ -149,7 +149,7 @@ function cmdButtonOnClick(clientId, commandAlias, inputId) {
 					 'cmdXML': encodeURIComponent(cmdXML)
 			       },			       
 		     error: function(request, textStatus, error) {
-			    	   console.log('send from cmd button failed', textStatus);	    	   
+			    	   // console.log('send from cmd button failed', textStatus);	    	   
 			    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
 				    }
 		   });		
@@ -180,7 +180,7 @@ function sendButtonOnClick(clientId, inputId) {
 					 			consoleInputElm.value = "";
 					          }, */
 				     error: function(request, textStatus, error) {
-					    	   console.log('cmd button send failed', textStatus);
+					    	   // console.log('send button execution failed', textStatus);
 					    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
 						    }
 				   });
