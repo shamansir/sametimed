@@ -105,6 +105,11 @@ var DocumentEditor = $.inherit({
 		
 		this.editorElm.keydown(createMethodReference(this, this.onKeyDown));
 		this.editorElm.keyup(createMethodReference(this, this.onKeyUp));
+		//this.editorElm.change(createMethodReference(this, this.onChange));
+		this.editorElm.mouseup(createMethodReference(this, this.onMouseUp));
+		
+		this.editorElm.bind('cut', createMethodReference(this, this.onCut));
+		this.editorElm.bind('paste', createMethodReference(this, this.onPaste));
 		
 		var timerEventHandler = createMethodReference(this, this.onTimer); 
 		
@@ -135,15 +140,32 @@ var DocumentEditor = $.inherit({
 	},	
 
 	onKeyDown: function(event) {
-		// console.log('keydown:', event, event.originalEvent.which);
+		var ev = event.originalEvent;
+		console.log('keydown:', ev.which);
 	},
 	
 	onKeyUp: function(event) {
-		// console.log('keyup:', event, event.originalEvent.which);
+		var ev = event.originalEvent;
+	    console.log('keyup:', ev.which);
 	},
 	
+	onMouseUp: function(event) {
+		var ev = event.originalEvent;
+		console.log('mouseup:', ev);
+	},	
+	
+	onCut: function(event) {
+		var ev = event.originalEvent;
+		console.log('cut:', ev);
+	},
+	
+	onPaste: function(event) {
+		var ev = event.originalEvent;
+		console.log('paste:', ev);
+	},	
+	
 	onTimer: function() {
-		// console.log('ontimer'); 
+		//console.log('ontimer'); 
 	},
 	
 	lock: function() {
