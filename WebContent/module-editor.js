@@ -1,6 +1,6 @@
 /* ==========================/ EDITOR BOX /================================== */
 
-var EditorBoxRenderer = $.inherit(		
+var EditorBoxRenderer = $.inherit(
 	
 	IBoxRenderer, {
 	
@@ -13,9 +13,10 @@ var EditorBoxRenderer = $.inherit(
 		
 		var editorElmId = this.getEditorElmId(clientId);
 		
-		editorWrapper.append(this.__prepareButtons(editorElmId, clientId));
+		var documentEditor = new DocumentEditor(clientId, editorElmId, documentModel);		
 		
-		var documentEditor = new DocumentEditor(clientId, editorElmId, documentModel);				
+		editorWrapper.append(this.__prepareButtons(editorElmId, clientId,
+					createMethodReference(documentEditor, documentEditor.execBtnCommand)));
 		
 		editorWrapper.append(documentEditor.getEditorElm());
 		editorWrapper.append(documentEditor.getPreviewElm());
@@ -23,7 +24,7 @@ var EditorBoxRenderer = $.inherit(
 		return editorWrapper;
 	},
 	
-	__prepareButtons: function(elmId, clientId) {
+	__prepareButtons: function(elmId, clientId, cmdExecHandler) {
 		var buttonsContainer = $('<ul />')
 				.addClass('editor-buttons');		
 		for (blockIdx in this.__self.EDITOR_BUTTONS) {
@@ -38,11 +39,9 @@ var EditorBoxRenderer = $.inherit(
 							.attr('id', 'editor-' + clientId + '-button' + buttonData.id_postfix)
 							.attr('href', '#')
 							.attr('title', buttonData.name)
-							.attr('onclick', 'return ' + 
-									this.__self.CMD_BTN_HANDLER + 
-										"(" + clientId + ",'" 
-										    + buttonData.cmd + "','" 
-										    + elmId + "')")
+							.click(function(event) {
+										return cmdExecHandler(buttonData.cmd);
+									})
 							.addClass('editor-button')
 							.text(buttonData.text);
 				buttonWrapper.append(button);
@@ -56,11 +55,13 @@ var EditorBoxRenderer = $.inherit(
 	
 	prepareUpdate: function(clientId) {
 		// FIXME: use DocumentEditor lock method somehow
+		console.log('update catched');
 		$('#' + this.getEditorElmId(clientId)).attr('readonly', 'readonly');
 	},
 	
 	afterUpdate: function(clientId) {
 		// FIXME: use DocumentEditor unlock method somehow
+		console.log('after-update catched');
 		$('#' + this.getEditorElmId(clientId)).attr('readonly', '');
 	},	
 	
@@ -69,8 +70,6 @@ var EditorBoxRenderer = $.inherit(
 	}
 	
 }, {  // static
-	
-	CMD_BTN_HANDLER: 'cmdButtonOnClick',
 	
 	EDITOR_BUTTONS: [
  		{ 'bold': { id_postfix: '-bold', name: 'Bold', cmd: 'bold', text: 'B' },
@@ -90,8 +89,12 @@ var DocumentEditor = $.inherit({
 	
 	__constructor: function(clientId, elmId, documentModel) {
 		this.clientId = clientId;
-		this.documentModel = documentModel;
-				
+		this.elmId = elmId;
+		
+		this.inputCompleted = true; // do user finished pressing buttons, default is true		
+		this.actionsStore = [];
+		
+		this.documentText = this.parseDocModel(documentModel);		
 		this.editorElm = this.createEditor(elmId, documentModel); // jQuery object
 		this.previewElm = this.createPreview(elmId + '-result', documentModel); // jQuery object
 		
@@ -106,7 +109,7 @@ var DocumentEditor = $.inherit({
 		this.editorElm.keydown(createMethodReference(this, this.onKeyDown));
 		this.editorElm.keyup(createMethodReference(this, this.onKeyUp));
 		//this.editorElm.change(createMethodReference(this, this.onChange));
-		this.editorElm.mouseup(createMethodReference(this, this.onMouseUp));
+		this.editorElm.mouseup(createMethodReference(this, this.onMouseUp));		
 		
 		this.editorElm.bind('cut', createMethodReference(this, this.onCut));
 		this.editorElm.bind('paste', createMethodReference(this, this.onPaste));
@@ -115,7 +118,8 @@ var DocumentEditor = $.inherit({
 		
 		setInterval(function() { timerEventHandler(); }, this.__self.COMMIT_CHECK_PERIOD);
 		
-		// this.unlock(); // unlock will be called after update
+		// this.unlock(); // unlock will be called after update, so editor 
+				// will be locked all the time until first update is received
 		
 	},
 	
@@ -140,41 +144,91 @@ var DocumentEditor = $.inherit({
 	},	
 
 	onKeyDown: function(event) {
-		var ev = event.originalEvent;
-		console.log('keydown:', ev.which);
+		if (!this.isLocked()) {
+			this.inputCompleted = false;			
+			var ev = this.prepareEvent(event);
+			this.actionsStore.push(
+					[0, ev.which, ev.ctrlKey || ev.metaKey, ev.shiftKey, 
+					 	ev.cursorPos]);
+			console.log('writing key-event: ', [0, ev.which, ev.ctrlKey || ev.metaKey, ev.shiftKey, 
+		                				    ev.cursorPos]);
+		}
 	},
 	
-	onKeyUp: function(event) {
-		var ev = event.originalEvent;
-	    console.log('keyup:', ev.which);
+	onKeyUp: function(/*event*/) {
+		this.inputCompleted = true;
 	},
 	
 	onMouseUp: function(event) {
-		var ev = event.originalEvent;
-		console.log('mouseup:', ev);
+		if (!this.isLocked()) {
+			var ev = this.prepareEvent(event);
+			this.actionsStore.push(
+					[1, ev.cursorPos]); // ctrlKey/metaKey?
+			console.log('writing mouse-event: ', [1, ev.cursorPos]);
+		}
 	},	
 	
 	onCut: function(event) {
-		var ev = event.originalEvent;
-		console.log('cut:', ev);
+		if (!this.isLocked()) {
+			var ev = this.prepareEvent(event);
+			this.actionsStore.push(
+					[2, ev.cursorPos]); // ctrlKey/metaKey?
+			console.log('writing cut-event: ', [2, ev.cursorPos]);
+		}
 	},
 	
 	onPaste: function(event) {
-		var ev = event.originalEvent;
-		console.log('paste:', ev);
-	},	
+		if (!this.isLocked()) {
+			var ev = this.prepareEvent(event);
+			this.actionsStore.push(
+					[3, ev.cursorPos]); // ctrlKey/metaKey?
+			console.log('writing paste-event: ', [3, ev.cursorPos]);
+		}
+	},
 	
-	onTimer: function() {
+	onTimer: function() {		
+		if (this.inputCompleted && (this.actionsStore.length > 0)) {
+			this.lock();
+			this.sendCommands(this.compileCommands(this.actionsStore));
+			this.actionsStore = [];
+			this.unlock();
+		}
 		//console.log('ontimer'); 
 	},
 	
+	prepareEvent: function(event) {
+		event.cursorPos = this.editorElm.attr('selectionStart');
+		/* FIXME: implement IE way */
+		return event;
+	},
+	
 	lock: function() {
-		this.editorElm.attr('readonly', 'readonly');
+		console.log('locking');
+		this.editorElm.attr('readonly', true);
 	},
 	
 	unlock: function() {
-		this.editorElm.attr('readonly', '');
-	},	
+		console.log('unlocking');
+		this.editorElm.attr('readonly', false);
+	},
+	
+	isLocked: function() {
+		return this.editorElm.attr('readonly');
+	},
+	
+	execBtnCommand: function(cmdName) {
+		console.log('exec cmd: ' + cmdName);
+		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId);
+	},
+	
+	parseDocModel: function(docModel) {
+		var docText = "";
+		for (textChunkIdx in docModel) {
+			var textChunk = docModel[textChunkIdx];
+			docText += textChunk.text;
+		}		
+		return docText;
+	},
 	
 	initWithDocument: function(holderElm, documentModel, mode) {
 		//holderElm.val('');
@@ -184,10 +238,22 @@ var DocumentEditor = $.inherit({
 			// textChunk.id; // textChunk.style; // textChunk.size; 
 			// textChunk.reserved; // textChunk.author;
 		}		
+	},
+	
+	compileCommands: function(actionsList) {
+		// FIXME: implement
+		console.log('compiling ', actionsList);
+	},
+	
+	sendCommands: function(commands) {
+		// FIXME: implement, send to cmdSequenceServlet
+		console.log('sending ', commands);
 	}
 	
 }, { // static
 	
-	COMMIT_CHECK_PERIOD: 500
+	COMMIT_CHECK_PERIOD: 2000,
+	
+	CMD_BTN_HANDLER: cmdButtonOnClick	
 	
 });
