@@ -248,6 +248,10 @@ form#add-client-form button {
 	padding-right: 3px;
 }
 
+.wave-client .editor .editor-wiki-area[readonly] {
+	background-color: #ddd;
+}
+
 /* Editor buttons styles */
 
 .wave-client .editor ul.editor-buttons,

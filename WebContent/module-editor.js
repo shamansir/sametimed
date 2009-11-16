@@ -4,7 +4,9 @@ var EditorBoxRenderer = $.inherit(
 	
 	IBoxRenderer, {
 	
-	__constructor: function() { },
+	__constructor: function() { 		
+		this.docEditors = {};
+	},
 	
 	renderBox: function(clientId, moduleData, documentModel) {
 		var editorWrapper = $('<div />')
@@ -13,7 +15,8 @@ var EditorBoxRenderer = $.inherit(
 		
 		var editorElmId = this.getEditorElmId(clientId);
 		
-		var documentEditor = new DocumentEditor(clientId, editorElmId, documentModel);		
+		var documentEditor = new DocumentEditor(clientId, editorElmId, documentModel);
+		this.docEditors[clientId] = documentEditor;
 		
 		editorWrapper.append(this.__prepareButtons(editorElmId, clientId,
 					createMethodReference(documentEditor, documentEditor.execBtnCommand)));
@@ -54,15 +57,13 @@ var EditorBoxRenderer = $.inherit(
 	},
 	
 	prepareUpdate: function(clientId) {
-		// FIXME: use DocumentEditor lock method somehow
 		console.log('update catched');
-		$('#' + this.getEditorElmId(clientId)).attr('readonly', 'readonly');
+		this.docEditors[clientId].prepareUpdate();
 	},
 	
 	afterUpdate: function(clientId) {
-		// FIXME: use DocumentEditor unlock method somehow
 		console.log('after-update catched');
-		$('#' + this.getEditorElmId(clientId)).attr('readonly', '');
+		this.docEditors[clientId].afterUpdate();
 	},	
 	
 	getEditorElmId: function(clientId) {
@@ -143,28 +144,28 @@ var DocumentEditor = $.inherit({
 		return this.previewElm;
 	},	
 
-	onKeyDown: function(event) {
-		if (!this.isLocked()) {
-			this.inputCompleted = false;			
-			var ev = this.prepareEvent(event);
-			this.actionsStore.push(
-					[0, ev.which, ev.ctrlKey || ev.metaKey, ev.shiftKey, 
-					 	ev.cursorPos]);
-			console.log('writing key-event: ', [0, ev.which, ev.ctrlKey || ev.metaKey, ev.shiftKey, 
-		                				    ev.cursorPos]);
-		}
+	onKeyDown: function(/*event*/) {
+		if (!this.isLocked()) this.inputCompleted = false;
 	},
 	
-	onKeyUp: function(/*event*/) {
-		this.inputCompleted = true;
+	onKeyUp: function(event) {
+		if (!this.isLocked()) {
+			var ev = this.prepareEvent(event);
+			this.actionsStore.push(
+					[0, ev.cursorPos, ev.which, ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]);
+			console.log(event);			
+			console.log('writing key-event: ', [0, ev.cursorPos, ev.which, ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, 
+			            					    ev.altKey, ev.docSize]);
+		}
+		this.inputCompleted = true;		
 	},
 	
 	onMouseUp: function(event) {
 		if (!this.isLocked()) {
-			var ev = this.prepareEvent(event);
+			var ev = this.prepareEvent(event);			
 			this.actionsStore.push(
-					[1, ev.cursorPos]); // ctrlKey/metaKey?
-			console.log('writing mouse-event: ', [1, ev.cursorPos]);
+					[1, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
+			console.log('writing mouse-event: ', [1, ev.cursorPos, ev.docSize]);
 		}
 	},	
 	
@@ -172,17 +173,19 @@ var DocumentEditor = $.inherit({
 		if (!this.isLocked()) {
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
-					[2, ev.cursorPos]); // ctrlKey/metaKey?
-			console.log('writing cut-event: ', [2, ev.cursorPos]);
+					[2, ev.cursorPos, ev.selEnd, ev.docSize]); // ctrlKey/metaKey?
+			console.log('writing cut-event: ', [2, ev.cursorPos, ev.selEnd, ev.docSize]);
 		}
 	},
 	
 	onPaste: function(event) {
 		if (!this.isLocked()) {
 			var ev = this.prepareEvent(event);
+			// save document length on last event and compare with new length 
+			// to get paste size
 			this.actionsStore.push(
-					[3, ev.cursorPos]); // ctrlKey/metaKey?
-			console.log('writing paste-event: ', [3, ev.cursorPos]);
+					[3, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
+			console.log('writing paste-event: ', [3, ev.cursorPos, ev.docSize]);
 		}
 	},
 	
@@ -197,8 +200,11 @@ var DocumentEditor = $.inherit({
 	},
 	
 	prepareEvent: function(event) {
-		event.cursorPos = this.editorElm.attr('selectionStart');
-		/* FIXME: implement IE way */
+		var editor = this.editorElm.get(0);
+		event.cursorPos = editor.selectionStart; /* FIXME: implement IE way */
+		event.selEnd = editor.selectionEnd; /* FIXME: implement IE way */
+		event.docSize = editor.value.length;
+		event.char = editor.value[event.cursorPos - 1];		
 		return event;
 	},
 	
@@ -210,6 +216,14 @@ var DocumentEditor = $.inherit({
 	unlock: function() {
 		console.log('unlocking');
 		this.editorElm.attr('readonly', false);
+	},
+	
+	prepareUpdate: function() {
+		this.lock();
+	},
+	
+	afterUpdate: function() {
+		this.unlock();
 	},
 	
 	isLocked: function() {
@@ -241,6 +255,74 @@ var DocumentEditor = $.inherit({
 	},
 	
 	compileCommands: function(actionsList) {
+		var commands = [];
+		for (actionIdx in actionsList) {
+			var action = actionsList[actionIdx];
+			// all variables here must be instance properties
+			var lettersStack = "";
+			var inputMode = 0; // 0 - put, 1 - delete, 2 - insert
+			var lastCursorPos = 0;
+			var startCursorPos = 0;
+			var deleteStopPos = 0;
+			var lastDocSize = 0; // FIXME: init on documentLoad
+			//               0  1             2          3        4                                      5 
+			// key-event:   [0, ev.cursorPos, ev.which,  ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]
+			// mouse-event: [1, ev.cursorPos, ev.docSize]
+			// cut-event:   [2, ev.cursorPos, ev.selEnd, ev.docSize]
+			// paste-event: [3, ev.cursorPos, ev.docSize]
+			switch(action[0]) {
+				case 0: { // when some key pressed ...
+						var cursorPos = action[1];					
+						var which = action[2];
+						var char = action[3];
+						var funcKey = action[4];
+						if (!funcKey) { // if no functional key is pressed
+							if ((which === undefined) || (which >= 48)) { // if it is some letter, NOT any of del/backspace/shift...
+								// and if we are inserting and it is inserted just after the previous letter 
+								if ((inputMode == 0) && (cursorPos == (lastCursorPos + 1))) { 
+									lettersStack += char; // ... then write this character to the stack									
+								} else { // if we are deleted something before or inserting position is changed
+									// ...then save the state of the previous performed actions in command
+									if (inputMode == 0) commands.push({mode: inputMode, chars: lettersStack, pos: startCursorPos}); 
+									if (inputMode == 1) commands.push({mode: inputMode, start: startCursorPos, end: deleteStopPos});
+									// ...and save the new state
+									startCursorPos = cursorPos;
+									lettersStack = char;
+								}
+								inputMode = 0; // user is putting chars now
+							}
+							if (which == 46) { // Del key								
+								// if user continues to delete 
+								if ((inputMode == 1) && (cursorPos == lastCursorPos)) {
+									// startCursorPos is the same as before
+									deleteStopPos++; // and delete-stop pos increases
+								} else {
+									// if user entered chars or deleted chars before - save his actions
+									if (inputMode == 0) commands.push({mode: inputMode, chars: lettersStack, pos: startCursorPos});
+									if (inputMode == 1) commands.push({mode: inputMode, start: startCursorPos, end: deleteStopPos});
+									// ... and save the new state
+									startCursorPos = cursorPos;
+									deleteStopPos = cursorPos + 1;
+								}
+								inputMode = 1; // user is deleting characters now
+							}
+						}
+						lastCursorPos = cursorPos; // save last cursor pos
+						lastDocSize = action[5];
+						// handle Tab (9), Del (46), Home (36), End(35) and Backspace (8)
+						// PageDn (34), PgUp (33), Ins(45) 
+						// use cursorPos to determine position
+					}
+				case 1: { // mouse-event
+					    lastCursorPos = action[1];
+					    lastDocSize = action[2];
+					}
+				case 2: { // cut-event
+					}
+				case 3: { // paste-event
+					}				
+			}
+		}
 		// FIXME: implement
 		console.log('compiling ', actionsList);
 	},
