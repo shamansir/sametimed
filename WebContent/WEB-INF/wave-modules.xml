@@ -42,9 +42,10 @@
 
 	<module alias="editor">
 	
-	    <extends>chat</extends>
+	    <extends>chat</extends>	    
 	
 	    <model id="EDITOR_MODEL" alias="document">
+	    	<auto-update>false</auto-update>
 	        <model-class>DocumentModel</model-class>
 	        <model-base>Document</model-base>
 	        <model-atom>TextChuck</model-atom>

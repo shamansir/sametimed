@@ -96,7 +96,7 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 /* ====== MESSAGES ====== */
 
 function parseUpdateMessage(updateMessage) {
-	//console.log('parseUpdate', updateMessage);
+	//_log('parseUpdate', updateMessage);
 	var msgRoot = $(updateMessage);
 	var msgType = msgRoot.find('name').text();
 	var ownerId = msgRoot.find('owner-id').text();
@@ -149,7 +149,7 @@ function cmdButtonOnClick(clientId, commandAlias, inputId) {
 					 'cmdXML': encodeURIComponent(cmdXML)
 			       },			       
 		     error: function(request, textStatus, error) {
-			    	   // console.log('send from cmd button failed', textStatus);	    	   
+			    	   // _log('send from cmd button failed', textStatus);	    	   
 			    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
 				    }
 		   });		
@@ -180,7 +180,7 @@ function sendButtonOnClick(clientId, inputId) {
 					 			consoleInputElm.value = "";
 					          }, */
 				     error: function(request, textStatus, error) {
-					    	   // console.log('send button execution failed', textStatus);
+					    	   // _log('send button execution failed', textStatus);
 					    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
 						    }
 				   });

@@ -11,6 +11,10 @@ function showGeneralError(errorText) {
 
 /* ==============================/ UTILS /=================================== */
 
+function _log() {
+	if (console && console.log) console.log.apply(console, arguments);
+}
+
 function blockEnter(evt) {
     evt = (evt) ? evt : event;
     var charCode = (evt.charCode) ? evt.charCode :((evt.which) ? evt.which : evt.keyCode);

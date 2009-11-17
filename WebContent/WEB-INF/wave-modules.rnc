@@ -9,6 +9,7 @@ start =
       element model {
         attribute alias { model-alias },
         attribute id { model-id },
+        element auto-update { boolean }?,
         element model-class { java-class },
         element model-base { java-class },
         element model-atom { java-class }
@@ -48,6 +49,7 @@ start =
       }
     }+
   }
+boolean       = text
 module-alias  = text
 model-alias   = text
 command-alias = text

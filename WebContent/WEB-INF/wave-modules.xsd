@@ -33,6 +33,7 @@
     
     <xsd:complexType name="ModuleModelType">
         <xsd:sequence>
+        	<xsd:element name="auto-update" type="xsd:boolean" minOccurs="0" />        
             <xsd:element name="model-class" type="generics:JavaClassName" />
             <xsd:element name="model-base" type="generics:JavaClassName" />
             <xsd:element name="model-atom" type="generics:JavaClassName" />

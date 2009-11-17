@@ -57,12 +57,12 @@ var EditorBoxRenderer = $.inherit(
 	},
 	
 	prepareUpdate: function(clientId) {
-		console.log('update catched');
+		_log('update catched');
 		this.docEditors[clientId].prepareUpdate();
 	},
 	
 	afterUpdate: function(clientId) {
-		console.log('after-update catched');
+		_log('after-update catched');
 		this.docEditors[clientId].afterUpdate();
 	},	
 	
@@ -153,8 +153,8 @@ var DocumentEditor = $.inherit({
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
 					[0, ev.cursorPos, ev.which, ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]);
-			console.log(event);			
-			console.log('writing key-event: ', [0, ev.cursorPos, ev.which, ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, 
+			_log(event);			
+			_log('writing key-event: ', [0, ev.cursorPos, ev.which, ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, 
 			            					    ev.altKey, ev.docSize]);
 		}
 		this.inputCompleted = true;		
@@ -165,7 +165,7 @@ var DocumentEditor = $.inherit({
 			var ev = this.prepareEvent(event);			
 			this.actionsStore.push(
 					[1, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
-			console.log('writing mouse-event: ', [1, ev.cursorPos, ev.docSize]);
+			_log('writing mouse-event: ', [1, ev.cursorPos, ev.docSize]);
 		}
 	},	
 	
@@ -174,7 +174,7 @@ var DocumentEditor = $.inherit({
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
 					[2, ev.cursorPos, ev.selEnd, ev.docSize]); // ctrlKey/metaKey?
-			console.log('writing cut-event: ', [2, ev.cursorPos, ev.selEnd, ev.docSize]);
+			_log('writing cut-event: ', [2, ev.cursorPos, ev.selEnd, ev.docSize]);
 		}
 	},
 	
@@ -185,7 +185,7 @@ var DocumentEditor = $.inherit({
 			// to get paste size
 			this.actionsStore.push(
 					[3, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
-			console.log('writing paste-event: ', [3, ev.cursorPos, ev.docSize]);
+			_log('writing paste-event: ', [3, ev.cursorPos, ev.docSize]);
 		}
 	},
 	
@@ -194,9 +194,10 @@ var DocumentEditor = $.inherit({
 			this.lock();
 			this.sendCommands(this.compileCommands(this.actionsStore));
 			this.actionsStore = [];
+			this.askUpdates(); // FIXME: unlock only when commands results and updates received
 			this.unlock();
 		}
-		//console.log('ontimer'); 
+		//_log('ontimer'); 
 	},
 	
 	prepareEvent: function(event) {
@@ -209,12 +210,12 @@ var DocumentEditor = $.inherit({
 	},
 	
 	lock: function() {
-		console.log('locking');
+		_log('locking');
 		this.editorElm.attr('readonly', true);
 	},
 	
 	unlock: function() {
-		console.log('unlocking');
+		_log('unlocking');
 		this.editorElm.attr('readonly', false);
 	},
 	
@@ -230,8 +231,12 @@ var DocumentEditor = $.inherit({
 		return this.editorElm.attr('readonly');
 	},
 	
+	askUpdates: function() {
+		// FIXME: implement, disable automatic updates on server for editor wavelet 
+	},
+	
 	execBtnCommand: function(cmdName) {
-		console.log('exec cmd: ' + cmdName);
+		_log('exec cmd: ' + cmdName);
 		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId);
 	},
 	
@@ -256,15 +261,21 @@ var DocumentEditor = $.inherit({
 	
 	compileCommands: function(actionsList) {
 		var commands = [];
+		// all variables here must be instance properties
+		var lettersStack = '';
+		var inputMode = 0; // 0 - put, 1 - delete, 2 - replace
+		var lastCursorPos = 0;
+		var startCursorPos = 0;
+		var deleteStopPos = 0;
+		var lastDocSize = 0; // FIXME: init on documentLoad
+		var pushCurrentCommand = function() {
+				if ((inputMode == 0) && (lettersStack.length > 0)) 
+					commands.push({mode: 'put', chars: lettersStack, pos: startCursorPos}); 
+				if ((inputMode == 1) && ((deleteStopPos - startCursorPos) > 0)) 
+					commands.push({mode: 'del', start: startCursorPos, end: deleteStopPos});
+			};
 		for (actionIdx in actionsList) {
 			var action = actionsList[actionIdx];
-			// all variables here must be instance properties
-			var lettersStack = "";
-			var inputMode = 0; // 0 - put, 1 - delete, 2 - insert
-			var lastCursorPos = 0;
-			var startCursorPos = 0;
-			var deleteStopPos = 0;
-			var lastDocSize = 0; // FIXME: init on documentLoad
 			//               0  1             2          3        4                                      5 
 			// key-event:   [0, ev.cursorPos, ev.which,  ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]
 			// mouse-event: [1, ev.cursorPos, ev.docSize]
@@ -283,53 +294,57 @@ var DocumentEditor = $.inherit({
 									lettersStack += char; // ... then write this character to the stack									
 								} else { // if we are deleted something before or inserting position is changed
 									// ...then save the state of the previous performed actions in command
-									if (inputMode == 0) commands.push({mode: inputMode, chars: lettersStack, pos: startCursorPos}); 
-									if (inputMode == 1) commands.push({mode: inputMode, start: startCursorPos, end: deleteStopPos});
+									pushCurrentCommand();
 									// ...and save the new state
-									startCursorPos = cursorPos;
+									startCursorPos = deleteStopPos = lastCursorPos = cursorPos;
 									lettersStack = char;
 								}
 								inputMode = 0; // user is putting chars now
-							}
-							if (which == 46) { // Del key								
+							} else if (which == 46) { // Del key								
 								// if user continues to delete 
 								if ((inputMode == 1) && (cursorPos == lastCursorPos)) {
 									// startCursorPos is the same as before
 									deleteStopPos++; // and delete-stop pos increases
 								} else {
 									// if user entered chars or deleted chars before - save his actions
-									if (inputMode == 0) commands.push({mode: inputMode, chars: lettersStack, pos: startCursorPos});
-									if (inputMode == 1) commands.push({mode: inputMode, start: startCursorPos, end: deleteStopPos});
+									pushCurrentCommand();
 									// ... and save the new state
-									startCursorPos = cursorPos;
+									startCursorPos = astCursorPos = cursorPos;
 									deleteStopPos = cursorPos + 1;
 								}
 								inputMode = 1; // user is deleting characters now
 							}
 						}
+						if (((which >= 34) && (which <= 40)) || // Arrows keys (37-40) or PgUp(33)/PgDn(34)/End(35)/Home(36), or
+							( which == 8)  || (which == 9)   || // or Backspace or Tab
+							( which == 45) || (which == 46)     // or Insert or Del // FIXME: insert is dangerous key, it switches to insert mode which means delete/put pairs
+							) {
+							pushCurrentCommand();
+							startCursorPos = deleteStopPos = lastCursorPos = cursorPos;
+						}
 						lastCursorPos = cursorPos; // save last cursor pos
 						lastDocSize = action[5];
-						// handle Tab (9), Del (46), Home (36), End(35) and Backspace (8)
-						// PageDn (34), PgUp (33), Ins(45) 
-						// use cursorPos to determine position
-					}
+					} break;
 				case 1: { // mouse-event
 					    lastCursorPos = action[1];
 					    lastDocSize = action[2];
-					}
+					} break;
 				case 2: { // cut-event
-					}
+						// FIXME: implement
+					} break;
 				case 3: { // paste-event
-					}				
-			}
+						// FIXME: implement
+					} break;		
+			}			
 		}
-		// FIXME: implement
-		console.log('compiling ', actionsList);
+		// push the modifications if some happened
+		pushCurrentCommand();		
+		_log('compiling ', actionsList);
 	},
 	
 	sendCommands: function(commands) {
 		// FIXME: implement, send to cmdSequenceServlet
-		console.log('sending ', commands);
+		_log('sending ', commands);
 	}
 	
 }, { // static
