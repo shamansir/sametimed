@@ -298,7 +298,7 @@ var DocumentEditor = $.inherit({
 					ms.charKeysStack = [];
 				}
 				if ((ms.inputMode == 1) && ((ms.deleteStopPos - ms.startCursorPos) > 0)) {
-					commands.push({mode: 'del', start: startCursorPos, end: deleteStopPos});
+					commands.push({mode: 'del', start: ms.startCursorPos, len: ms.deleteStopPos - ms.startCursorPos});
 					ms.startCursorPos = ms.deleteStopPos;
 				}
 			};
@@ -341,8 +341,7 @@ var DocumentEditor = $.inherit({
 									ms.charKeysStack = [charCode];
 								}
 								ms.inputMode = 0; // user is putting chars now
-							} else if (which == 46) { // Del key
-								// FIXME: deletion works not correctly
+							} else if ((which == 0) && (charCode == 46)) { // Del key // FIXME: Backspace/Del with text selected deletes it without cut/paste event
 								// if user continues to delete 
 								if ((ms.inputMode == 1) && (cursorPos == ms.lastCursorPos)) {
 									// startCursorPos is the same as before
@@ -352,19 +351,28 @@ var DocumentEditor = $.inherit({
 									pushCurrentCommand();
 									// ... and save the new state
 									ms.startCursorPos = ms.lastCursorPos = cursorPos;
-									ms.deleteStopPos = cursorPos + 1;
+									ms.deleteStopPos = (cursorPos + 1);
 								}
 								ms.inputMode = 1; // user is deleting characters now
+							} else if (which == 8) { // Backspace key // FIXME: Backspace/Del with text selected deletes it without cut/paste event
+								// if user continues to delete 
+								if ((ms.inputMode == 1) && (cursorPos == ms.startCursorPos)) {
+									// deleteStopPos is the same as before
+									ms.startCursorPos--;
+								} else {
+									// if user entered chars or deleted chars before - save his actions
+									pushCurrentCommand();
+									// ... and save the new state
+									ms.startCursorPos = ms.lastCursorPos = (cursorPos - 1);
+									ms.deleteStopPos = cursorPos; 
+								}
+								ms.inputMode = 1; // user is deleting characters now								
 							}
 						}
-						if (((which >= 34)  && (which <= 40)) ||   // Arrows keys (37-40) or PgUp(33)/PgDn(34)/End(35)/Home(36), or
-							( which == 8)/* || (which == 9)   ||*/ // or Backspace or (Tab) // FIXME: Backspace/Del with text selected deletes it 
-						  /*( which == 45)*/|| (which == 46)     // or (Insert) or Del // Insert is not switching ins/del mode in textarea, and Tab changes to other input,
-							                                    // so there is no need to handle them (shift+ins handled by paste event)
-							) {
+						/* if (((which >= 34)  && (which <= 40)) { not required, if user places cursor back 
 							pushCurrentCommand();
 							ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
-						}
+						} */
 						ms.lastCursorPos = cursorPos; // save last cursor pos
 					} break;
 				/* case 1: { // mouse-event
