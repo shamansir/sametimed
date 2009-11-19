@@ -107,11 +107,20 @@ var DocumentEditor = $.inherit({
 		this.initWithDocument(this.editorElm, documentModel, 'wiki');
 		this.initWithDocument(this.previewElm, documentModel, 'styled');
 		
+		this.macrosState = {
+				charKeysStack: [],
+				inputMode: 0, // 0 - put, 1 - delete
+				lastCursorPos: 0,
+				startCursorPos: 0,
+				deleteStopPos: 0,
+				lastDocSize: this.editorElm.get(0).value.length
+			};
+		
 		this.editorElm.keydown(createMethodReference(this, this.onKeyDown));
 		this.editorElm.keyup(createMethodReference(this, this.onKeyUp));
 		this.editorElm.keypress(createMethodReference(this, this.onKeyPress));
 		//this.editorElm.change(createMethodReference(this, this.onChange));
-		this.editorElm.mouseup(createMethodReference(this, this.onMouseUp));		
+		// this.editorElm.mouseup(createMethodReference(this, this.onMouseUp)); // seems, not required		
 		
 		this.editorElm.bind('cut', createMethodReference(this, this.onCut));
 		this.editorElm.bind('paste', createMethodReference(this, this.onPaste));
@@ -166,6 +175,7 @@ var DocumentEditor = $.inherit({
 		this.inputCompleted = true;		
 	},
 	
+	/*
 	onMouseUp: function(event) {
 		if (!this.isLocked()) {
 			//this.lock();
@@ -175,14 +185,14 @@ var DocumentEditor = $.inherit({
 			_log('writing mouse-event: ', [1, ev.cursorPos, ev.docSize]);
 			//this.unlock();
 		}
-	},	
+	}, */	
 	
 	onCut: function(event) {
 		if (!this.isLocked()) {
 			//this.lock();
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
-					[2, ev.cursorPos, ev.selEnd, ev.docSize]); // ctrlKey/metaKey?
+					[1, ev.cursorPos, ev.selEnd, ev.docSize]); // ctrlKey/metaKey?
 			_log('writing cut-event: ', [2, ev.cursorPos, ev.selEnd, ev.docSize]);
 			//this.unlock();
 		}
@@ -192,11 +202,18 @@ var DocumentEditor = $.inherit({
 		if (!this.isLocked()) {
 			//this.lock();
 			var ev = this.prepareEvent(event);
-			// save document length on last event and compare with new length 
-			// to get paste size
-			this.actionsStore.push(
-					[3, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
-			_log('writing paste-event: ', [3, ev.cursorPos, ev.docSize]);
+			var ctrl = this;
+			var edElm = this.editorElm.get(0); // FIXME: docSize is getting not from prepared event 
+			var cursorPos = ev.cursorPos;
+			var preSize = ev.docSize;
+			setTimeout(function() {
+					var val = edElm.value;
+					var curSize = val.length;
+					var text = val.substr(cursorPos, curSize - preSize);
+					ctrl.actionsStore.push(
+							[2, cursorPos, text, text.length, curSize]); 
+					_log('writing paste-event: ', [3, cursorPos, text, text.length, curSize]);
+			}, 1);
 			//this.unlock();
 		}
 	},
@@ -274,20 +291,16 @@ var DocumentEditor = $.inherit({
 	compileCommands: function(actionsList) {
 		var commands = [];
 		_log('compiling ', actionsList);		
-		// all variables here must be instance properties
-		var charKeysStack = [];
-		var inputMode = 0; // 0 - put, 1 - delete, 2 - replace
-		var lastCursorPos = 0;
-		var startCursorPos = 0;
-		var deleteStopPos = 0;
-		var lastDocSize = 0; // FIXME: init on documentLoad
-		// FIXME: not all events are handled (or document state changes while they are handled)
-		//        when they are performed very fast
+		var ms = this.macrosState;
 		var pushCurrentCommand = function() {
-				if ((inputMode == 0) && charKeysStack && (charKeysStack.length > 0)) 
-					commands.push({mode: 'put', chars: (String.fromCharCode.apply(null, charKeysStack)), pos: startCursorPos}); 
-				if ((inputMode == 1) && ((deleteStopPos - startCursorPos) > 0)) 
+				if ((ms.inputMode == 0) && ms.charKeysStack && (ms.charKeysStack.length > 0)) {					
+					commands.push({mode: 'put', chars: (String.fromCharCode.apply(null, ms.charKeysStack)), pos: ms.startCursorPos});
+					ms.charKeysStack = [];
+				}
+				if ((ms.inputMode == 1) && ((ms.deleteStopPos - ms.startCursorPos) > 0)) {
 					commands.push({mode: 'del', start: startCursorPos, end: deleteStopPos});
+					ms.startCursorPos = ms.deleteStopPos;
+				}
 			};
 		for (actionIdx in actionsList) {
 			var action = actionsList[actionIdx];
@@ -295,7 +308,7 @@ var DocumentEditor = $.inherit({
 			// key-event:   [0, ev.cursorPos, ev.which,  ev.charCode, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]
 			// mouse-event: [1, ev.cursorPos, ev.docSize]
 			// cut-event:   [2, ev.cursorPos, ev.selEnd, ev.docSize]
-			// paste-event: [3, ev.cursorPos, ev.docSize]
+			// paste-event: [3, ev.cursorPos, text,      textLen,     ev.docSize]
 			switch(action[0]) {
 				case 0: { // when some key pressed ...
 						var cursorPos = action[1];					
@@ -318,29 +331,30 @@ var DocumentEditor = $.inherit({
 						if (!funcKey) { // if no functional key is pressed
 							if ((which === undefined) || (which >= 32)) { // if it is some letter, NOT any of del/backspace/shift...
 								// and if we are inserting and it is inserted just after the previous letter // FIXME: handle Enter
-								if ((inputMode == 0) && (cursorPos == (lastCursorPos + 1))) { 
-									charKeysStack.push(charCode); // ... then write this character to the stack									
+								if ((ms.inputMode == 0) && (cursorPos == (ms.lastCursorPos + 1))) { 
+									ms.charKeysStack.push(charCode); // ... then write this character to the stack									
 								} else { // if we are deleted something before or inserting position is changed
 									// ...then save the state of the previous performed actions in command
 									pushCurrentCommand();
 									// ...and save the new state
-									startCursorPos = deleteStopPos = lastCursorPos = cursorPos;
-									charKeysStack = [charCode];
+									ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
+									ms.charKeysStack = [charCode];
 								}
-								inputMode = 0; // user is putting chars now
-							} else if (which == 46) { // Del key								
+								ms.inputMode = 0; // user is putting chars now
+							} else if (which == 46) { // Del key
+								// FIXME: deletion works not correctly
 								// if user continues to delete 
-								if ((inputMode == 1) && (cursorPos == lastCursorPos)) {
+								if ((ms.inputMode == 1) && (cursorPos == ms.lastCursorPos)) {
 									// startCursorPos is the same as before
-									deleteStopPos++; // and delete-stop pos increases
+									ms.deleteStopPos++; // and delete-stop pos increases
 								} else {
 									// if user entered chars or deleted chars before - save his actions
 									pushCurrentCommand();
 									// ... and save the new state
-									startCursorPos = astCursorPos = cursorPos;
-									deleteStopPos = cursorPos + 1;
+									ms.startCursorPos = ms.lastCursorPos = cursorPos;
+									ms.deleteStopPos = cursorPos + 1;
 								}
-								inputMode = 1; // user is deleting characters now
+								ms.inputMode = 1; // user is deleting characters now
 							}
 						}
 						if (((which >= 34)  && (which <= 40)) ||   // Arrows keys (37-40) or PgUp(33)/PgDn(34)/End(35)/Home(36), or
@@ -349,20 +363,25 @@ var DocumentEditor = $.inherit({
 							                                    // so there is no need to handle them (shift+ins handled by paste event)
 							) {
 							pushCurrentCommand();
-							startCursorPos = deleteStopPos = lastCursorPos = cursorPos;
+							ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
 						}
-						lastCursorPos = cursorPos; // save last cursor pos
-						lastDocSize = action[5];
+						ms.lastCursorPos = cursorPos; // save last cursor pos
 					} break;
-				case 1: { // mouse-event
-					    lastCursorPos = action[1];
-					    lastDocSize = action[2];
-					} break;
-				case 2: { // cut-event
+				/* case 1: { // mouse-event
+					    // may be not required, because cursor pos is passed with each event
+						// ms.lastCursorPos = action[1];
+					} break; */
+				case 1: { // cut-event
 						// FIXME: implement
 					} break;
-				case 3: { // paste-event
-						// FIXME: implement
+				case 2: { // paste-event
+						pushCurrentCommand();
+						var cursorPos = action[1];					
+						commands.push({mode: 'put', chars: action[2], pos: cursorPos});
+						ms.charKeysStack = [];
+						ms.inputMode = 0;						
+						ms.lastDocSize = action[4];
+						ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = (cursorPos + action[3]);
 					} break;		
 			}			
 		}
