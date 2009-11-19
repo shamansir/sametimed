@@ -109,6 +109,7 @@ var DocumentEditor = $.inherit({
 		
 		this.editorElm.keydown(createMethodReference(this, this.onKeyDown));
 		this.editorElm.keyup(createMethodReference(this, this.onKeyUp));
+		this.editorElm.keypress(createMethodReference(this, this.onKeyPress));
 		//this.editorElm.change(createMethodReference(this, this.onChange));
 		this.editorElm.mouseup(createMethodReference(this, this.onMouseUp));		
 		
@@ -144,48 +145,59 @@ var DocumentEditor = $.inherit({
 		return this.previewElm;
 	},	
 
-	onKeyDown: function(/*event*/) {
+	onKeyDown: function(event) {
 		if (!this.isLocked()) this.inputCompleted = false;
 	},
 	
-	onKeyUp: function(event) {
+	onKeyPress: function(event) {
 		if (!this.isLocked()) {
+			//this.lock();
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
-					[0, ev.cursorPos, ev.which, ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]);
+					[0, ev.cursorPos, ev.which, ev.charCode, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]);
 			_log(event);			
-			_log('writing key-event: ', [0, ev.cursorPos, ev.which, ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, 
+			_log('writing key-event: ', [0, ev.cursorPos, ev.which, ev.charCode, ev.ctrlKey || ev.metaKey || ev.altKey, 
 			            					    ev.altKey, ev.docSize]);
+			//this.unlock();
 		}
+	},	
+	
+	onKeyUp: function(event) {
 		this.inputCompleted = true;		
 	},
 	
 	onMouseUp: function(event) {
 		if (!this.isLocked()) {
+			//this.lock();
 			var ev = this.prepareEvent(event);			
 			this.actionsStore.push(
 					[1, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
 			_log('writing mouse-event: ', [1, ev.cursorPos, ev.docSize]);
+			//this.unlock();
 		}
 	},	
 	
 	onCut: function(event) {
 		if (!this.isLocked()) {
+			//this.lock();
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
 					[2, ev.cursorPos, ev.selEnd, ev.docSize]); // ctrlKey/metaKey?
 			_log('writing cut-event: ', [2, ev.cursorPos, ev.selEnd, ev.docSize]);
+			//this.unlock();
 		}
 	},
 	
 	onPaste: function(event) {
 		if (!this.isLocked()) {
+			//this.lock();
 			var ev = this.prepareEvent(event);
 			// save document length on last event and compare with new length 
 			// to get paste size
 			this.actionsStore.push(
 					[3, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
 			_log('writing paste-event: ', [3, ev.cursorPos, ev.docSize]);
+			//this.unlock();
 		}
 	},
 	
@@ -205,7 +217,7 @@ var DocumentEditor = $.inherit({
 		event.cursorPos = editor.selectionStart; /* FIXME: implement IE way */
 		event.selEnd = editor.selectionEnd; /* FIXME: implement IE way */
 		event.docSize = editor.value.length;
-		event.char = editor.value[event.cursorPos - 1];		
+		event.charCode = event.charCode || event.keyCode;// editor.value[event.cursorPos];
 		return event;
 	},
 	
@@ -261,23 +273,26 @@ var DocumentEditor = $.inherit({
 	
 	compileCommands: function(actionsList) {
 		var commands = [];
+		_log('compiling ', actionsList);		
 		// all variables here must be instance properties
-		var lettersStack = '';
+		var charKeysStack = [];
 		var inputMode = 0; // 0 - put, 1 - delete, 2 - replace
 		var lastCursorPos = 0;
 		var startCursorPos = 0;
 		var deleteStopPos = 0;
 		var lastDocSize = 0; // FIXME: init on documentLoad
+		// FIXME: not all events are handled (or document state changes while they are handled)
+		//        when they are performed very fast
 		var pushCurrentCommand = function() {
-				if ((inputMode == 0) && (lettersStack.length > 0)) 
-					commands.push({mode: 'put', chars: lettersStack, pos: startCursorPos}); 
+				if ((inputMode == 0) && charKeysStack && (charKeysStack.length > 0)) 
+					commands.push({mode: 'put', chars: (String.fromCharCode.apply(null, charKeysStack)), pos: startCursorPos}); 
 				if ((inputMode == 1) && ((deleteStopPos - startCursorPos) > 0)) 
 					commands.push({mode: 'del', start: startCursorPos, end: deleteStopPos});
 			};
 		for (actionIdx in actionsList) {
 			var action = actionsList[actionIdx];
-			//               0  1             2          3        4                                      5 
-			// key-event:   [0, ev.cursorPos, ev.which,  ev.char, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]
+			//               0  1             2          3            4                                      5 
+			// key-event:   [0, ev.cursorPos, ev.which,  ev.charCode, ev.ctrlKey || ev.metaKey || ev.altKey, ev.docSize]
 			// mouse-event: [1, ev.cursorPos, ev.docSize]
 			// cut-event:   [2, ev.cursorPos, ev.selEnd, ev.docSize]
 			// paste-event: [3, ev.cursorPos, ev.docSize]
@@ -285,19 +300,32 @@ var DocumentEditor = $.inherit({
 				case 0: { // when some key pressed ...
 						var cursorPos = action[1];					
 						var which = action[2];
-						var char = action[3];
+						var charCode = action[3];
 						var funcKey = action[4];
+						//    0     1     2     3     4     5     6     7     8     9    
+						// 00 ----- ----- ----- ----- ----- ----- ----- ----- [BS]- [TAB]
+						// 01 [NL]- ----- ----- [BR]- ----- ----- [SFT] [CTR] [ALT] [BRK]
+						// 02 [CAP] ----- ----- ----- ----- ----- ----- [ESC] ----- -----
+						// 03 ----- ----- [SPC] [PUNCTUATION-PUNCTUATION-PUNCTUATION-PUNC
+						// 04 TUATION-PUNCTUATION-PUNCTUATION-PUNCTUATION]--- [NUMBERS-NU
+						// 05 MBERS-NUMBERS-NUMBERS-NUMBERS-NUMBERS-NUMBERS]- [PUNCTUATIO
+						// 06 N-PUNCTUATION-PUNCTUATION]--- [LETTERS-LETTERS-LETTERS-LETT
+						// 07 ERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS
+						// 08 -LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LE
+						// 09 TTER] [PUNCTUATION-PUNCTUATION-PUNCTUATI] [LETTERS-LETTERS-
+						// 10 LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LET
+						// 11 TERS-LETTERS]---- [PUNCTUATION-PUNCTUATI] ----- ----- -----
 						if (!funcKey) { // if no functional key is pressed
-							if ((which === undefined) || (which >= 48)) { // if it is some letter, NOT any of del/backspace/shift...
-								// and if we are inserting and it is inserted just after the previous letter 
+							if ((which === undefined) || (which >= 32)) { // if it is some letter, NOT any of del/backspace/shift...
+								// and if we are inserting and it is inserted just after the previous letter // FIXME: handle Enter
 								if ((inputMode == 0) && (cursorPos == (lastCursorPos + 1))) { 
-									lettersStack += char; // ... then write this character to the stack									
+									charKeysStack.push(charCode); // ... then write this character to the stack									
 								} else { // if we are deleted something before or inserting position is changed
 									// ...then save the state of the previous performed actions in command
 									pushCurrentCommand();
 									// ...and save the new state
 									startCursorPos = deleteStopPos = lastCursorPos = cursorPos;
-									lettersStack = char;
+									charKeysStack = [charCode];
 								}
 								inputMode = 0; // user is putting chars now
 							} else if (which == 46) { // Del key								
@@ -315,9 +343,10 @@ var DocumentEditor = $.inherit({
 								inputMode = 1; // user is deleting characters now
 							}
 						}
-						if (((which >= 34) && (which <= 40)) || // Arrows keys (37-40) or PgUp(33)/PgDn(34)/End(35)/Home(36), or
-							( which == 8)  || (which == 9)   || // or Backspace or Tab
-							( which == 45) || (which == 46)     // or Insert or Del // FIXME: insert is dangerous key, it switches to insert mode which means delete/put pairs
+						if (((which >= 34)  && (which <= 40)) ||   // Arrows keys (37-40) or PgUp(33)/PgDn(34)/End(35)/Home(36), or
+							( which == 8)/* || (which == 9)   ||*/ // or Backspace or (Tab) // FIXME: Backspace/Del with text selected deletes it 
+						  /*( which == 45)*/|| (which == 46)     // or (Insert) or Del // Insert is not switching ins/del mode in textarea, and Tab changes to other input,
+							                                    // so there is no need to handle them (shift+ins handled by paste event)
 							) {
 							pushCurrentCommand();
 							startCursorPos = deleteStopPos = lastCursorPos = cursorPos;
@@ -338,8 +367,8 @@ var DocumentEditor = $.inherit({
 			}			
 		}
 		// push the modifications if some happened
-		pushCurrentCommand();		
-		_log('compiling ', actionsList);
+		pushCurrentCommand();
+		return commands;
 	},
 	
 	sendCommands: function(commands) {

@@ -79,6 +79,12 @@
 	        <wavelet-class>WaveletWithEditor</wavelet-class>
 	    </wavelet>
 	    
+	    <!-- <input-output>
+	    	<rss-generator>EditorRSSGenerator</rss-generator>	    
+			<email-handler>EditorEMailHandler</email-handler>	
+			<sms-handler>EditorSMSHandler</sms-handler>
+		</input-output> -->    
+	    
 	</module>
 
 </wave-modules>

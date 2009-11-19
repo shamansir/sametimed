@@ -12,6 +12,7 @@
 
     <xsd:complexType name="WaveClientType">
         <xsd:sequence>
+        	<xsd:element name="url-mapping" type="client:ClientURLMappingsType" minOccurs="0" />
             <xsd:element name="enabled-modules" type="client:EnabledModulesList" />
         </xsd:sequence>
     </xsd:complexType>
@@ -21,5 +22,13 @@
             <xsd:element name="module-alias" maxOccurs="unbounded" type="generics:ModuleAlias" />
         </xsd:sequence>
     </xsd:complexType>
+    
+    <xsd:complexType name="ClientURLMappingsType">
+        <xsd:sequence>
+            <xsd:element name="generator-path" type="generics:URLPath" />
+            <xsd:element name="commands-executor" type="generics:URLPath" />
+            <xsd:element name="commands-sequence-executor" type="generics:URLPath" />
+        </xsd:sequence>
+    </xsd:complexType>    
 
 </xsd:schema>

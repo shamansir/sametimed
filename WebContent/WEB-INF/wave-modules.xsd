@@ -27,6 +27,7 @@
 			</xsd:choice>
 			<xsd:element name="client" type="modules:ClientConfigurationType" />
 			<xsd:element name="wavelet" type="modules:WaveletConfigurationType" />
+			<xsd:element name="input-output" minOccurs="0" type="modules:ModuleIOConfigurationType" />
 		</xsd:sequence>
 		<xsd:attribute name="alias" type="generics:ModuleAlias" use="required" />
     </xsd:complexType>
@@ -102,6 +103,14 @@
     	<xsd:sequence>
     		<xsd:element name="document-name" maxOccurs="unbounded" type="generics:DocumentName" />		
     	</xsd:sequence>
-    </xsd:complexType>    
+    </xsd:complexType>
+    
+    <xsd:complexType name="ModuleIOConfigurationType">
+    	<xsd:sequence>
+    		<xsd:element name="rss-generator" minOccurs="0" type="generics:JavaClassName" />
+    		<xsd:element name="email-handler" minOccurs="0" type="generics:JavaClassName" />
+    		<xsd:element name="sms-handler" minOccurs="0" type="generics:JavaClassName" />    		
+    	</xsd:sequence>    
+    </xsd:complexType>
         
 </xsd:schema>

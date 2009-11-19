@@ -5,6 +5,12 @@
 <wave-client xmlns="http://www.shamansir.name/wave-client"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.shamansir.name/wave-client ./wave-client.xsd">
+    
+    <!-- <url-mapping>
+    	<generator-path>/get_client</generator-path>
+    	<commands-executor>/cmd_exec</commands-executor>
+    	<commands-sequence-executor>/cmd_seq_exec</commands-sequence-executor>
+    </url-mapping> -->
 
 	<enabled-modules>
 		<module-alias>chat</module-alias>

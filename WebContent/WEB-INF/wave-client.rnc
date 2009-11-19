@@ -2,9 +2,15 @@ default namespace = "http://www.shamansir.name/wave-client"
 namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
 
 start =
+  element url-mapping {
+  	element generator-path { url-path },
+  	element commands-executor { url-path }?, 
+  	element commands-sequence-executor { url-path }?,
+  }?
   element wave-client {
     element enabled-modules {
       element module-alias { module-alias }+
     }
   }
+  url-path = text
   module-alias  = text

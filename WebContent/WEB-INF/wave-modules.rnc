@@ -47,6 +47,11 @@ start =
         },
         element wavelet-class { java-class }
       }
+      element input-output {
+      	element rss-generator { java-class }?,
+      	element email-handler { java-class }?,
+      	element sms-handler { java-class }?
+      }?
     }+
   }
 boolean       = text
