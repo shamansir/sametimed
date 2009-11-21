@@ -3,7 +3,7 @@ package name.shamansir.sametimed.wave.modules.chat;
 import java.util.ArrayList;
 import java.util.List;
 
-import name.shamansir.sametimed.wave.doc.AOperableDocument;
+import name.shamansir.sametimed.wave.doc.AbstractOperableDocument;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLineDeletionCursor;
@@ -28,7 +28,7 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
  * 
  */
 
-public class ChatDocument extends AOperableDocument<List<ChatLine>> {
+public class ChatDocument extends AbstractOperableDocument<List<ChatLine>> {
 	
 	private static final String DOCUMENT_ID = "main";
 	

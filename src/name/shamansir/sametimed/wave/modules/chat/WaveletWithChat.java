@@ -3,7 +3,7 @@ package name.shamansir.sametimed.wave.modules.chat;
 import java.util.List;
 import java.util.Map;
 
-import name.shamansir.sametimed.wave.doc.ADocumentsWavelet;
+import name.shamansir.sametimed.wave.doc.AbstractDocumentsWavelet;
 import name.shamansir.sametimed.wave.doc.IOperableDocument;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
@@ -23,7 +23,7 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  */
 
 
-public class WaveletWithChat extends ADocumentsWavelet {	
+public class WaveletWithChat extends AbstractDocumentsWavelet {	
 	
 	/* models */
 	private ChatDocument chatView = null;	

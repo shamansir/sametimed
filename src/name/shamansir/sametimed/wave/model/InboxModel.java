@@ -13,7 +13,7 @@ import name.shamansir.sametimed.wave.model.base.atom.InboxElement;
  * 
  */
 
-public class InboxModel extends AModel<Map<Integer, InboxElement>, InboxModelValue> {
+public class InboxModel extends AbstractModel<Map<Integer, InboxElement>, InboxModelValue> {
 	
 	protected InboxModel() {
 		super(ModelID.INBOX_MODEL);

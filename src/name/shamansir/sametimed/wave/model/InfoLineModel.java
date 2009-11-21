@@ -7,7 +7,7 @@ import name.shamansir.sametimed.wave.model.base.InfoLine;
  *
  * @see InfoLine
  */
-public class InfoLineModel extends AModel<String, InfoLine> {
+public class InfoLineModel extends AbstractModel<String, InfoLine> {
 
 	protected InfoLineModel() {
 		super(ModelID.INFOLINE_MODEL);

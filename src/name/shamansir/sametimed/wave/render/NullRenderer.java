@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 
-import name.shamansir.sametimed.wave.model.AModel;
+import name.shamansir.sametimed.wave.model.AbstractModel;
 import name.shamansir.sametimed.wave.model.WaveletModel;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
@@ -32,10 +32,10 @@ public class NullRenderer implements IWavesClientRenderer {
 	public void renderAll() { }
 
 	@Override		
-	public void renderByModel(AModel<?, ?> model) { }
+	public void renderByModel(AbstractModel<?, ?> model) { }
 
 	@Override
-	public void renderByModels(List<AModel<?, ?>> models) { }
+	public void renderByModels(List<AbstractModel<?, ?>> models) { }
 	
 	@Override
 	public void setModel(WaveletModel model) { }

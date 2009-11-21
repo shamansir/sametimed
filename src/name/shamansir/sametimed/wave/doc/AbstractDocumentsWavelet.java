@@ -11,7 +11,7 @@ import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-import name.shamansir.sametimed.wave.AUpdatingWavelet;
+import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
@@ -29,15 +29,15 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  * 
  */
 
-public abstract class ADocumentsWavelet extends AUpdatingWavelet {
+public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	
 	private Map<String, IOperableDocument> docOpsHandlers = new HashMap<String, IOperableDocument>();	
 	
-	public ADocumentsWavelet(int clientID, IWavesClientRenderer renderer) {
+	public AbstractDocumentsWavelet(int clientID, IWavesClientRenderer renderer) {
 		super(clientID, renderer);
 	}
 	
-	public ADocumentsWavelet(int clientID) {
+	public AbstractDocumentsWavelet(int clientID) {
 		this(clientID, null);
 	}
 	
@@ -119,7 +119,7 @@ public abstract class ADocumentsWavelet extends AUpdatingWavelet {
 	    		registerError("Error: " + userId + " is not a participant of this wave");
 	    	}
 	    } else {
-	        registerError(AUpdatingWavelet.NOT_OPENED_WAVE_ERR);
+	        registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
 	    }
 		return false;
 	}

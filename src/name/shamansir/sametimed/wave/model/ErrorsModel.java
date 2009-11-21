@@ -10,7 +10,7 @@ import name.shamansir.sametimed.wave.model.base.ErrorsLines;
  * @see ErrorsLines 
  */
 
-public class ErrorsModel extends AModel<List<String>, ErrorsLines> {
+public class ErrorsModel extends AbstractModel<List<String>, ErrorsLines> {
 	
 	protected ErrorsModel() {
 		super(ModelID.ERRORBOX_MODEL);

@@ -12,7 +12,7 @@ import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
  * @see TextChunk
  * 
  */
-public class DocumentModel extends AModel<List<TextChunk>, Document> {
+public class DocumentModel extends AbstractModel<List<TextChunk>, Document> {
 	
 	protected DocumentModel() {
 		super(ModelID.EDITOR_MODEL);

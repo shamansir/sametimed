@@ -109,27 +109,25 @@ var DocumentEditor = $.inherit({
 		this.initWithDocument(this.editorElm, documentModel, 'wiki');
 		this.initWithDocument(this.previewElm, documentModel, 'styled');
 		
-		// macroses are used to record user actions, which are
+		// macros are used to record user actions, which are
 		// sent periodically to server to apply document changes
+		// FIXME: init with document state
 		this.macrosState = {
 				charKeysStack: [],
 				inputMode: 0, // 0 - put, 1 - delete
 				lastCursorPos: 0,
 				startCursorPos: 0,
-				deleteStopPos: 0//,
-				//lastDocSize: this.editorElm.get(0).value.length
+				deleteStopPos: 0
 			};
 		
 		// assign events
 		this.editorElm.keydown(createMethodReference(this, this.onKeyDown));
 		this.editorElm.keyup(createMethodReference(this, this.onKeyUp));
-		this.editorElm.keypress(createMethodReference(this, this.onKeyPress));
-		//this.editorElm.change(createMethodReference(this, this.onChange));
-		// this.editorElm.mouseup(createMethodReference(this, this.onMouseUp)); // seems, not required		
+		this.editorElm.keypress(createMethodReference(this, this.onKeyPress));		
 		
 		this.editorElm.bind('cut', createMethodReference(this, this.onCut));
 		this.editorElm.bind('paste', createMethodReference(this, this.onPaste));
-		this.editorElm.bind('undo', createMethodReference(this, this.onUndo));
+		this.editorElm.bind('undo', createMethodReference(this, this.onUndo)); // FIXME: undo is not handled!
 		
 		// handler will send the recorded actions (compiled in actions) with the check period
 		var timerEventHandler = createMethodReference(this, this.onTimer); 		
@@ -181,25 +179,13 @@ var DocumentEditor = $.inherit({
 		this.inputCompleted = true;		
 	},
 	
-	/*
-	onMouseUp: function(event) {
-		if (!this.isLocked()) {
-			//this.lock();
-			var ev = this.prepareEvent(event);			
-			this.actionsStore.push(
-					[1, ev.cursorPos, ev.docSize]); // ctrlKey/metaKey?
-			_log('writing mouse-event: ', [1, ev.cursorPos, ev.docSize]);
-			//this.unlock();
-		}
-	}, */	
-	
 	onCut: function(event) {
 		if (!this.isLocked()) {
 			//this.lock();
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
 					[1, ev.cursorPos, ev.selEnd]); // ctrlKey/metaKey?
-			_log('writing cut-event: ', [2, ev.cursorPos, ev.selEnd]);
+			_log('writing cut-event: ', [1, ev.cursorPos, ev.selEnd]);
 			//this.unlock();
 		}
 	},
@@ -218,14 +204,18 @@ var DocumentEditor = $.inherit({
 					var text = val.substr(cursorPos, curSize - preSize);
 					ctrl.actionsStore.push(
 							[2, cursorPos, text, text.length]); 
-					_log('writing paste-event: ', [3, cursorPos, text, text.length]);
+					_log('writing paste-event: ', [2, cursorPos, text, text.length]);
 			}, 1);
 			//this.unlock();
 		}
 	},
 	
 	onUndo: function(event) {
-		_log('undoop');
+		if (!this.isLocked()) {
+			var ev = this.prepareEvent(event);
+			this.actionsStore.push([3, ev.cursorPos]);
+			_log('writing undo-event: ', [3, ev.cursorPos]);
+		}
 	},
 	
 	onTimer: function() {		
@@ -249,6 +239,11 @@ var DocumentEditor = $.inherit({
 		return event;
 	},
 	
+	execBtnCommand: function(cmdName) {
+		_log('exec cmd: ' + cmdName);
+		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId);
+	},		
+	
 	lock: function() {
 		_log('locking');
 		this.editorElm.attr('readonly', true);
@@ -259,6 +254,10 @@ var DocumentEditor = $.inherit({
 		this.editorElm.attr('readonly', false);
 	},
 	
+	isLocked: function() {
+		return this.editorElm.attr('readonly');
+	},	
+	
 	prepareUpdate: function() {
 		this.lock();
 	},
@@ -267,17 +266,8 @@ var DocumentEditor = $.inherit({
 		this.unlock();
 	},
 	
-	isLocked: function() {
-		return this.editorElm.attr('readonly');
-	},
-	
 	askUpdates: function() {
 		// FIXME: implement, disable automatic updates on server for editor wavelet 
-	},
-	
-	execBtnCommand: function(cmdName) {
-		_log('exec cmd: ' + cmdName);
-		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId);
 	},
 	
 	parseDocModel: function(docModel) {
@@ -303,6 +293,7 @@ var DocumentEditor = $.inherit({
 		var commands = [];
 		_log('compiling ', actionsList);		
 		var ms = this.macrosState;
+		// function for using current macrosState to push the command
 		var pushCurrentCommand = function() {
 				if ((ms.inputMode == 0) && ms.charKeysStack && (ms.charKeysStack.length > 0)) {					
 					commands.push({mode: 'put', chars: (String.fromCharCode.apply(null, ms.charKeysStack)), pos: ms.startCursorPos});
@@ -322,6 +313,7 @@ var DocumentEditor = $.inherit({
 			// // mouse-event: [-, ev.cursorPos]
 			// cut-event:   [1, ev.cursorPos, ev.selEnd]
 			// paste-event: [2, ev.cursorPos, text,      textLen]
+			// undo-event:  [3, ev.cursorPos]
 			switch(action[0]) {
  /* if current action is keypress action */
  /*action:key*/ case 0: { // when some key pressed ...
@@ -461,7 +453,11 @@ var DocumentEditor = $.inherit({
 						ms.charKeysStack = [];
 						ms.inputMode = 0;						
 						ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = (cursorPos + action[3]); // action[3] is textLen
-					} break;		
+					} break;
+ /*action:undo*/case 3: { // undo-event
+	 					commands.push({mode: 'undo'});
+	 					ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = action[1]; // action[1] is cursorPos
+ 					} break; 
 			}			
 		}
 		// push the modifications if some happened

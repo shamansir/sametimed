@@ -5,12 +5,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
-public abstract class ALastElementSearchingCursor implements ICursorWithResult<Integer> {
+public abstract class AbstractLastElementSearchingCursor implements ICursorWithResult<Integer> {
 
 	private final AtomicInteger totalElements;
 	private final AtomicInteger lastElement;	
 	
-	public ALastElementSearchingCursor() {
+	public AbstractLastElementSearchingCursor() {
 		this.totalElements = new AtomicInteger(0); 
 		this.lastElement = new AtomicInteger(-1); 
 	}

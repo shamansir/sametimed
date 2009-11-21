@@ -15,7 +15,7 @@ import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
  * Creates AModel instances from source of any type (must match to
  * the model SourceType)  
  * 
- * @see AModel
+ * @see AbstractModel
  *
  */
 public class ModelFactory {
@@ -29,7 +29,7 @@ public class ModelFactory {
 	 * @return model of the type, corresponding to the ID that was passed
 	 */
 	@SuppressWarnings("unchecked")
-	public static <SourceType> AModel<?, ?> createModel(ModelID modelID, SourceType source) {
+	public static <SourceType> AbstractModel<?, ?> createModel(ModelID modelID, SourceType source) {
 		switch (modelID) {
 			// FIXME: source casting must not be hardcoded
 			case INFOLINE_MODEL:  return new InfoLineModel((String)source);
@@ -49,7 +49,7 @@ public class ModelFactory {
 	 * @param modelID model type ID
 	 * @return model of the type, corresponding to the ID that was passed
 	 */	
-	public static AModel<?, ?> createModel(ModelID modelID) {
+	public static AbstractModel<?, ?> createModel(ModelID modelID) {
 		switch (modelID) {
 			case INFOLINE_MODEL:  return new InfoLineModel();
 			case INBOX_MODEL:     return new InboxModel();

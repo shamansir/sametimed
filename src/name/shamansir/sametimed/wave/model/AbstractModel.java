@@ -17,16 +17,16 @@ import name.shamansir.sametimed.wave.model.base.IModelValue;
  * @see IModelValue#asJSON()
  *
  */
-public abstract class AModel<SourceType, ModelValueType extends IModelValue> {
+public abstract class AbstractModel<SourceType, ModelValueType extends IModelValue> {
 	
 	private ModelValueType value;
 	private final ModelID modelID;
 	
-	protected AModel(ModelID modelID) {
+	protected AbstractModel(ModelID modelID) {
 		this(modelID, null);
 	}
 	
-	protected AModel(ModelID modelID, SourceType source) {
+	protected AbstractModel(ModelID modelID, SourceType source) {
 		this.modelID = modelID;
 		this.value = (source != null) ? extractValue(source) : createEmptyValue(); 
 	}

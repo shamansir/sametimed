@@ -9,7 +9,7 @@ import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.Doc
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-import name.shamansir.sametimed.wave.doc.AOperableDocument;
+import name.shamansir.sametimed.wave.doc.AbstractOperableDocument;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentChunkDeletionCursor;
@@ -24,7 +24,7 @@ import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentLastUserChunk
 // FIXME: it must to be possible to move models, related to the module
 //        to module package (possibly, will be so when xml-config will be used)
 
-public class EditorDocument extends AOperableDocument<List<TextChunk>> {
+public class EditorDocument extends AbstractOperableDocument<List<TextChunk>> {
 
 	protected static final String DOCUMENT_ID = "document";
 	

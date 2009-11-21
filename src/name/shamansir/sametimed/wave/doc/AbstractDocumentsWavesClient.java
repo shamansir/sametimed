@@ -3,20 +3,20 @@ package name.shamansir.sametimed.wave.doc;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-import name.shamansir.sametimed.wave.AUpdatingWavelet;
+import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.WavesClient;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
-public abstract class ADocumentsWavesClient<WaveletType extends ADocumentsWavelet> extends WavesClient<WaveletType> {
+public abstract class AbstractDocumentsWavesClient<WaveletType extends AbstractDocumentsWavelet> extends WavesClient<WaveletType> {
 	
-	public ADocumentsWavesClient(IWavesClientRenderer renderer) {
+	public AbstractDocumentsWavesClient(IWavesClientRenderer renderer) {
 		super(renderer);
 		registerCommands();
 	}
 	
-	public ADocumentsWavesClient() {
+	public AbstractDocumentsWavesClient() {
 		super();
 		registerCommands();
 	}	
@@ -28,7 +28,7 @@ public abstract class ADocumentsWavesClient<WaveletType extends ADocumentsWavele
 	}
 
 	public boolean doCommand(Command command) {
-		ADocumentsWavelet curWavelet = getWavelet();
+		AbstractDocumentsWavelet curWavelet = getWavelet();
 		ClientBackend backend = getBackend();	
 		
 		if (command.getType() == CommandTypeID.CMD_UNDO_OP) { 
@@ -41,7 +41,7 @@ public abstract class ADocumentsWavesClient<WaveletType extends ADocumentsWavele
 						command.getRelatedDocumentID(),
 						new ParticipantId(backend.getUserId().getAddress()));
 			} else {
-				curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
+				curWavelet.registerError(AbstractUpdatingWavelet.NOT_CONNECTED_ERR);
 				return false;
 			}			
 		} 

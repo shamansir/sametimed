@@ -5,7 +5,7 @@ import java.util.List;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
-public class SimpleWavelet extends AUpdatingWavelet {
+public class SimpleWavelet extends AbstractUpdatingWavelet {
 
 	public SimpleWavelet(int clientID, IWavesClientRenderer renderer) {
 		super(clientID, renderer);

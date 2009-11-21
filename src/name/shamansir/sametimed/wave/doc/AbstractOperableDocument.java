@@ -8,11 +8,11 @@ import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorA
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-public abstract class AOperableDocument<InnerType> implements IOperableDocument {
+public abstract class AbstractOperableDocument<InnerType> implements IOperableDocument {
 	
 	private final String documentID;
 	
-	public AOperableDocument(String documentID) {
+	public AbstractOperableDocument(String documentID) {
 		this.documentID = documentID;
 	}
 		

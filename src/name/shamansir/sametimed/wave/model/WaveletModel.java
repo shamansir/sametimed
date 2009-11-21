@@ -14,11 +14,11 @@ import name.shamansir.sametimed.wave.model.base.EmptyModelValue;
  *
  */
 
-public class WaveletModel extends AModel<String, EmptyModelValue> {
+public class WaveletModel extends AbstractModel<String, EmptyModelValue> {
 	
 	private final int currentClientID;
 	
-	private Map<ModelID, AModel<?, ?>> innerModels = new HashMap<ModelID, AModel<?, ?>>(); 
+	private Map<ModelID, AbstractModel<?, ?>> innerModels = new HashMap<ModelID, AbstractModel<?, ?>>(); 
 	
 	public WaveletModel(int clientID, List<ModelID> additionalModels) {
 		super(ModelID.FULLWAVE_MODEL);
@@ -37,7 +37,7 @@ public class WaveletModel extends AModel<String, EmptyModelValue> {
 		}		
 	}
 	
-	public void useModel(ModelID modelID, AModel<?, ?> model) {
+	public void useModel(ModelID modelID, AbstractModel<?, ?> model) {
 		innerModels.put(modelID, model);
 	}	
 	
@@ -45,7 +45,7 @@ public class WaveletModel extends AModel<String, EmptyModelValue> {
 		innerModels.put(modelID, ModelFactory.createModel(modelID, source));
 	}
 	
-	public AModel<?, ?> getModel(ModelID modelID) {
+	public AbstractModel<?, ?> getModel(ModelID modelID) {
 		return innerModels.get(modelID);
 	}
 

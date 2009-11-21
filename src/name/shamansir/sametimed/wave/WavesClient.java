@@ -39,7 +39,7 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  * 
  */
 
-public abstract class WavesClient <WaveletType extends AUpdatingWavelet> implements WaveletOperationListener, ICommandsPerformer {	
+public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> implements WaveletOperationListener, ICommandsPerformer {	
 	
 	private static final Logger LOG = Logger.getLogger(WavesClient.class.getName());
 	
@@ -52,7 +52,7 @@ public abstract class WavesClient <WaveletType extends AUpdatingWavelet> impleme
 	private static Map<Integer, WavesClient> registeredClients = new HashMap<Integer, WavesClient>();
 	
 	private WavesClientBackend backend = null;
-	private AUpdatingWavelet curWavelet = null;
+	private AbstractUpdatingWavelet curWavelet = null;
 		
 	public WavesClient() {
 		this(null);
@@ -173,7 +173,7 @@ public abstract class WavesClient <WaveletType extends AUpdatingWavelet> impleme
 			    				return false;
 			    			}
 			    		} else {
-			    			curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
+			    			curWavelet.registerError(AbstractUpdatingWavelet.NOT_CONNECTED_ERR);
 			    	    }
 			    		return false;
 			            
@@ -188,7 +188,7 @@ public abstract class WavesClient <WaveletType extends AUpdatingWavelet> impleme
 						backend.createConversationWave();
 						return true;
 					} else {
-						curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
+						curWavelet.registerError(AbstractUpdatingWavelet.NOT_CONNECTED_ERR);
 						return false;
 					}
 				}
@@ -207,7 +207,7 @@ public abstract class WavesClient <WaveletType extends AUpdatingWavelet> impleme
 					if (isConnected()) {
 						return curWavelet.onWavesRead();
 					} else {
-						curWavelet.registerError(AUpdatingWavelet.NOT_CONNECTED_ERR);
+						curWavelet.registerError(AbstractUpdatingWavelet.NOT_CONNECTED_ERR);
 						return false;
 					}
 				}

@@ -13,7 +13,7 @@ import name.shamansir.sametimed.wave.model.base.Participants;
  * @see ParticipantId
  */
 
-public class ParticipantsModel extends AModel<List<ParticipantId>, Participants> {
+public class ParticipantsModel extends AbstractModel<List<ParticipantId>, Participants> {
 	
 	protected ParticipantsModel() {
 		super(ModelID.USERSLIST_MODEL);

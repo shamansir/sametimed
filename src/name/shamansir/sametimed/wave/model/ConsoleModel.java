@@ -10,7 +10,7 @@ import name.shamansir.sametimed.wave.model.base.ConsoleLines;
  * @see ConsoleLines
  * 
  */
-public class ConsoleModel extends AModel<List<String>, ConsoleLines> {
+public class ConsoleModel extends AbstractModel<List<String>, ConsoleLines> {
 	
 	protected ConsoleModel() {
 		super(ModelID.CONSOLE_MODEL);

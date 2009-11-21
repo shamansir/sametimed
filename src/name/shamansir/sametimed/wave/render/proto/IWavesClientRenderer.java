@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 
-import name.shamansir.sametimed.wave.model.AModel;
+import name.shamansir.sametimed.wave.model.AbstractModel;
 import name.shamansir.sametimed.wave.model.WaveletModel;
 
 /**
@@ -21,7 +21,7 @@ import name.shamansir.sametimed.wave.model.WaveletModel;
  *
  * @see RenderMode
  * @see WaveletModel
- * @see AModel
+ * @see AbstractModel
  * 
  */
 
@@ -44,14 +44,14 @@ public interface IWavesClientRenderer {
 	 * 
 	 * @param models models to use for rendering 
 	 */		
-	public void renderByModels(List<AModel<?, ?>> models);
+	public void renderByModels(List<AbstractModel<?, ?>> models);
 
 	/**
 	 * Render according panel, using the passed model
 	 * 
 	 * @param model model to use for rendering  
 	 */		
-	public void renderByModel(AModel<?, ?> model);
+	public void renderByModel(AbstractModel<?, ?> model);
 
 	/**
 	 * Set to render using the passed render mode (plain/XML)

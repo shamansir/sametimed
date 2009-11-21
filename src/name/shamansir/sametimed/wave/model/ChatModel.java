@@ -13,7 +13,7 @@ import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
  * 
  */
 
-public class ChatModel extends AModel<List<ChatLine>, ChatLines> {
+public class ChatModel extends AbstractModel<List<ChatLine>, ChatLines> {
 	
 	protected ChatModel() {
 		super(ModelID.CHAT_MODEL);

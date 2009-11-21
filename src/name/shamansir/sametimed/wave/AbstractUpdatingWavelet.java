@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import name.shamansir.sametimed.wave.messaging.IUpdatesListener;
 import name.shamansir.sametimed.wave.messaging.ModelUpdateMessage;
 import name.shamansir.sametimed.wave.messaging.UpdateMessage;
-import name.shamansir.sametimed.wave.model.AModel;
+import name.shamansir.sametimed.wave.model.AbstractModel;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.model.WaveletModel;
 import name.shamansir.sametimed.wave.render.NullRenderer;
@@ -29,13 +29,13 @@ import org.waveprotocol.wave.model.wave.data.WaveletData;
 // FIXME: move here all code, not related to documents
 // FIXME: remove methods related to documents
 
-public abstract class AUpdatingWavelet {
+public abstract class AbstractUpdatingWavelet {
 	
 	// FIXME: extract in some errors class
 	public static final String NOT_CONNECTED_ERR = "not connected, run \"/connect user@domain server port\"";
 	public static final String NOT_OPENED_WAVE_ERR = "Error: no wave is open, run \"/open index\"";
 	
-	private static final Logger LOG = Logger.getLogger(AUpdatingWavelet.class.getName());	
+	private static final Logger LOG = Logger.getLogger(AbstractUpdatingWavelet.class.getName());	
 	
 	private final int clientID;
 	
@@ -58,7 +58,7 @@ public abstract class AUpdatingWavelet {
 	
 	private Set<IUpdatesListener> updatesListeners = new HashSet<IUpdatesListener>();
 	
-	public AUpdatingWavelet(int clientID, IWavesClientRenderer renderer) {
+	public AbstractUpdatingWavelet(int clientID, IWavesClientRenderer renderer) {
 		this.clientID = clientID;
 		this.waveletModel = new WaveletModel(this.clientID, getAdditionalModels());
 		if (renderer == null) {
@@ -114,7 +114,7 @@ public abstract class AUpdatingWavelet {
 	
 	protected <SourceType> void updateModel(ModelID modelType, SourceType model, UpdateMessage message) {
 		waveletModel.useModel(modelType, model);
-		AModel<?, ?> newModel = waveletModel.getModel(modelType);
+		AbstractModel<?, ?> newModel = waveletModel.getModel(modelType);
 		if (renderUpdates) renderer.renderByModel(newModel);		
 		if (notifyUpdates) {
 			UpdateMessage updateMessage = (message != null) ? message : new ModelUpdateMessage(clientID, modelType, newModel);   
@@ -281,7 +281,7 @@ public abstract class AUpdatingWavelet {
 				return false;
 			}
 		} else {
-			registerError(AUpdatingWavelet.NOT_OPENED_WAVE_ERR);
+			registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
 			return false;
 		}
 	}	
@@ -298,7 +298,7 @@ public abstract class AUpdatingWavelet {
 				return false;
 			}
 		} else {
-			registerError(AUpdatingWavelet.NOT_OPENED_WAVE_ERR);
+			registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
 			return false;
 		}
 	}	
@@ -310,7 +310,7 @@ public abstract class AUpdatingWavelet {
 			updateWavePart();
 			return true;
 		} else {
-			registerError(AUpdatingWavelet.NOT_OPENED_WAVE_ERR);
+			registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
 			return false;
 		}
 	}

@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import name.shamansir.sametimed.wave.doc.cursor.AElementsScannerCursor;
+import name.shamansir.sametimed.wave.doc.cursor.AbstractElementsScannerCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 import name.shamansir.sametimed.wave.modules.editor.EditorTag;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
-public class DocumentChunksExtractionCursor extends AElementsScannerCursor<EditorTag> implements ICursorWithResult<List<TextChunk>> {
+public class DocumentChunksExtractionCursor extends AbstractElementsScannerCursor<EditorTag> implements ICursorWithResult<List<TextChunk>> {
 	
 	private final Queue<TextChunk> textChunks;
 	

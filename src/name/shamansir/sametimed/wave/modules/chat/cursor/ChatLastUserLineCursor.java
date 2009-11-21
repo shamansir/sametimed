@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.wave.modules.chat.cursor;
 
-import name.shamansir.sametimed.wave.doc.cursor.ALastElementSearchingCursor;
+import name.shamansir.sametimed.wave.doc.cursor.AbstractLastElementSearchingCursor;
 import name.shamansir.sametimed.wave.modules.chat.ChatTag;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
@@ -9,7 +9,7 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 // counting the number of
 // <line></line> elements, and comparing to their authors).
 
-public class ChatLastUserLineCursor extends ALastElementSearchingCursor {
+public class ChatLastUserLineCursor extends AbstractLastElementSearchingCursor {
 	
 	private final String userId;	
 	

@@ -3,15 +3,15 @@ package name.shamansir.sametimed.wave.doc.cursor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import name.shamansir.sametimed.wave.doc.ADocumentTag;
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
-public abstract class AElementsScannerCursor<TagType extends ADocumentTag> implements DocInitializationCursor {
+public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocumentTag> implements DocInitializationCursor {
 	
-	private static final Logger LOG = Logger.getLogger(AElementsScannerCursor.class.getName());
+	private static final Logger LOG = Logger.getLogger(AbstractElementsScannerCursor.class.getName());
 	
 	private AtomicBoolean gotEnd;
 	private AtomicBoolean gotCharacters;
@@ -19,7 +19,7 @@ public abstract class AElementsScannerCursor<TagType extends ADocumentTag> imple
 	
 	private TagType currentTag;
 	
-	public AElementsScannerCursor() {			
+	public AbstractElementsScannerCursor() {			
 		this.currentTag = null;
 		
 		this.skipElement = new AtomicBoolean(false);
