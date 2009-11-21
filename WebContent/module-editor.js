@@ -129,6 +129,7 @@ var DocumentEditor = $.inherit({
 		
 		this.editorElm.bind('cut', createMethodReference(this, this.onCut));
 		this.editorElm.bind('paste', createMethodReference(this, this.onPaste));
+		this.editorElm.bind('undo', createMethodReference(this, this.onUndo));
 		
 		// handler will send the recorded actions (compiled in actions) with the check period
 		var timerEventHandler = createMethodReference(this, this.onTimer); 		
@@ -223,6 +224,10 @@ var DocumentEditor = $.inherit({
 		}
 	},
 	
+	onUndo: function(event) {
+		_log('undoop');
+	},
+	
 	onTimer: function() {		
 		if (this.inputCompleted && (this.actionsStore.length > 0)) {
 			this.lock();
@@ -239,7 +244,7 @@ var DocumentEditor = $.inherit({
 		var editor = this.editorElm.get(0);
 		event.cursorPos = editor.selectionStart; /* FIXME: implement IE way */
 		event.selEnd = editor.selectionEnd; /* FIXME: implement IE way */
-		//event.docSize = editor.value.length;
+		event.docSize = editor.value.length;
 		event.charCode = event.charCode || event.keyCode;// editor.value[event.cursorPos];
 		return event;
 	},
@@ -408,11 +413,18 @@ var DocumentEditor = $.inherit({
 			  /* +Del */    } else if ((which == 0) && (charCode == 46)) { // Ctrl + Del
 				  				// if user entered chars or deleted chars before - save his actions
 								pushCurrentCommand();
-								// send deletion command
-								// TODO: check if something selected
-								commands.push({mode: 'del', start: cursorPos, len: -1}); // -1 means delete to the end								
+								if (selEnd != cursorPos) { // if block selected
+									var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
+									var delEndPos   = (selEnd > cursorPos) ? selEnd : cursorPos;
+									// send deletion command
+									commands.push({mode: 'del', start: delStartPos, len: delEndPos - delStartPos});									
+								} else {
+									// just send deletion-to-the-end-of-text command 									
+									commands.push({mode: 'del', start: cursorPos, len: -1}); // -1 means delete to the end
+								}
+							} else if (which == 122) {  // FIXME: undo using right-click/menu is not handled!
+								commands.push({mode: 'undo'});
 							}
-			  // TODO: handle Ctrl + Z
 			  				// ...and save the new state
 			  				ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
 						}
