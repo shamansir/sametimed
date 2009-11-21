@@ -295,7 +295,7 @@ var DocumentEditor = $.inherit({
 		var pushCurrentCommand = function() {
 				if ((ms.inputMode == 0) && ms.charKeysStack && (ms.charKeysStack.length > 0)) {					
 					commands.push({mode: 'put', chars: (String.fromCharCode.apply(null, ms.charKeysStack)), pos: ms.startCursorPos});
-					ms.startCursorPos = ms.lastCursorPos;
+					ms.startCursorPos = ms.lastCursorPos = (ms.lastCursorPos + 1);
 					ms.charKeysStack = [];
 				}
 				if ((ms.inputMode == 1) && ((ms.deleteStopPos - ms.startCursorPos) > 0)) {
