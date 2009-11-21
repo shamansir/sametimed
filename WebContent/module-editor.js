@@ -95,6 +95,7 @@ var DocumentEditor = $.inherit({
 		this.inputCompleted = true; // do user finished pressing buttons, default is true		
 		this.actionsStore = [];
 		
+		// construct elements
 		this.documentText = this.parseDocModel(documentModel);		
 		this.editorElm = this.createEditor(elmId, documentModel); // jQuery object
 		this.previewElm = this.createPreview(elmId + '-result', documentModel); // jQuery object
@@ -104,9 +105,12 @@ var DocumentEditor = $.inherit({
 		this.editorElm.attr('client', clientId);
 		this.previewElm.attr('client', clientId);
 		
+		// init elements with document content
 		this.initWithDocument(this.editorElm, documentModel, 'wiki');
 		this.initWithDocument(this.previewElm, documentModel, 'styled');
 		
+		// macroses are used to record user actions, which are
+		// sent periodically to server to apply document changes
 		this.macrosState = {
 				charKeysStack: [],
 				inputMode: 0, // 0 - put, 1 - delete
@@ -116,6 +120,7 @@ var DocumentEditor = $.inherit({
 				//lastDocSize: this.editorElm.get(0).value.length
 			};
 		
+		// assign events
 		this.editorElm.keydown(createMethodReference(this, this.onKeyDown));
 		this.editorElm.keyup(createMethodReference(this, this.onKeyUp));
 		this.editorElm.keypress(createMethodReference(this, this.onKeyPress));
@@ -125,8 +130,8 @@ var DocumentEditor = $.inherit({
 		this.editorElm.bind('cut', createMethodReference(this, this.onCut));
 		this.editorElm.bind('paste', createMethodReference(this, this.onPaste));
 		
-		var timerEventHandler = createMethodReference(this, this.onTimer); 
-		
+		// handler will send the recorded actions (compiled in actions) with the check period
+		var timerEventHandler = createMethodReference(this, this.onTimer); 		
 		setInterval(function() { timerEventHandler(); }, this.__self.COMMIT_CHECK_PERIOD);
 		
 		// this.unlock(); // unlock will be called after update, so editor 
@@ -163,9 +168,9 @@ var DocumentEditor = $.inherit({
 			//this.lock();
 			var ev = this.prepareEvent(event);
 			this.actionsStore.push(
-					[0, ev.cursorPos, ev.which, ev.charCode, ev.ctrlKey || ev.metaKey || ev.altKey, ev.selEnd]);
-			_log(event);			
-			_log('writing key-event: ', [0, ev.cursorPos, ev.which, ev.charCode, ev.ctrlKey || ev.metaKey || ev.altKey, 
+					[0, ev.cursorPos, ev.which, ev.charCode, (ev.ctrlKey || ev.metaKey) | (ev.altKey << 1), ev.selEnd]);
+			//_log(event);			
+			_log('writing key-event: ', [0, ev.cursorPos, ev.which, ev.charCode, (ev.ctrlKey || ev.metaKey) | (ev.altKey << 1), 
 			            					    ev.selEnd]);
 			//this.unlock();
 		}
@@ -229,6 +234,7 @@ var DocumentEditor = $.inherit({
 		//_log('ontimer'); 
 	},
 	
+	// each event is prepared (decorated) before further processing
 	prepareEvent: function(event) {
 		var editor = this.editorElm.get(0);
 		event.cursorPos = editor.selectionStart; /* FIXME: implement IE way */
@@ -303,15 +309,17 @@ var DocumentEditor = $.inherit({
 					ms.startCursorPos = ms.deleteStopPos;
 				}
 			};
+ /* for each recorded action */
 		for (actionIdx in actionsList) {
 			var action = actionsList[actionIdx];
-			//               0  1             2          3            4                                      5 
-			// key-event:   [0, ev.cursorPos, ev.which,  ev.charCode, ev.ctrlKey || ev.metaKey || ev.altKey, ev.selEnd]
+			//               0  1             2          3            4                                              5 
+			// key-event:   [0, ev.cursorPos, ev.which,  ev.charCode, (ev.ctrlKey || ev.metaKey) | (ev.altKey << 1), ev.selEnd]
 			// // mouse-event: [-, ev.cursorPos]
 			// cut-event:   [1, ev.cursorPos, ev.selEnd]
 			// paste-event: [2, ev.cursorPos, text,      textLen]
 			switch(action[0]) {
-				case 0: { // when some key pressed ...
+ /* if current action is keypress action */
+ /*action:key*/ case 0: { // when some key pressed ...
 						// TODO: use action array, not variables, if they are used only ones
 						var cursorPos = action[1];					
 						var which = action[2];
@@ -330,13 +338,13 @@ var DocumentEditor = $.inherit({
 						// 08 -LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LE
 						// 09 TTER] [PUNCTUATION-PUNCTUATION-PUNCTUATI] [LETTERS-LETTERS-
 						// 10 LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LETTERS-LET
-						// 11 TERS-LETTERS]---- [PUNCTUATION-PUNCTUATI] ----- ----- -----
-						if (!funcKey) { // if no functional key is pressed // FIXME: handle Ctrl+Backspace and Ctrl+Del 
-							if ((which === undefined) || (which >= 32)) { // if it is some letter, NOT any of del/backspace/shift...
+						// 11 TERS-LETTERS]---- [PUNCTUATION-PUNCTUATI] ----- ----- -----   
+   /* if !func key */	if (!funcKey) { // if no functional key was pressed 
+	   /* if letter key */	if ((which === undefined) || (which >= 32)) { // if it is some letter, NOT any of del/backspace/shift...
 								// and if we are inserting and it is inserted just after the previous letter // FIXME: handle Enter
-								if ((ms.inputMode == 0) && (cursorPos == (ms.lastCursorPos + 1))) { 
+			   /* 1-by-1 */		if ((ms.inputMode == 0) && (cursorPos == (ms.lastCursorPos + 1))) { 
 									ms.charKeysStack.push(charCode); // ... then write this character to the stack									
-								} else { // if we are deleted something before or inserting position is changed
+			   /* else */		} else { // if we are deleted something before or inserting position is changed
 									// ...then save the state of the previous performed actions in command
 									pushCurrentCommand();
 									// ...and save the new state
@@ -344,8 +352,8 @@ var DocumentEditor = $.inherit({
 									ms.charKeysStack = [charCode];
 								}
 								ms.inputMode = 0; // user is putting chars now
-							} else if ((which == 0) && (charCode == 46)) { // Del key
-								if (selEnd != cursorPos) { // if user deletes the selected block of letters
+	   /* or Del key */     } else if ((which == 0) && (charCode == 46)) { // Del key
+			   /* block */      if (selEnd != cursorPos) { // if user deletes the selected block of letters
 									// if user entered chars or deleted chars before - save his actions
 									pushCurrentCommand();
 									var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
@@ -355,10 +363,10 @@ var DocumentEditor = $.inherit({
 									// ...and save the new state
 									ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;									
 								// if user just continues to delete sequence of letters 
-								} else if ((ms.inputMode == 1) && (cursorPos == ms.lastCursorPos)) {
+			   /* 1-by-1 */		} else if ((ms.inputMode == 1) && (cursorPos == ms.lastCursorPos)) {
 									// startCursorPos is the same as before
 									ms.deleteStopPos++; // and delete-stop pos increases
-								} else {
+			   /* else */		} else {
 									// if user entered chars or deleted chars before - save his actions
 									pushCurrentCommand();
 									// ... and save the new state
@@ -366,8 +374,8 @@ var DocumentEditor = $.inherit({
 									ms.deleteStopPos = (cursorPos + 1);
 								}
 								ms.inputMode = 1; // user is deleting characters now
-							} else if (which == 8) { // Backspace key
-								if (selEnd != cursorPos) { // if user deletes the selected block of letters
+	   /* or Bksp key */    } else if (which == 8) { // Backspace key
+			   /* block */		if (selEnd != cursorPos) { // if user deletes the selected block of letters
 									// if user entered chars or deleted chars before - save his actions
 									pushCurrentCommand();
 									var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
@@ -377,10 +385,10 @@ var DocumentEditor = $.inherit({
 									// ...and save the new state
 									ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;								
 								// if user just continues to delete sequence of letters
-								} else if ((ms.inputMode == 1) && (cursorPos == ms.startCursorPos)) {
+			   /* 1-by-1 */     } else if ((ms.inputMode == 1) && (cursorPos == ms.startCursorPos)) {
 									// deleteStopPos is the same as before
 									ms.startCursorPos = (ms.startCursorPos > 0) ? (ms.startCursorPos - 1) : ms.startCursorPos;
-								} else {
+			   /* else */       } else {
 									// if user entered chars or deleted chars before - save his actions
 									pushCurrentCommand();
 									// ... and save the new state
@@ -389,6 +397,24 @@ var DocumentEditor = $.inherit({
 								}
 								ms.inputMode = 1; // user is deleting characters now								
 							}
+   /* or if Ctrl */     } else if (1 & funcKey) { // if Ctrl is pressed
+			  /* +Bksp */   if (which == 8) { // Ctrl + Backspace
+				  				// if user entered chars or deleted chars before - save his actions
+								pushCurrentCommand();
+								var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
+								var delEndPos   = (selEnd > cursorPos) ? selEnd : cursorPos;
+								// send deletion command
+								commands.push({mode: 'del', start: delStartPos, len: delEndPos - delStartPos});
+			  /* +Del */    } else if ((which == 0) && (charCode == 46)) { // Ctrl + Del
+				  				// if user entered chars or deleted chars before - save his actions
+								pushCurrentCommand();
+								// send deletion command
+								// TODO: check if something selected
+								commands.push({mode: 'del', start: cursorPos, len: -1}); // -1 means delete to the end								
+							}
+			  // TODO: handle Ctrl + Z
+			  				// ...and save the new state
+			  				ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
 						}
 						/* if (((which >= 34)  && (which <= 40)) { not required, if user places cursor back then 
 							pushCurrentCommand();
@@ -400,7 +426,8 @@ var DocumentEditor = $.inherit({
 					    // may be not required, because cursor pos is passed with each event
 						// ms.lastCursorPos = action[1];
 					} break; */
-				case 1: { // cut-event
+ /* if current action is cut action */
+ /*action:cut*/ case 1: { // cut-event
 						// if user entered chars or deleted chars before - save his actions
 						pushCurrentCommand();
 						var cursorPos = action[1];
@@ -412,7 +439,8 @@ var DocumentEditor = $.inherit({
 						// ...and save the new state
 						ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
 					} break;
-				case 2: { // paste-event
+ /* if current action is paste action */
+ /*action:pst*/ case 2: { // paste-event
 						// if user entered chars or deleted chars before - save his actions
 						pushCurrentCommand();
 						var cursorPos = action[1]; 					
