@@ -7,3 +7,5 @@ sametimed.*.eclipse-files.zip
 .project
 build
 doc
+syntax: regexp
+^WebContent/WEB-INF/classes/*$
