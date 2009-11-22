@@ -26,9 +26,9 @@ public interface IServerInfoPackage {
 	 * @param name name of the argument
 	 * @return argument value
 	 */	
-	public String getArgument(String name);	
+	public String getArgument(String name);
 	
-	/** @return XML string, representing the package state/content */		
-	public String toXMLString();
+	/** @return package, encoded in a single line */		
+	public String encode();
 
 }

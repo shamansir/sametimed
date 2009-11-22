@@ -13,9 +13,9 @@ import java.util.Map;
 public enum MessageTypeID {
     
 	/** message, making signal about update */
-    MSG_MODEL_UPDATE("mupdate"),	
+    MSG_MODEL_UPDATE("upd"),	
 	/** message to acknowledge from the server the previously passed command */
-	MSG_COMMAND_ACKNWLDG("cmdacknowledge")
+	MSG_COMMAND_ACKNWLDG("cmdack")
 	/*
 	MSG_ADD_USER("add"),
 	MSG_REMOVE_USER("remove"),

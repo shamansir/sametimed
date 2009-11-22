@@ -3,14 +3,13 @@ package name.shamansir.sametimed.wave.messaging;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
+import java.text.ParseException;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.dom4j.DocumentException;
 
 /**
  * 
@@ -36,15 +35,16 @@ public class CommandsReceiverServlet extends HttpServlet {
 			throws ServletException, IOException {
 		// int clientId = Integer.valueOf(request.getParameter("clientId"));
 		String errorString = null;
-		if (request.getParameter("cmdXML") != null) {
-			String commandXML = URLDecoder.decode(request.getParameter("cmdXML"), "UTF-8");
-			LOG.info("Command: " + commandXML);
+		if (request.getParameter("cmd") != null) {
+			String encodedCmd = URLDecoder.decode(request.getParameter("cmd"), "UTF-8");
+			LOG.info("Command received as: " + encodedCmd);
 			Command command = null;
 			try {
-				 command = Command.fromXMLString(commandXML);
+				 command = Command.decode(encodedCmd);
+				 LOG.info("Command decoded as: " + command.toString()); // FIXME: remove
 				 command.execute();
-			} catch (DocumentException e) {
-				errorString = "Failed to extract command data on the server side from " + commandXML;
+			} catch (ParseException e) {
+				errorString = "Failed to extract command data on the server side from " + encodedCmd;
 				LOG.severe(errorString);
 			}
 		} else {
@@ -60,18 +60,18 @@ public class CommandsReceiverServlet extends HttpServlet {
 		} */
 		PrintWriter responseWriter = response.getWriter();
 		if (errorString == null) {
-			responseWriter.write(createOkXMLStatus());
+			responseWriter.write(createOkStatus());
 		} else {
-			responseWriter.write(createErrorXMLStatus(errorString));
+			responseWriter.write(createErrorStatus(errorString));
 		}
 	}
 	
-	private static String createOkXMLStatus() {
-		return "<result><status>ok</status></result>";
+	private static String createOkStatus() {
+		return "result(ok)";
 	}
 	
-	private static String createErrorXMLStatus(String errorText) {
-		return "<result><status>error</status><text>" + errorText + "</text></result>"; 
+	private static String createErrorStatus(String errorText) {
+		return "result(error(\"" + errorText + "\"))"; 
 	}	
 	
 }

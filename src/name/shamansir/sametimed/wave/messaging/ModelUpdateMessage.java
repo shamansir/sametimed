@@ -19,6 +19,9 @@ public class ModelUpdateMessage extends UpdateMessage {
 	
 	private ModelID modelID;
 	private AbstractModel<?, ?> model;
+	
+	public static final String ALIAS_PARAM_NAME = "alias";
+	public static final String VALUE_PARAM_NAME = "value";
 
 	public ModelUpdateMessage(int clientId, ModelID modelID, AbstractModel<?, ?> model) { 
 		super(clientId, MessageTypeID.MSG_MODEL_UPDATE, 
@@ -28,10 +31,19 @@ public class ModelUpdateMessage extends UpdateMessage {
 	private static Map<String, String> 
 			prepareMsgArguments(ModelID modelID, AbstractModel<?, ?> model) {
 		Map<String, String> arguments = new HashMap<String, String>();
-		arguments.put("alias", modelID.getAlias());
-		arguments.put("value", model.asJSON(false));
+		arguments.put(ALIAS_PARAM_NAME, modelID.getAlias());
+		arguments.put(VALUE_PARAM_NAME, model.asJSON(false));
 		return arguments;
 	}
+	
+	@Override
+	public String encode() {
+		String encodedMsg = getType().getName() + "(";
+		encodedMsg += Integer.toString(getClientId()) + " ";
+		encodedMsg += getArgument(ALIAS_PARAM_NAME) + " ";  
+		encodedMsg += VALUE_PARAM_NAME + "(\"" + escapeQuotes(getArgument(VALUE_PARAM_NAME)) + "\")";
+		return encodedMsg + ")";
+	}	
 	
 	public ModelID getModelID() {
 		return modelID;

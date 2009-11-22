@@ -1,3 +1,4 @@
+/*
 function escapeXML(strForXml) {
 	strForXml = strForXml.replace(/&/g, "&amp;");
 	strForXml = strForXml.replace(/</g, "&lt;");
@@ -12,10 +13,18 @@ function unescapeXML(xmlStr) {
 	xmlStr = xmlStr.replace(/&gt;/g, ">");
 	xmlStr = xmlStr.replace(/&quot;/g, "\"");
 	return xmlStr;
+}*/
+
+function escapeQuotes(strToEscape) {
+	return strToEscape.replace(/"/g, "&_quot;");
 }
 
-var CLIENT_RECEIVER_URL = './get_client_view'; 
-var CMD_EXECUTOR_URL = './cmd_exec';
+function unescapeQuotes(escapedStr) {
+	return escapedStr.replace(/&_quot;/g, "\"");
+}
+
+var CLIENT_RECEIVER_URL = './get_client_view'; // FIXME: load from configuration
+var CMD_EXECUTOR_URL = './cmd_exec'; // FIXME: load from configuration
 
 /* ====== COMMANDS ====== */
 
@@ -33,29 +42,38 @@ function parseCommandLine(cmdAuthor, line, sourceDoc) {
 			commandName = 'say';
 			arguments['text'] = line;
 		}
-		return createCommandXML(cmdAuthor, commandName, arguments, sourceDoc);		
+		return encodeCmd(cmdAuthor, commandName, arguments, sourceDoc);		
 	} else {
 		return "?";
 	}
 }
 
-function createCommandXML(forClient, commandName, arguments, sourceDoc) {
-	// FIXME: rewrite with JQuery
-	var xml = '<command><name>' + commandName + '</name>';
-	xml += '<owner-id>' + forClient + '</owner-id>';
-	if ((commandName == 'say') || (commandName == 'undo')
-		                       || (commandName == 'put')) {
-		xml += '<for-document>' + sourceDoc + '</for-document>';
+var defaultRegisteredCmds = {
+	'new'    : { docRelated: false },
+	'read'   : { docRelated: false },
+	'quit'   : { docRelated: false },
+	'add'    : { docRelated: false },
+	'remove' : { docRelated: false },
+	'connect': { docRelated: false },
+	'view'   : { docRelated: false }, // false?
+	'open'   : { docRelated: true }	
+};
+
+function encodeCmd(forClient, commandName, arguments, sourceDoc) {
+	// command format: cmd(32 chat arg1("val1") arg2("val2"))
+	var encodedCmd = commandName + '(';
+	encodedCmd += forClient + ' ';
+	if (!(defaultRegisteredCmds[commandName]) || defaultRegisteredCmds[commandName].docRelated) {
+		encodedCmd += sourceDoc + ' ';
 	}
 	for (argumentName in arguments) {
 		var argument = arguments[argumentName];
 		if (argument !== undefined) {
-			xml += '<argument name="' + argumentName + '">' +
-				escapeXML(arguments[argumentName]) + "</argument>";
+			encodedCmd += argumentName + '("' +
+				encodeURIComponent(escapeQuotes(arguments[argumentName])) + '") ';
 		}
-	}
-	xml += '</command>';
-	return xml;
+	}	
+	return encodedCmd + ')';
 }
 
 function prepareArgumentsHash(commandName, argumentsArray) {
@@ -95,22 +113,53 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 
 /* ====== MESSAGES ====== */
 
+// update re: ^(\w+)\((\d+)(?:\s+(\w+))?\s+(.*)\)$
+// argument re: (\w+)\(\"([^\"]*)\"\)
+
+var MESSAGE_RE = /^(\w+)\((\d+)(?:\s+(\w+))?\s+(.*)\)$/;
+var MSG_ARG_RE = /(\w+)\(\"([^\"]*)\"\)/;
+
 function parseUpdateMessage(updateMessage) {
+	// update message format: msg(32 arg1("val1") arg2("val2"))
+	// model update message format: upd(32 inbox value("jsonModel"))
 	//_log('parseUpdate', updateMessage);
-	var msgRoot = $(updateMessage);
-	var msgType = msgRoot.find('name').text();
-	var ownerId = msgRoot.find('owner-id').text();
-	var typeStr = msgRoot.find('argument[name=alias]').text();
-	var valueStr = msgRoot.find('argument[name=value]').text();	
-	return {
-			clientId: ownerId,
-			modelType: typeStr,
-			modelValue: $.evalJSON(unescapeXML(valueStr))
-		};
+	var resData = updateMessage.match(MESSAGE_RE);
+	if (resData) {
+		var msgType = resData[1];
+		var ownerId = resData[2];
+		if (msgType == 'upd') { // update message
+			var modelAlias = resData[3];
+			var argument = resData[4].match(MSG_ARG_RE);
+			if (argument) {
+				if (argument[1] == 'value') {
+					var valueStr = argument[2];
+					return { // SUCCESS!!
+						clientId: ownerId,
+						modelType: modelAlias,
+						modelValue: $.evalJSON(unescapeQuotes(valueStr))
+					};					
+				} else {
+					alert('Model update message can not be parsed: must have only "value" argument but found ...' + resData[4] + '...');
+				}
+			} else {
+				alert('Failed to extract arguments from update message line: ...' + resData[4] + '...');
+				return null;
+			}
+		} /* else {
+			var arguments = resData[4];
+			var argsData = MSG_ARG_RE.exec(arguments);
+			if (argsData) {
+				// TODO: implement
+			}			
+		} */
+	} else {
+		alert('Update message ' + updateMessage + ' can not be parsed');
+		return null;
+	}
 }
 
-function updateReceived(updateMessageXML) {	
-	renderUpdate(parseUpdateMessage(updateMessageXML));
+function updateReceived(updateMessage) {
+	renderUpdate(parseUpdateMessage(updateMessage));
 }
 
 /* ====== GET FULL CLIENT ====== */
@@ -140,14 +189,18 @@ function cmdButtonOnClick(clientId, commandAlias, inputId) {
 	if (commandAlias == 'put') {
 		arguments['text'] = documentHolder.value;
 	}
-	var cmdXML = createCommandXML(clientId, commandAlias, arguments, 'document');
-	if (cmdXML != '?') {
+	var encodedCmd = encodeCmd(clientId, commandAlias, arguments, 'document');
+	if (encodedCmd != '?') {
 		$.ajax({ url: CMD_EXECUTOR_URL,
 		     type: 'POST',			     
-		     dataType: 'xml',
+		     dataType: 'text',
 		     data: { 'clientId': clientId,
-					 'cmdXML': encodeURIComponent(cmdXML)
-			       },			       
+					 'cmd': /*encodeURIComponent(*/encodedCmd/*)*/
+			       },
+			 success: function(resultText) {
+			 			//consoleInputElm.value = "";
+			    	    // FIXME: parse error from status: result(ok) or result(error(\"" + errorText + "\"))
+			        },			       
 		     error: function(request, textStatus, error) {
 			    	   // _log('send from cmd button failed', textStatus);	    	   
 			    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
@@ -168,17 +221,18 @@ function sendButtonOnClick(clientId, inputId) {
 		//        also, show command performing process
 		consoleInputElm.value = "";
 		if (consoleLine.length > 0) {
-			var cmdXML = parseCommandLine(clientId, consoleLine, 'main');
-			if (cmdXML != '?') {
+			var encodedCmd = parseCommandLine(clientId, consoleLine, 'main');
+			if (encodedCmd != '?') {
 				$.ajax({ url: CMD_EXECUTOR_URL,
 				     type: 'POST',	
-				     dataType: 'xml',				     
+				     dataType: 'text',				     
 				     data: { 'clientId': clientId,
-							 'cmdXML': encodeURIComponent(cmdXML)
-					       }, /*
+							 'cmd': /*encodeURIComponent(*/encodedCmd/*)*/
+					       }, 
 					 success: function() {
-					 			consoleInputElm.value = "";
-					          }, */
+					 			//consoleInputElm.value = "";
+					    	    // FIXME: parse error from status: result(ok) or result(error(\"" + errorText + "\"))
+					          }, 
 				     error: function(request, textStatus, error) {
 					    	   // _log('send button execution failed', textStatus);
 					    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');

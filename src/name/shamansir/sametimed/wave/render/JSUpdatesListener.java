@@ -39,7 +39,7 @@ public class JSUpdatesListener implements IUpdatesListener {
 	public void onUpdate(UpdateMessage updateMessage) {
 		final ScriptBuffer script = new ScriptBuffer(); 
 		script.appendScript(JS_UPDATES_HANDLER + "(")
-	    	  .appendScript("'" + updateMessage.toXMLString() + "'")
+	    	  .appendScript("'" + updateMessage.encode() + "'")
 	    	  .appendScript(");");
 		
 		/*

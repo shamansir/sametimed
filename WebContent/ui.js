@@ -39,7 +39,11 @@ function renderClient(waveModelObj, holder) {
 }
 
 function renderUpdate(updateObj) {
-	clientRenderer.renderUpdate(updateObj);
+	if (updateObj) {
+		clientRenderer.renderUpdate(updateObj);
+	} else {
+		showGeneralError('received null update');
+	}
 }
 
 /* ==========================/ IBOXRENDER /================================== */

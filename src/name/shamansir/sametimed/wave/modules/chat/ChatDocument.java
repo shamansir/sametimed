@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.modules.chat;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ChatDocument extends AbstractOperableDocument<List<ChatLine>> {
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
-	public ChatDocument() {
+	public ChatDocument() throws ParseException {
 		super(DOCUMENT_ID);
 	}
 	

@@ -1,9 +1,11 @@
 package name.shamansir.sametimed.wave.doc;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
@@ -30,6 +32,8 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  */
 
 public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
+	
+	private static final Logger LOG = Logger.getLogger(AbstractDocumentsWavelet.class.getName());
 	
 	private Map<String, IOperableDocument> docOpsHandlers = new HashMap<String, IOperableDocument>();	
 	
@@ -66,7 +70,12 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	@Override 
 	protected void prepareNewWave(ClientWaveView newWave) {
 		super.prepareNewWave(newWave);
-		prepareDocuments();
+		try {
+			prepareDocuments();
+		} catch (ParseException e) {
+			LOG.severe("Documents preparation failed: " + e.getMessage());
+			e.printStackTrace();
+		}
 		docOpsHandlers = registerOperationsHandlers(new HashMap<String, IOperableDocument>());		
 	}
 	
@@ -88,7 +97,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	
 	protected abstract List<ModelID> registerDocumentsModelsTypes(List<ModelID> currentTypes);	
 	
-	protected abstract void prepareDocuments();
+	protected abstract void prepareDocuments() throws ParseException;
 	
 	protected abstract void updateDocumentsModels();	
 	

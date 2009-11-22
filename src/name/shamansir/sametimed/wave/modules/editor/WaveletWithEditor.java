@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.modules.editor;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +22,7 @@ public class WaveletWithEditor extends WaveletWithChat {
 	}
 	
 	@Override	
-	protected void prepareDocuments() {
+	protected void prepareDocuments() throws ParseException {
 		super.prepareDocuments();
 		editorView = new EditorDocument();
 	}

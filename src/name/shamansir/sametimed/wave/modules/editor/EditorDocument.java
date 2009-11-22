@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.modules.editor;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class EditorDocument extends AbstractOperableDocument<List<TextChunk>> {
 
 	protected static final String DOCUMENT_ID = "document";
 	
-	public EditorDocument() {
+	public EditorDocument() throws ParseException {
 		super(DOCUMENT_ID);
 	}	
 	

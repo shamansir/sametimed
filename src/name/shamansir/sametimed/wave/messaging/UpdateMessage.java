@@ -2,8 +2,6 @@ package name.shamansir.sametimed.wave.messaging;
 
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-
 /**
  * @author shamansir <shaman.sir@gmail.com>
  * 
@@ -26,26 +24,20 @@ public class UpdateMessage implements IServerInfoPackage {
 		this.arguments = arguments;		
 		// this.baseOperation = (baseOperation != null) ? baseOperation : tryToCreate(typeID, arguments);		
 	}
-
-	/* public UpdateMessage(int clientId, MessageTypeID typeID, Map<String, String> arguments) {
-		this(clientId, typeID, arguments, null);
-	} */
 	
-	public static String toXMLString(UpdateMessage message) {
-		// FIXME: implement	as dom4j
-		String xmlCmdString = "<message>";
-		xmlCmdString += "<name>" + message.getType().getName() + "</name>";
-		xmlCmdString += "<owner-id>" + Integer.toString(message.getClientId()) + "</owner-id>";
-		for (Map.Entry<String, String> argPair: message.getArguments().entrySet()) {
-			xmlCmdString += 
-				"<argument name=\"" + argPair.getKey() + "\">" + 
-					StringEscapeUtils.escapeXml(argPair.getValue()) + "</argument>";			
-		}		
-		return xmlCmdString + "</message>";
+	@Override
+	public String encode() {
+		String encodedMsg = getType().getName() + "(";
+		encodedMsg += Integer.toString(getClientId()) + " ";
+		for (Map.Entry<String, String> argPair: getArguments().entrySet()) {
+			encodedMsg += argPair.getKey() + "(\"" + escapeQuotes(argPair.getValue()) + "\") ";			
+		}
+		return encodedMsg + ")";
 	}
 	
-	public String toXMLString() {
-		return UpdateMessage.toXMLString(this);
+	// TODO: extract in some utils class?
+	protected static String escapeQuotes(String strToEscape) {
+		return strToEscape.replaceAll("\"", "&_quot;");
 	}
 	
 	/* private static WaveletOperation tryToCreate(MessageTypeID typeID,
@@ -79,11 +71,7 @@ public class UpdateMessage implements IServerInfoPackage {
 	
 	@Override
 	public String toString() {
-		String msgString = "<" + this.getType().name() + "(";
-		for (Map.Entry<String, String> argPair: this.arguments.entrySet()) {
-			msgString += argPair.getKey() + ":" + argPair.getValue() + ";";			
-		}
-		return msgString + ") [" + this.clientId + "]>"; 
+		return this.encode();
 	}
 
 }

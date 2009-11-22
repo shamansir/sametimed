@@ -125,13 +125,13 @@ public abstract class AbstractUpdatingWavelet {
 	/* ====== UPDATES & UPDATES LISTENERS OPERATIONS ====== */
 	
 	private void updateAll(boolean waveOpened) {
-		if (waveOpened && (inbox != null)) { // FIXME: inbox must not be null if wave is opened
-						// NPE fires (if not checking inbox) when application is just started and
-						// some waves are already in the user's inbox at the server
-			inbox.setOpenWave(openedWave);
+		if (waveOpened && (inbox != null)) { 
+			inbox.setOpenWave(openedWave);			
 		}
-		
-		updateModel(ModelID.INBOX_MODEL, inbox.getOpenedWaves());
+				
+		if (inbox != null) { // FIXME: inbox is null at first client call even if some waves exist
+			updateModel(ModelID.INBOX_MODEL, inbox.getOpenedWaves());
+		}
 		// updateModel(ModelID.INFOLINE_MODEL, null);
 		updateModel(ModelID.ERRORBOX_MODEL, errors);
 		

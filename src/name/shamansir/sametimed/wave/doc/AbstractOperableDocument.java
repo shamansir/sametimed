@@ -1,5 +1,7 @@
 package name.shamansir.sametimed.wave.doc;
 
+import java.text.ParseException;
+
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
@@ -12,8 +14,8 @@ public abstract class AbstractOperableDocument<InnerType> implements IOperableDo
 	
 	private final String documentID;
 	
-	public AbstractOperableDocument(String documentID) {
-		this.documentID = documentID;
+	public AbstractOperableDocument(String documentID) throws ParseException {
+		this.documentID = validateID(documentID);
 	}
 		
 	protected <ResultType> ResultType applyCursor(BufferedDocOp srcDoc, ICursorWithResult<ResultType> cursor) {
@@ -59,7 +61,12 @@ public abstract class AbstractOperableDocument<InnerType> implements IOperableDo
 		return documentID;
 	}
 	
+	protected static String validateID(String IDtoValidate) throws ParseException {
+		if (IDtoValidate.contains(" ")) throw new ParseException("Document ID (" + IDtoValidate + ") must not contain spaces", IDtoValidate.indexOf(" "));
+		return IDtoValidate;
+	}
+	
 	public abstract InnerType extract(BufferedDocOp srcDoc);
-	// protected abstract ADocumentTag makeTagForAppend(ParticipantId author, String text);
+	// protected abstract ADocumentTag makeTagForAppend(ParticipantId author, String text);		
 
 }

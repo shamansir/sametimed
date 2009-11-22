@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.modules.chat;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class WaveletWithChat extends AbstractDocumentsWavelet {
 	}
 	
 	@Override	
-	protected void prepareDocuments() {
+	protected void prepareDocuments() throws ParseException {
 		chatView = new ChatDocument();		
 	}
 	
