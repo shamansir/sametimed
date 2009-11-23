@@ -111,6 +111,8 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 	}
 }
 
+// FIXME: change alerts to something more nice
+
 /* ====== MESSAGES ====== */
 
 // update re: ^(\w+)\((\d+)(?:\s+(\w+))?\s+(.*)\)$
@@ -123,13 +125,13 @@ function parseUpdateMessage(updateMessage) {
 	// update message format: msg(32 arg1("val1") arg2("val2"))
 	// model update message format: upd(32 inbox value("jsonModel"))
 	//_log('parseUpdate', updateMessage);
-	var resData = updateMessage.match(MESSAGE_RE);
-	if (resData) {
-		var msgType = resData[1];
-		var ownerId = resData[2];
+	var msgData = updateMessage.match(MESSAGE_RE);
+	if (msgData) {
+		var msgType = msgData[1];
+		var ownerId = msgData[2];
 		if (msgType == 'upd') { // update message
-			var modelAlias = resData[3];
-			var argument = resData[4].match(MSG_ARG_RE);
+			var modelAlias = msgData[3];
+			var argument = msgData[4].match(MSG_ARG_RE);
 			if (argument) {
 				if (argument[1] == 'value') {
 					var valueStr = argument[2];
@@ -139,10 +141,11 @@ function parseUpdateMessage(updateMessage) {
 						modelValue: $.evalJSON(unescapeQuotes(valueStr))
 					};					
 				} else {
-					alert('Model update message can not be parsed: must have only "value" argument but found ...' + resData[4] + '...');
+					alert('Model update message can not be parsed: must have only "value" argument but found ...' + msgData[4] + '...');
+					return null;
 				}
 			} else {
-				alert('Failed to extract arguments from update message line: ...' + resData[4] + '...');
+				alert('Failed to extract arguments from update message line: ...' + msgData[4] + '...');
 				return null;
 			}
 		} /* else {
@@ -160,6 +163,27 @@ function parseUpdateMessage(updateMessage) {
 
 function updateReceived(updateMessage) {
 	renderUpdate(parseUpdateMessage(updateMessage));
+}
+
+/* ====== RESPONSE ============= */
+
+var RESPONSE_RE = /^result\((\w+)\)$/;
+var ERROR_RESP_RE = /error\(\"([^\"]*)\"\)/;
+
+function checkResponse(response) {
+	var respData = response.match(RESPONSE_RE);
+	if (respData) {
+		var status = respData[1];
+		if (status == 'ok') return;
+		var errorData = status.match(ERROR_RESP_RE);
+		if (errorData) {
+			showGeneralError(errorData[1]);
+		} else {
+			alert('Response error status ' + responce + ' can not be parsed');
+		}
+	} else {
+		alert('Response ' + responce + ' can not be parsed');
+	}
 }
 
 /* ====== GET FULL CLIENT ====== */
@@ -197,9 +221,8 @@ function cmdButtonOnClick(clientId, commandAlias, inputId) {
 		     data: { 'clientId': clientId,
 					 'cmd': /*encodeURIComponent(*/encodedCmd/*)*/
 			       },
-			 success: function(resultText) {
-			 			//consoleInputElm.value = "";
-			    	    // FIXME: parse error from status: result(ok) or result(error(\"" + errorText + "\"))
+			 success: function(data, textStatus) {
+			    	   checkResponse(data);
 			        },			       
 		     error: function(request, textStatus, error) {
 			    	   // _log('send from cmd button failed', textStatus);	    	   
@@ -229,9 +252,8 @@ function sendButtonOnClick(clientId, inputId) {
 				     data: { 'clientId': clientId,
 							 'cmd': /*encodeURIComponent(*/encodedCmd/*)*/
 					       }, 
-					 success: function() {
-					 			//consoleInputElm.value = "";
-					    	    // FIXME: parse error from status: result(ok) or result(error(\"" + errorText + "\"))
+					 success: function(data, textStatus) {
+					    	   	  checkResponse(data);
 					          }, 
 				     error: function(request, textStatus, error) {
 					    	   // _log('send button execution failed', textStatus);
