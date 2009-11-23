@@ -12,7 +12,7 @@ function showGeneralError(errorText) {
 /* ==============================/ UTILS /=================================== */
 
 function _log() {
-	if (console && console.log) console.log.apply(console, arguments);
+	if (window.console && console && console.log) console.log.apply(console, arguments);
 }
 
 function blockEnter(evt) {

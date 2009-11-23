@@ -25,6 +25,7 @@ function unescapeQuotes(escapedStr) {
 
 var CLIENT_RECEIVER_URL = './get_client_view'; // FIXME: load from configuration
 var CMD_EXECUTOR_URL = './cmd_exec'; // FIXME: load from configuration
+var CMD_SEQ_EXECUTOR_URL = './cmd_seq_exec'; // FIXME: load from configuration
 
 /* ====== COMMANDS ====== */
 
@@ -70,7 +71,7 @@ function encodeCmd(forClient, commandName, arguments, sourceDoc) {
 		var argument = arguments[argumentName];
 		if (argument !== undefined) {
 			encodedCmd += argumentName + '("' +
-				encodeURIComponent(escapeQuotes(arguments[argumentName])) + '") ';
+				encodeURIComponent(escapeQuotes(String(arguments[argumentName]))) + '") ';
 		}
 	}	
 	return encodedCmd + ')';
@@ -80,7 +81,7 @@ function prepareArgumentsHash(commandName, argumentsArray) {
 	// TODO: use hash with commands names as keys 
 	var arguments = {};
 	// no arguments
-	if (commandName == "new") {
+	if (commandName == "new") { // TODO: use switch
 		return arguments;
 	}
 	if (commandName == "read") {
@@ -207,36 +208,14 @@ function getFullClient(username, clientsHolder) {
 
 /* ====== ONCLICK ====== */
 
-function cmdButtonOnClick(clientId, commandAlias, inputId) {
-	var arguments = {};
-	var documentHolder = document.getElementById(inputId);
-	if (commandAlias == 'put') {
-		arguments['text'] = documentHolder.value;
-	}
-	var encodedCmd = encodeCmd(clientId, commandAlias, arguments, 'document');
-	if (encodedCmd != '?') {
-		$.ajax({ url: CMD_EXECUTOR_URL,
-		     type: 'POST',			     
-		     dataType: 'text',
-		     data: { 'clientId': clientId,
-					 'cmd': /*encodeURIComponent(*/encodedCmd/*)*/
-			       },
-			 success: function(data, textStatus) {
-			    	   checkResponse(data);
-			        },			       
-		     error: function(request, textStatus, error) {
-			    	   // _log('send from cmd button failed', textStatus);	    	   
-			    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
-				    }
-		   });		
-		// makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null, true);
-	} else {
-		alert('document command cannot be parsed');
-	}
+function getClientOnClick(inputId, clientsHolderId) { // for 'get client button'
+	getFullClient($('#' + inputId).val(), $('#' + clientsHolderId));
 	return false;
 }
 
-function sendButtonOnClick(clientId, inputId) {
+// FIXME: merge sendButtonOnClick and cmdButtonOnClick in one function
+
+function sendButtonOnClick(clientId, inputId) { // for send command button
 	var consoleInputElm = document.getElementById(inputId);
 	if (consoleInputElm) {
 		var consoleLine = consoleInputElm.value;
@@ -271,7 +250,54 @@ function sendButtonOnClick(clientId, inputId) {
 	return false;
 }
 
-function getClientOnClick(inputId, clientsHolderId) {
-	getFullClient($('#' + inputId).val(), $('#' + clientsHolderId));
+function cmdButtonOnClick(clientId, commandAlias, inputId, documentAlias) { 
+	// a temporary stub for any document-related command (editor, for example) buttons 
+	var arguments = {};
+	var documentHolder = document.getElementById(inputId);
+	if (commandAlias == 'put') {
+		arguments['chars'] = documentHolder.value;
+	}
+	var encodedCmd = encodeCmd(clientId, commandAlias, arguments, documentAlias);
+	if (encodedCmd != '?') {
+		$.ajax({ url: CMD_EXECUTOR_URL,
+		     type: 'POST',			     
+		     dataType: 'text',
+		     data: { 'clientId': clientId,
+					 'cmd': /*encodeURIComponent(*/encodedCmd/*)*/
+			       },
+			 success: function(data, textStatus) {
+			    	   checkResponse(data);
+			        },			       
+		     error: function(request, textStatus, error) {
+			    	   // _log('send from cmd button failed', textStatus);	    	   
+			    	   showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
+				    }
+		   });		
+		// makeRequest(CMD_EXECUTOR_URL, 'clientId=' + clientId + '&cmdXML=' + encodeURIComponent(cmdXML), null, true);
+	} else {
+		alert('document command cannot be parsed');
+	}
 	return false;
+}
+
+/* ====== SEND COMMANDS SEQUENCE ====== */
+
+function sendCommandsSequence(clientId, commands, sourceDoc) {
+	var postData = { 'clientId': clientId };
+	for (commandIdx in commands) {
+		var command = commands[commandIdx];
+		postData['cmd' + commandIdx] = encodeCmd(clientId, command.name, command.arguments, sourceDoc);
+	}
+	$.ajax({ url: CMD_SEQ_EXECUTOR_URL,
+		     type: 'POST',	
+		     dataType: 'text',
+		     data: postData,		   
+		     success: function(data, textStatus) {
+			    	   checkResponse(data);
+			        },
+		     error: function(request, textStatus, error) {
+			        	showGeneralError(request.status + ': ' + request.statusText + ' (' + textStatus + ')');
+				    }
+		   });
+	// makeRequest(CLIENT_RECEIVER_URL, 'username=' + username + '&ueq=false', addClientFunc, true);	
 }

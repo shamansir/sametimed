@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -36,18 +38,21 @@ public class CommandsSequenceReceiverServlet extends HttpServlet {
 		// int clientId = Integer.valueOf(request.getParameter("clientId"));
 		String errorString = null;
 		int cmdCounter = -1;
+		List<Command> commandsToExec = new ArrayList<Command>(); // TODO: use [Priority[Blocking]]Queue ?
 		while (request.getParameter("cmd" + String.valueOf(++cmdCounter)) != null) {
-			String encodedCmd = URLDecoder.decode(request.getParameter("cmd" + String.valueOf(cmdCounter)), "UTF-8");
-			LOG.info("Command received as: " + encodedCmd);
-			Command command = null;
+			String cmdParamName = "cmd" + String.valueOf(cmdCounter);
+			String encodedCmd = URLDecoder.decode(request.getParameter(cmdParamName), "UTF-8");
+			LOG.info("Command " + cmdParamName + " received as: " + encodedCmd);
 			try {
-				 command = Command.decode(encodedCmd);
-				 LOG.info("Command decoded as: " + command.toString()); // FIXME: remove
-				 command.execute();
+				 commandsToExec.add(Command.decode(encodedCmd));
 			} catch (ParseException e) {
 				errorString = "Failed to extract command data on the server side from " + encodedCmd;
 				LOG.severe(errorString);
 			}
+		}
+		for (Command command: commandsToExec) {
+			command.execute();
+			LOG.info("Command " + command + " executed");			
 		}
 		if (cmdCounter == -1) {
 			errorString = "No command were passed to the Commands Sequence Receiver Servlet";

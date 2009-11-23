@@ -79,8 +79,8 @@ var EditorBoxRenderer = $.inherit(
  		{ 'left': { id_postfix: '-left', name: 'Align Left', cmd: 'left', text: 'L' },
  		  'center': { id_postfix: '-center', name: 'Center Text', cmd: 'center', text: 'C' },
  		  'right': { id_postfix: '-right', name: 'Align Right', cmd: 'right', text: 'R' },
- 		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} },
- 		{ 'put': { id_postfix:'-put', name: 'Put Text', cmd: 'put', text:'Put'} } ]	
+ 		  'justify': { id_postfix: '-jtify', name: 'Justify Text', cmd: 'jtify', text: 'J'} }/*,
+ 		{ 'put': { id_postfix:'-put', name: 'Put Text', cmd: 'put', text:'Put'} } */ ]	
 	
 });
 
@@ -218,19 +218,25 @@ var DocumentEditor = $.inherit({
 		}
 	},
 	
-	onTimer: function() {		
+	onTimer: function() {
+		// FIXME: handle pushing in specified position
+		// FIXME: handle del/undo commands (at least del)		
+		// FIXME: turn off updates for document and put the cursor in editor after all updates
+		// FIXME: really ask for document updates and unlock only when they are received
+		// FIXME: updates even for closed and for all clients are sent. 		
 		if (this.inputCompleted && (this.actionsStore.length > 0)) {
 			this.lock();
 			this.sendCommands(this.compileCommands(this.actionsStore));
 			this.actionsStore = [];
 			this.askUpdates(); // FIXME: unlock only when commands results and updates received
 			this.unlock();
+			this.editorElm.focus();
 		}
 		//_log('ontimer'); 
 	},
 	
 	// each event is prepared (decorated) before further processing
-	prepareEvent: function(event) {
+	prepareEvent: function(event) { 
 		var editor = this.editorElm.get(0);
 		event.cursorPos = editor.selectionStart; /* FIXME: implement IE way */
 		event.selEnd = editor.selectionEnd; /* FIXME: implement IE way */
@@ -241,7 +247,7 @@ var DocumentEditor = $.inherit({
 	
 	execBtnCommand: function(cmdName) {
 		_log('exec cmd: ' + cmdName);
-		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId);
+		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId, this.__self.DOCUMENT_ALIAS);
 	},		
 	
 	lock: function() {
@@ -296,12 +302,16 @@ var DocumentEditor = $.inherit({
 		// function for using current macrosState to push the command
 		var pushCurrentCommand = function() {
 				if ((ms.inputMode == 0) && ms.charKeysStack && (ms.charKeysStack.length > 0)) {					
-					commands.push({mode: 'put', chars: (String.fromCharCode.apply(null, ms.charKeysStack)), pos: ms.startCursorPos});
+					commands.push({ name: 'put', 
+									arguments: { chars: (String.fromCharCode.apply(null, ms.charKeysStack)), 
+						                         pos: ms.startCursorPos } });
 					ms.startCursorPos = ms.lastCursorPos = (ms.lastCursorPos + 1);
 					ms.charKeysStack = [];
 				}
 				if ((ms.inputMode == 1) && ((ms.deleteStopPos - ms.startCursorPos) > 0)) {
-					commands.push({mode: 'del', start: ms.startCursorPos, len: ms.deleteStopPos - ms.startCursorPos});
+					commands.push({ name: 'del', 
+								    arguments: { start: ms.startCursorPos, 
+						                         len: ms.deleteStopPos - ms.startCursorPos } });
 					ms.startCursorPos = ms.deleteStopPos;
 				}
 			};
@@ -356,7 +366,9 @@ var DocumentEditor = $.inherit({
 									var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
 									var delEndPos   = (selEnd > cursorPos) ? selEnd : cursorPos;
 									// send deletion command
-									commands.push({mode: 'del', start: delStartPos, len: delEndPos - delStartPos});
+									commands.push({ name: 'del', 
+													arguments: { start: delStartPos, 
+										                         len: delEndPos - delStartPos } });
 									// ...and save the new state
 									ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;									
 								// if user just continues to delete sequence of letters 
@@ -378,7 +390,9 @@ var DocumentEditor = $.inherit({
 									var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
 									var delEndPos   = (selEnd > cursorPos) ? selEnd : cursorPos;
 									// send deletion command
-									commands.push({mode: 'del', start: delStartPos, len: delEndPos - delStartPos});
+									commands.push({ name: 'del', 
+													arguments: { start: delStartPos, 
+										                         len: delEndPos - delStartPos } });
 									// ...and save the new state
 									ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;								
 								// if user just continues to delete sequence of letters
@@ -401,7 +415,9 @@ var DocumentEditor = $.inherit({
 								var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
 								var delEndPos   = (selEnd > cursorPos) ? selEnd : cursorPos;
 								// send deletion command
-								commands.push({mode: 'del', start: delStartPos, len: delEndPos - delStartPos});
+								commands.push({ name: 'del', 
+									            arguments: { start: delStartPos, 
+									                         len: delEndPos - delStartPos } });
 			  /* +Del */    } else if ((which == 0) && (charCode == 46)) { // Ctrl + Del
 				  				// if user entered chars or deleted chars before - save his actions
 								pushCurrentCommand();
@@ -409,13 +425,17 @@ var DocumentEditor = $.inherit({
 									var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
 									var delEndPos   = (selEnd > cursorPos) ? selEnd : cursorPos;
 									// send deletion command
-									commands.push({mode: 'del', start: delStartPos, len: delEndPos - delStartPos});									
+									commands.push({ name: 'del', 
+										            arguments: { start: delStartPos, 
+										                         len: delEndPos - delStartPos } });									
 								} else {
 									// just send deletion-to-the-end-of-text command 									
-									commands.push({mode: 'del', start: cursorPos, len: -1}); // -1 means delete to the end
+									commands.push({ name: 'del', 
+										            arguments: { start: cursorPos, 
+										                         len: -1 } }); // -1 means delete to the end
 								}
 							} else if (which == 122) {  // FIXME: undo using right-click/menu is not handled!
-								commands.push({mode: 'undo'});
+								commands.push({ name: 'undo' });
 							}
 			  				// ...and save the new state
 			  				ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
@@ -439,7 +459,9 @@ var DocumentEditor = $.inherit({
 						var delStartPos = (selEnd > cursorPos) ? cursorPos : selEnd;
 						var delEndPos   = (selEnd > cursorPos) ? selEnd : cursorPos;
 						// send deletion command
-						commands.push({mode: 'del', start: delStartPos, len: delEndPos - delStartPos});
+						commands.push({ name: 'del', 
+							            arguments: { start: delStartPos, 
+							                         len: delEndPos - delStartPos } });
 						// ...and save the new state
 						ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = cursorPos;
 					} break;
@@ -448,14 +470,16 @@ var DocumentEditor = $.inherit({
 						// if user entered chars or deleted chars before - save his actions
 						pushCurrentCommand();
 						var cursorPos = action[1]; 					
-						commands.push({mode: 'put', chars: action[2], pos: cursorPos}); // action[2] is text
+						commands.push({ name: 'put', 
+							            arguments: { chars: action[2], 
+							                         pos: cursorPos } }); // action[2] is text
 						// save new state
 						ms.charKeysStack = [];
 						ms.inputMode = 0;						
 						ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = (cursorPos + action[3]); // action[3] is textLen
 					} break;
  /*action:undo*/case 3: { // undo-event
-	 					commands.push({mode: 'undo'});
+	 					commands.push({ name: 'undo' });
 	 					ms.startCursorPos = ms.deleteStopPos = ms.lastCursorPos = action[1]; // action[1] is cursorPos
  					} break; 
 			}			
@@ -466,14 +490,17 @@ var DocumentEditor = $.inherit({
 	},
 	
 	sendCommands: function(commands) {
-		// FIXME: implement, send to cmdSequenceServlet
 		_log('sending ', commands);
+		this.__self.CMD_SEQENCE_SENDER(this.clientId, commands, this.__self.DOCUMENT_ALIAS);
 	}
 	
 }, { // static
 	
+	DOCUMENT_ALIAS: 'document',
+	
 	COMMIT_CHECK_PERIOD: 2000,
 	
-	CMD_BTN_HANDLER: cmdButtonOnClick	
+	CMD_BTN_HANDLER: cmdButtonOnClick,
+	CMD_SEQENCE_SENDER: sendCommandsSequence	
 	
 });

@@ -17,7 +17,12 @@
     <servlet>
         <servlet-name>executeClientCommand</servlet-name>
         <servlet-class>name.shamansir.sametimed.wave.messaging.CommandsReceiverServlet</servlet-class>
-    </servlet>  
+    </servlet>
+    
+    <servlet>
+        <servlet-name>executeClientCommandsSequence</servlet-name>
+        <servlet-class>name.shamansir.sametimed.wave.messaging.CommandsSequenceReceiverServlet</servlet-class>
+    </servlet>
   
     <!-- DWR -->  
 	<servlet>
@@ -50,6 +55,11 @@
     <servlet-mapping>
         <servlet-name>executeClientCommand</servlet-name>
         <url-pattern>/cmd_exec</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+    	<servlet-name>executeClientCommandsSequence</servlet-name>
+    	<url-pattern>/cmd_seq_exec</url-pattern>
     </servlet-mapping>
     
     <!-- DWR -->

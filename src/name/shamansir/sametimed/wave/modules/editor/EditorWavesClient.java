@@ -32,7 +32,7 @@ public class EditorWavesClient extends ChatWavesClient {
 		switch(command.getType()) {
 			case CMD_PUT: return curWavelet.onDocumentAppendMutation(
 								command.getRelatedDocumentID(),
-								StringEscapeUtils.unescapeXml(command.getArgument("text")),
+								StringEscapeUtils.unescapeXml(command.getArgument("chars")),
 								backend.getUserId());
 			case CMD_DELETE:
 					// FIXME: implement

@@ -134,7 +134,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	}
 			
 	public boolean onDocumentAppendMutation(String documentID, String text, ParticipantId author) {
-		if (text.length() == 0) {
+		if ((text == null) || (text.length() == 0)) {
 			throw new IllegalArgumentException("Cannot append an empty String");
 		} else if (isWaveOpen()) {
 			documentPerformAppend(documentID, text, author);

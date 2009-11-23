@@ -104,7 +104,9 @@ var ClientRenderer = $.inherit({
 			for (moduleAliasId in modulesRenderOrder[blockAlias]) {
 				this.renderOrder.push(modulesRenderOrder[blockAlias][moduleAliasId]);
 			}
-		}		
+		}
+		
+		this.registeredClients = {};
 	},
 	
 	createClient: function(waveModel) {
@@ -140,7 +142,9 @@ var ClientRenderer = $.inherit({
 			}			
 		}
 		
-		return clientWrapper;
+		this.registeredClients[clientId] = true;		
+		
+		return clientWrapper;		
 	},
 
 	createInfoLine: function(clientId, blockData, infoLineStr) {
@@ -240,48 +244,51 @@ var ClientRenderer = $.inherit({
 		return moduleData;
 	},
 	
-	renderUpdate: function(updateModel) {
+	renderUpdate: function(updateModel) {		
 		var clientId = updateModel.clientId;
-		var modelType = updateModel.modelType;
-		var model = updateModel.modelValue;
-		var blockData = this.blocksData[modelType];		
 		
-		var modelWrapper = null;
-		var blockAutoScroll = false;
-		var holderId = null;
-		
-		var prepareUpdateCallback = null;
-		var beforeUpdateCallback = null;
-		var afterUpdateCallback = null;
-		
-		if (blockData) { // if it is the inner block to update
-			holderId = this.getModelHolderId(modelType, clientId); 
-			modelWrapper = this[blockData.renderer](clientId, blockData, model);
-			 	           // ATTENTION: calling a rendering method here			
-			blockAutoScroll = blockData.autoScroll;
-		} else if (this.modules[modelType]) { // if it is the module to update
-			var moduleData = this.prepareModuleData(clientId, modelType, this.modules[modelType]);
-			var moduleRenderer = moduleData.renderer;			
-			holderId = moduleData.holderId;
+		if (this.registeredClients[clientId]) {
+			var modelType = updateModel.modelType;
+			var model = updateModel.modelValue;
+			var blockData = this.blocksData[modelType];		
 			
-			prepareUpdateCallback = createMethodReference(moduleRenderer, moduleRenderer.prepareUpdate);
-			beforeUpdateCallback  = createMethodReference(moduleRenderer, moduleRenderer.beforeUpdate);
-			afterUpdateCallback   = createMethodReference(moduleRenderer, moduleRenderer.afterUpdate);
+			var modelWrapper = null;
+			var blockAutoScroll = false;
+			var holderId = null;
 			
-			if (prepareUpdateCallback) prepareUpdateCallback(clientId);
+			var prepareUpdateCallback = null;
+			var beforeUpdateCallback = null;
+			var afterUpdateCallback = null;
 			
-			modelWrapper = moduleRenderer.renderBox(clientId, moduleData, model);
-			blockAutoScroll = moduleRenderer.doAutoScroll();
-		}
-		
-		if (modelWrapper != null) {
-			if (beforeUpdateCallback) beforeUpdateCallback(clientId); 
-			$('#' + holderId).replaceWith(modelWrapper);
-			if (blockAutoScroll) {
-				modelWrapper.attr("scrollTop", modelWrapper.height());
+			if (blockData) { // if it is the inner block to update
+				holderId = this.getModelHolderId(modelType, clientId); 
+				modelWrapper = this[blockData.renderer](clientId, blockData, model);
+				 	           // ATTENTION: calling a rendering method here			
+				blockAutoScroll = blockData.autoScroll;
+			} else if (this.modules[modelType]) { // if it is the module to update
+				var moduleData = this.prepareModuleData(clientId, modelType, this.modules[modelType]);
+				var moduleRenderer = moduleData.renderer;			
+				holderId = moduleData.holderId;
+				
+				prepareUpdateCallback = createMethodReference(moduleRenderer, moduleRenderer.prepareUpdate);
+				beforeUpdateCallback  = createMethodReference(moduleRenderer, moduleRenderer.beforeUpdate);
+				afterUpdateCallback   = createMethodReference(moduleRenderer, moduleRenderer.afterUpdate);
+				
+				if (prepareUpdateCallback) prepareUpdateCallback(clientId);
+				
+				modelWrapper = moduleRenderer.renderBox(clientId, moduleData, model);
+				blockAutoScroll = moduleRenderer.doAutoScroll();
 			}
-			if (afterUpdateCallback) afterUpdateCallback(clientId);
-		}		
+			
+			if (modelWrapper != null) {
+				if (beforeUpdateCallback) beforeUpdateCallback(clientId); 
+				$('#' + holderId).replaceWith(modelWrapper);
+				if (blockAutoScroll) {
+					modelWrapper.attr("scrollTop", modelWrapper.height());
+				}
+				if (afterUpdateCallback) afterUpdateCallback(clientId);
+			}
+		}
 
 	}
 		

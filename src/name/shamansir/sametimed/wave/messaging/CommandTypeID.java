@@ -36,13 +36,13 @@ public enum CommandTypeID {
 	 /** saying something command (text) */
      CMD_SAY("say", true),
      /* ------ EDITOR COMMANDS ------ */
-	 /** inserting something command (pos, text) */
+	 /** inserting something command (pos, chars) */
      CMD_PUT("put", true),
-	 /** deleting something command (pos, length) */
+	 /** deleting something command (start, len) */
      CMD_DELETE("del", true),
 	 /** reserve text place (pos) */
      CMD_RESERVE("r", true),
-	 /** change style of some text (pos, length, style) */
+	 /** change style of some text (start, len, style) */
      CMD_STYLE("style", true)
      ;
 
