@@ -32,7 +32,7 @@ public enum MessageTypeID {
          }
     }
 
-    private String name;
+    private final String name;
 
     private MessageTypeID(String name) {
          this.name = name;

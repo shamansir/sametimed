@@ -42,9 +42,9 @@ public enum ModelID {
          }
     }
 
-    private String alias;
-    private boolean isInner; // do not holds other models inside
-    private boolean isPure; // accords to "pure" wavelet (no documents)  
+    private final String alias;
+    private final boolean isInner; // do not holds other models inside
+    private final boolean isPure; // accords to "pure" wavelet (no documents)  
 
     private ModelID(String alias) {
          this.alias = alias;
@@ -55,7 +55,7 @@ public enum ModelID {
     private ModelID(String alias, boolean isInner) {
         this.alias = alias;
         this.isInner = isInner;
-        if (this.isInner) this.isPure = true;
+        this.isPure = this.isInner;
     }
     
     private ModelID(String alias, boolean isInner, boolean isPure) {

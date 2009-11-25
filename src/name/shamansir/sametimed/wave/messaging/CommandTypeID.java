@@ -55,8 +55,8 @@ public enum CommandTypeID {
           }
      }
 
-     private String name;
-     private boolean documentRelated;
+     private final String name;
+     private final boolean documentRelated;
 
      private CommandTypeID(String name) {
           this.name = name;
