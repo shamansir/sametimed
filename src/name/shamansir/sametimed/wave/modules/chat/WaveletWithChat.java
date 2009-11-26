@@ -4,9 +4,9 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-import name.shamansir.sametimed.wave.doc.AbstractModulatedWavelet;
-import name.shamansir.sametimed.wave.doc.IMutableModule;
 import name.shamansir.sametimed.wave.model.ModelID;
+import name.shamansir.sametimed.wave.module.AbstractModulatedWavelet;
+import name.shamansir.sametimed.wave.module.IMutableModule;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 /**

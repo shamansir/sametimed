@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.modules.editor.cursor;
+package name.shamansir.sametimed.wave.modules.editor.doc.cursor;
 
 import name.shamansir.sametimed.wave.doc.cursor.ElementDeletionCursor;
 import name.shamansir.sametimed.wave.modules.editor.EditorTag;

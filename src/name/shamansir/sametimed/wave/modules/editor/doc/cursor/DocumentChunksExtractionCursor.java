@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.modules.editor.cursor;
+package name.shamansir.sametimed.wave.modules.editor.doc.cursor;
 
 import java.util.Collections;
 import java.util.LinkedList;

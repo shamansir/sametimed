@@ -2,9 +2,9 @@ package name.shamansir.sametimed.wave.modules.editor;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 
-import name.shamansir.sametimed.wave.doc.mutation.InsertMutation;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
+import name.shamansir.sametimed.wave.module.mutation.InsertMutation;
 import name.shamansir.sametimed.wave.modules.chat.ChatWavesClient;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 

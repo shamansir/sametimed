@@ -1,13 +1,13 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.module;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.WavesClient;
-import name.shamansir.sametimed.wave.doc.mutation.UndoMutation;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
+import name.shamansir.sametimed.wave.module.mutation.UndoMutation;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public abstract class AbstractModulatedWavesClient<WaveletType extends AbstractModulatedWavelet> extends WavesClient<WaveletType> {

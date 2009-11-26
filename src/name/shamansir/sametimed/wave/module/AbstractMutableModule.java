@@ -1,10 +1,10 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.module;
 
 import java.text.ParseException;
 
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
-import name.shamansir.sametimed.wave.doc.mutation.IMutation;
-import name.shamansir.sametimed.wave.doc.mutation.MutationCompilationException;
+import name.shamansir.sametimed.wave.module.mutation.proto.IMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;

@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.module;
 
 import java.util.HashMap;
 import java.util.Map;

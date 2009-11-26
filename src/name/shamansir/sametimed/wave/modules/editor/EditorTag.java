@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.wave.modules.editor;
 
-import name.shamansir.sametimed.wave.doc.AbstractModuleTag;
+import name.shamansir.sametimed.wave.module.AbstractModuleTag;
 import name.shamansir.sametimed.wave.modules.editor.util.TextStyle;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;

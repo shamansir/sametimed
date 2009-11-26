@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.module;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -12,10 +12,10 @@ import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
-import name.shamansir.sametimed.wave.doc.mutation.ChangeViewModeMutation;
-import name.shamansir.sametimed.wave.doc.mutation.IMutation;
-import name.shamansir.sametimed.wave.doc.mutation.MutationCompilationException;
 import name.shamansir.sametimed.wave.model.ModelID;
+import name.shamansir.sametimed.wave.module.mutation.ChangeViewModeMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.IMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 import name.shamansir.sametimed.wave.render.RenderMode;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 

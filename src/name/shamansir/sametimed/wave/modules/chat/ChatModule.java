@@ -4,12 +4,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import name.shamansir.sametimed.wave.doc.AbstractVerticalModule;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
-import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLineDeletionCursor;
-import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLinesExtractionCursor;
-import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLastUserLineCursor;
+import name.shamansir.sametimed.wave.module.AbstractVerticalModule;
+import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLastUserLineCursor;
+import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLineDeletionCursor;
+import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLinesExtractionCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;

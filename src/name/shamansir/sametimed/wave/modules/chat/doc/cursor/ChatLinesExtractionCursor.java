@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.modules.chat.cursor;
+package name.shamansir.sametimed.wave.modules.chat.doc.cursor;
 
 import java.util.Collections;
 import java.util.LinkedList;

@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.wave.modules.chat;
 
-import name.shamansir.sametimed.wave.doc.AbstractModuleTag;
+import name.shamansir.sametimed.wave.module.AbstractModuleTag;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;

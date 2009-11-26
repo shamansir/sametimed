@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.modules.chat.cursor;
+package name.shamansir.sametimed.wave.modules.chat.doc.cursor;
 
 import name.shamansir.sametimed.wave.doc.cursor.ElementDeletionCursor;
 import name.shamansir.sametimed.wave.modules.chat.ChatTag;

@@ -1,10 +1,10 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.module;
 
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-import name.shamansir.sametimed.wave.doc.mutation.IMutable;
+import name.shamansir.sametimed.wave.module.mutation.proto.IMutable;
 
 public interface IMutableModule extends IMutable {
 	

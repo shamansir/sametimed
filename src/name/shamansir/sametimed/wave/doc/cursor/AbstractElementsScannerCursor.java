@@ -3,7 +3,7 @@ package name.shamansir.sametimed.wave.doc.cursor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import name.shamansir.sametimed.wave.doc.AbstractModuleTag;
+import name.shamansir.sametimed.wave.module.AbstractModuleTag;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;

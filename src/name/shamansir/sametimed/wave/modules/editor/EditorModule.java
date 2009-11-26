@@ -9,13 +9,13 @@ import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.Doc
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-import name.shamansir.sametimed.wave.doc.AbstractTreeModule;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
-import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentChunkDeletionCursor;
-import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentChunksExtractionCursor;
-import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentLastChunkIDCursor;
-import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentLastUserChunkCursor;
+import name.shamansir.sametimed.wave.module.AbstractTreeModule;
+import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentChunkDeletionCursor;
+import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentChunksExtractionCursor;
+import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentLastChunkIDCursor;
+import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentLastUserChunkCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
 // TODO: This must be a tree-based document, so it will contain not only tags
