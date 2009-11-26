@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.WaveletOperationListener;
-import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode; // FIXME: get rid
 import org.waveprotocol.wave.model.id.WaveId;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
@@ -16,6 +15,7 @@ import org.waveprotocol.wave.model.wave.data.WaveletData;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.ICommandsPerformer;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
+import name.shamansir.sametimed.wave.render.RenderMode;
 
 /**
  * 

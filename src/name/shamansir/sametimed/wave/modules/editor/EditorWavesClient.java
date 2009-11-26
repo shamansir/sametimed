@@ -1,8 +1,8 @@
 package name.shamansir.sametimed.wave.modules.editor;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 
+import name.shamansir.sametimed.wave.doc.mutation.InsertMutation;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
 import name.shamansir.sametimed.wave.modules.chat.ChatWavesClient;
@@ -25,15 +25,18 @@ public class EditorWavesClient extends ChatWavesClient {
 	}
 	
 	@Override
-	public boolean doCommand(Command command) {
+	public boolean doCommand(Command command) { // FIXME: throws CommandExecutionException
 		WaveletWithEditor curWavelet = (WaveletWithEditor)getWavelet();
 		ClientBackend backend = getBackend();
 		
 		switch(command.getType()) {
-			case CMD_PUT: return curWavelet.onDocumentAppendMutation(
-								command.getRelatedDocumentID(),
-								StringEscapeUtils.unescapeXml(command.getArgument("chars")),
-								backend.getUserId());
+			case CMD_PUT: return 
+					curWavelet.applyMutationToDocument(
+							command.getRelatedDocumentID(), 
+							new InsertMutation(backend.getUserId(),
+										       command.getArgument("chars"),
+										       Integer.valueOf(command.getArgument("pos"))
+									));
 			case CMD_DELETE:
 					// FIXME: implement
 			case CMD_RESERVE:

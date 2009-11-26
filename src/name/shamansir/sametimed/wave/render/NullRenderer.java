@@ -2,8 +2,6 @@ package name.shamansir.sametimed.wave.render;
 
 import java.util.List;
 
-import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
-
 import name.shamansir.sametimed.wave.model.AbstractModel;
 import name.shamansir.sametimed.wave.model.WaveletModel;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;

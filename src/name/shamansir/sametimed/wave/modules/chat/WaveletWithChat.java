@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentsWavelet;
-import name.shamansir.sametimed.wave.doc.IOperableDocument;
+import name.shamansir.sametimed.wave.doc.IMutableDocument;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
@@ -43,8 +43,8 @@ public class WaveletWithChat extends AbstractDocumentsWavelet {
 	}
 	
 	@Override
-	protected Map<String, IOperableDocument> registerOperationsHandlers(
-			Map<String, IOperableDocument> curHandlers) {
+	protected Map<String, IMutableDocument> registerDocuments(
+			Map<String, IMutableDocument> curHandlers) {
 		curHandlers.put(chatView.getDocumentID(), chatView);
 		return curHandlers;
 	}
@@ -58,7 +58,8 @@ public class WaveletWithChat extends AbstractDocumentsWavelet {
 	@Override	
 	protected void updateDocumentsModels() {
 		if (isChatReady()) {
-			updateModel(ModelID.CHAT_MODEL, chatView.extract(getDocument(chatView.getDocumentID())));
+			updateModel(ModelID.CHAT_MODEL, chatView.extract(
+										getSource(chatView.getDocumentID())));
 		}		
 	}
 	

@@ -1,6 +1,7 @@
 package name.shamansir.sametimed.wave.messaging;
 
 import java.text.ParseException;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.logging.Logger;
@@ -8,6 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import name.shamansir.sametimed.wave.WavesClient;
+
+// TODO: change to CommandsRegistrar
 
 /**
  * 
@@ -114,7 +117,7 @@ public class Command implements IServerInfoPackage {
 				Matcher argsMatcher = ARG_RE_PATTERN.matcher(argsLine);
 				Map<String, String> arguments = new HashMap<String, String>();
 				while (argsMatcher.find()) {
-					arguments.put(argsMatcher.group(1), unescapeQuotes(argsMatcher.group(2)));					
+					arguments.put(argsMatcher.group(1), unescapeThings(argsMatcher.group(2)));					
 				}				
 				return new Command(clientId, commandType, relatedDocument, arguments);
 			} catch (NumberFormatException nfe) {
@@ -135,19 +138,19 @@ public class Command implements IServerInfoPackage {
 			encodedCmd += getRelatedDocumentID() + " ";
 		}
 		for (Map.Entry<String, String> argPair: getArguments().entrySet()) {
-			encodedCmd += argPair.getKey() + "(\"" + escapeQuotes(argPair.getValue()) + "\") ";			
+			encodedCmd += argPair.getKey() + "(\"" + escapeThings(argPair.getValue()) + "\") ";			
 		}
 		return encodedCmd + ")";
 	}
 	
 	// TODO: extract in some utils class?
-	protected static String escapeQuotes(String strToEscape) {
-		return strToEscape.replaceAll("\"", "&_quot;");
+	protected static String escapeThings(String strToEscape) {
+		return strToEscape.replaceAll("\"", "&_qt;");
 	}	
 	
 	// TODO: extract in some utils class?
-	protected static String unescapeQuotes(String escapedStr) {
-		return escapedStr.replaceAll("&_quot;", "\"");
+	protected static String unescapeThings(String escapedStr) {
+		return escapedStr.replaceAll("&_qt;", "\"");
 	}
 	
 	/* private static WaveletOperation tryToCreate(CommandTypeID typeID,

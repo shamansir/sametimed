@@ -15,12 +15,13 @@ function unescapeXML(xmlStr) {
 	return xmlStr;
 }*/
 
-function escapeQuotes(strToEscape) {
-	return strToEscape.replace(/"/g, "&_quot;");
+function escapeThings(strToEscape) {
+	return strToEscape.replace(/"/g, "&_qt;");
+	
 }
 
-function unescapeQuotes(escapedStr) {
-	return escapedStr.replace(/&_quot;/g, "\"");
+function unescapeThings(escapedStr) {
+	return escapedStr.replace(/&_qt;/g, "\"");
 }
 
 var CLIENT_RECEIVER_URL = './get_client_view'; // FIXME: load from configuration
@@ -71,7 +72,7 @@ function encodeCmd(forClient, commandName, arguments, sourceDoc) {
 		var argument = arguments[argumentName];
 		if (argument !== undefined) {
 			encodedCmd += argumentName + '("' +
-				encodeURIComponent(escapeQuotes(String(arguments[argumentName]))) + '") ';
+				encodeURIComponent(escapeThings(String(arguments[argumentName]))) + '") ';
 		}
 	}	
 	return encodedCmd + ')';
@@ -139,7 +140,7 @@ function parseUpdateMessage(updateMessage) {
 					return { // SUCCESS!!
 						clientId: ownerId,
 						modelType: modelAlias,
-						modelValue: $.evalJSON(unescapeQuotes(valueStr))
+						modelValue: $.evalJSON(unescapeThings(valueStr))
 					};					
 				} else {
 					alert('Model update message can not be parsed: must have only "value" argument but found ...' + msgData[4] + '...');

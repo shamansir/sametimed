@@ -5,6 +5,7 @@ import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 
 import name.shamansir.sametimed.wave.modules.chat.WaveletWithChat;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentsWavesClient;
+import name.shamansir.sametimed.wave.doc.mutation.AppendMutation;
 import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
@@ -27,10 +28,10 @@ public class ChatWavesClient extends AbstractDocumentsWavesClient<WaveletWithCha
 		ClientBackend backend = getBackend();
 		
 		if (command.getType() == CommandTypeID.CMD_SAY) {
-			return curWavelet.onDocumentAppendMutation(
-					command.getRelatedDocumentID(),
-					StringEscapeUtils.unescapeXml(command.getArgument("text")),
-					backend.getUserId());			
+			return curWavelet.applyMutationToDocument(
+					command.getRelatedDocumentID(), 
+					new AppendMutation(backend.getUserId(), 
+							           command.getArgument("text")));
 		} else {
 			return super.doCommand(command);
 		}

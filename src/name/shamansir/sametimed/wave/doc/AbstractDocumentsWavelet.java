@@ -8,14 +8,29 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
-import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
-import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
+import name.shamansir.sametimed.wave.doc.mutation.ChangeViewModeMutation;
+import name.shamansir.sametimed.wave.doc.mutation.IMutation;
+import name.shamansir.sametimed.wave.doc.mutation.MutationCompilationException;
 import name.shamansir.sametimed.wave.model.ModelID;
+import name.shamansir.sametimed.wave.render.RenderMode;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
+
+// NOTE: There are naming problems between wave-protocol Document concept
+//       (an extension of BufferedDocOp for the moment),
+//       and mine document concept, as a model holder, tags-projection
+//       and mutations performer (itself). I even can extend wave-protocol
+//       type, but it is too 'soft' for my version. So I need to keep
+//		 my type of Document as an external interface and keep wave-protocol
+//       documents inside, not allowing for sametimed-api-users to touch it.
+//       Again, in two words: my MutableDocuments are 'very strict 
+//       but easy extendible' wrappers for wave-protocol DocOps-based documents.
+//       Also, wave-protocol are _Sources_ for me and my documents are _Keepers_.
+//       And Also, Mutations are in fact wrappers for DocOps, but applied
+//       not for Wavelets, but for MutableDocuments
 
 /**
  * @see #addUpdatesListener(IUpdatesListener)
@@ -35,7 +50,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractDocumentsWavelet.class.getName());
 	
-	private Map<String, IOperableDocument> docOpsHandlers = new HashMap<String, IOperableDocument>();	
+	private Map<String, IMutableDocument> registeredDocuments = new HashMap<String, IMutableDocument>();	
 	
 	public AbstractDocumentsWavelet(int clientID, IWavesClientRenderer renderer) {
 		super(clientID, renderer);
@@ -57,14 +72,14 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	protected void clear() {
 		super.clear();
 		resetDocuments();
-		docOpsHandlers = new HashMap<String, IOperableDocument>();
+		registeredDocuments = new HashMap<String, IMutableDocument>();
 	}
 	
 	@Override
 	protected void clearWavePart() {
 		super.clearWavePart();
         resetDocuments();	
-        docOpsHandlers = new HashMap<String, IOperableDocument>();
+        registeredDocuments = new HashMap<String, IMutableDocument>();
 	}
 	
 	@Override 
@@ -76,13 +91,13 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 			LOG.severe("Documents preparation failed: " + e.getMessage());
 			e.printStackTrace();
 		}
-		docOpsHandlers = registerOperationsHandlers(new HashMap<String, IOperableDocument>());		
+		registeredDocuments = registerDocuments(new HashMap<String, IMutableDocument>());		
 	}
 	
 	@Override
 	protected void onViewModeChanged(RenderMode newMode) {
 		super.onViewModeChanged(newMode);
-		changeDocumentsOutputMode(newMode);		
+		applyMutationToDocuments(new ChangeViewModeMutation(newMode));	
 	}
 	
 	@Override
@@ -93,7 +108,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 		
 	/* ====== DOCUMENTS OPERATIONS ====== */
 	
-	protected abstract Map<String, IOperableDocument> registerOperationsHandlers(Map<String, IOperableDocument> curHandlers);
+	protected abstract Map<String, IMutableDocument> registerDocuments(Map<String, IMutableDocument> curHandlers);
 	
 	protected abstract List<ModelID> registerDocumentsModelsTypes(List<ModelID> currentTypes);	
 	
@@ -103,23 +118,58 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	
 	protected abstract void resetDocuments();
 	
-	protected IOperableDocument getDocumentOperationsHandler(String documentID) {
-		return docOpsHandlers.get(documentID);
+	protected IMutableDocument getRegisteredDocument(String documentID) {
+		return registeredDocuments.get(documentID);
 	}
 	
-	protected BufferedDocOp getDocument(String documentID) {
+	protected BufferedDocOp getSource(String documentID) {
 		return getOpenWavelet() == null ? null : getOpenWavelet()
 				.getDocuments().get(documentID);
 	}
 	
 	/* ====== DOCUMENTS-RELATED OPERATIONS ====== */
 	
-	private void changeDocumentsOutputMode(RenderMode mode) {
-		for (String documentID: docOpsHandlers.keySet()) {
-			documentChangeRenderMode(documentID, mode);
-		}
-	}	
+	public boolean applyMutationToDocument(String documentID, IMutation mutation) {
+		if (isWaveOpen()) {
+			IMutableDocument mutableDoc = getRegisteredDocument(documentID);
+			if (mutableDoc != null) {
+				BufferedDocOp srcDoc = getSource(documentID);
+				try {
+					// srcDoc can be null!
+					performWaveletOperation(mutableDoc.compileMutation(srcDoc, mutation));
+					return true;
+				} catch (MutationCompilationException mce) {
+					registerError("Document '" + mutableDoc.getDocumentID() + "' mutation error: " + mce.getMessage());
+					return false;
+				}			
+			} else {
+				registerError("document with id \'" + documentID + "\' is not found or have no handler");
+				return false;
+			}			
+		} else {
+	        registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
+	        return false;
+	    }
+	}
 		
+	public void applyMutationToDocuments(IMutation mutation) {
+		if (isWaveOpen()) {
+			for (IMutableDocument mutableDoc: registeredDocuments.values()) {
+				try {
+					performWaveletOperation(
+							mutableDoc.compileMutation(
+									getSource(mutableDoc.getDocumentID()), mutation)
+						);
+				} catch (MutationCompilationException mce) {
+					registerError("Document '" + mutableDoc.getDocumentID() + "' mutation error: " + mce.getMessage());
+				}
+			}		
+		} else {
+	        registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
+	    }
+	}
+	
+	/*
 	public boolean onUndoCall(String documentID, ParticipantId userId) {
 		if (isWaveOpen()) {
 	    	if (getOpenWavelet().getParticipants().contains(userId)) {
@@ -146,7 +196,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	}	
 	
 	private void documentChangeRenderMode(String documentID, RenderMode mode) {
-		IOperableDocument opHandler = getDocumentOperationsHandler(documentID);
+		IMutableDocument opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
 		if (opHandler != null) {
 			if (operableDoc != null) { // if document already created
@@ -158,7 +208,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	}
 	
 	private boolean documentPerformUndo(String documentID, ParticipantId userId) {
-		IOperableDocument opHandler = getDocumentOperationsHandler(documentID);
+		IMutableDocument opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
 		if (opHandler != null) {
 			if (operableDoc == null) {
@@ -179,7 +229,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	}
 	
 	private void documentPerformAppend(String documentID, String text, ParticipantId author) {
-		IOperableDocument opHandler = getDocumentOperationsHandler(documentID);
+		IMutableDocument opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
 		if (opHandler != null) {
 			WaveletDocumentOperation appendOp = opHandler.getAppendOp(operableDoc, author, text);
@@ -187,11 +237,13 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 		} else {
 			registerError("document with id \'" + documentID + "\' is not found or have no handler");
 		}	
-	}
+	} */
 	
-	private void performDocumentOperation(WaveletDocumentOperation operation) {
-		getOperationsSender().sendWaveletOperation(getOpenWavelet().getWaveletName(),
-				operation);
+	private void performWaveletOperation(WaveletDocumentOperation operation) {
+		if (operation != null) {
+			getOperationsSender().sendWaveletOperation(getOpenWavelet().getWaveletName(),
+					operation);
+		}
 	}
 					
 }

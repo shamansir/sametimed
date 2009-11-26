@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-import name.shamansir.sametimed.wave.doc.IOperableDocument;
+import name.shamansir.sametimed.wave.doc.IMutableDocument;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.modules.chat.WaveletWithChat;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
@@ -28,16 +28,16 @@ public class WaveletWithEditor extends WaveletWithChat {
 	}
 	
 	@Override
-	protected Map<String, IOperableDocument> registerOperationsHandlers(
-			Map<String, IOperableDocument> curHandlers) {
+	protected Map<String, IMutableDocument> registerDocuments(
+			Map<String, IMutableDocument> curHandlers) {
 		curHandlers.put(EditorDocument.DOCUMENT_ID, editorView);
-		return super.registerOperationsHandlers(curHandlers);
+		return super.registerDocuments(curHandlers);
 	}	
 	
 	@Override
 	protected void updateDocumentsModels() {
 		super.updateDocumentsModels();
-		updateModel(ModelID.EDITOR_MODEL, editorView.extract(getDocument(editorView.getDocumentID())));		
+		updateModel(ModelID.EDITOR_MODEL, editorView.extract(getSource(editorView.getDocumentID())));		
 	}	
 	
 	@Override

@@ -30,14 +30,14 @@ public class UpdateMessage implements IServerInfoPackage {
 		String encodedMsg = getType().getName() + "(";
 		encodedMsg += Integer.toString(getClientId()) + " ";
 		for (Map.Entry<String, String> argPair: getArguments().entrySet()) {
-			encodedMsg += argPair.getKey() + "(\"" + escapeQuotes(argPair.getValue()) + "\") ";			
+			encodedMsg += argPair.getKey() + "(\"" + escapeThings(argPair.getValue()) + "\") ";			
 		}
 		return encodedMsg + ")";
 	}
 	
 	// TODO: extract in some utils class?
-	protected static String escapeQuotes(String strToEscape) {
-		return strToEscape.replaceAll("\"", "&_quot;");
+	protected static String escapeThings(String strToEscape) {
+		return strToEscape.replaceAll("\"", "&_qt;");
 	}
 	
 	/* private static WaveletOperation tryToCreate(MessageTypeID typeID,

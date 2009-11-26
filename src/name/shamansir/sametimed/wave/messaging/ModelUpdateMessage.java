@@ -41,7 +41,7 @@ public class ModelUpdateMessage extends UpdateMessage {
 		String encodedMsg = getType().getName() + "(";
 		encodedMsg += Integer.toString(getClientId()) + " ";
 		encodedMsg += getArgument(ALIAS_PARAM_NAME) + " ";  
-		encodedMsg += VALUE_PARAM_NAME + "(\"" + escapeQuotes(getArgument(VALUE_PARAM_NAME)) + "\")";
+		encodedMsg += VALUE_PARAM_NAME + "(\"" + escapeThings(getArgument(VALUE_PARAM_NAME)) + "\")";
 		return encodedMsg + ")";
 	}	
 	

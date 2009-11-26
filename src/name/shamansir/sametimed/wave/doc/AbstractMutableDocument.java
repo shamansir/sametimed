@@ -3,6 +3,8 @@ package name.shamansir.sametimed.wave.doc;
 import java.text.ParseException;
 
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
+import name.shamansir.sametimed.wave.doc.mutation.IMutation;
+import name.shamansir.sametimed.wave.doc.mutation.MutationCompilationException;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
@@ -10,12 +12,14 @@ import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorA
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-public abstract class AbstractOperableDocument<InnerType> implements IOperableDocument {
+public abstract class AbstractMutableDocument<InnerType> implements IMutableDocument {
 	
 	private final String documentID;
+	private final boolean structured;
 	
-	public AbstractOperableDocument(String documentID) throws ParseException {
+	public AbstractMutableDocument(String documentID, boolean structured) throws ParseException {
 		this.documentID = validateID(documentID);
+		this.structured = structured;
 	}
 		
 	protected <ResultType> ResultType applyCursor(BufferedDocOp srcDoc, ICursorWithResult<ResultType> cursor) {
@@ -57,6 +61,7 @@ public abstract class AbstractOperableDocument<InnerType> implements IOperableDo
 
 	} */	
 	
+	@Override
 	public String getDocumentID() {
 		return documentID;
 	}
@@ -67,6 +72,15 @@ public abstract class AbstractOperableDocument<InnerType> implements IOperableDo
 	}
 	
 	public abstract InnerType extract(BufferedDocOp srcDoc);
-	// protected abstract ADocumentTag makeTagForAppend(ParticipantId author, String text);		
+	// protected abstract ADocumentTag makeTagForAppend(ParticipantId author, String text);
+	
+	public WaveletDocumentOperation compileMutation(BufferedDocOp sourceDoc, IMutation mutation) throws MutationCompilationException {
+		return mutation.compile(sourceDoc, this);	
+	}
+
+	@Override
+	public boolean isStructured() {
+		return structured;
+	}
 
 }

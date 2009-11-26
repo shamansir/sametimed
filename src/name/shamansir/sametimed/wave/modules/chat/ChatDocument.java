@@ -4,14 +4,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import name.shamansir.sametimed.wave.doc.AbstractOperableDocument;
+import name.shamansir.sametimed.wave.doc.AbstractLinedDocument;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLineDeletionCursor;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLinesExtractionCursor;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLastUserLineCursor;
+import name.shamansir.sametimed.wave.render.RenderMode;
 
-import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
@@ -29,7 +29,7 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
  * 
  */
 
-public class ChatDocument extends AbstractOperableDocument<List<ChatLine>> {
+public class ChatDocument extends AbstractLinedDocument<List<ChatLine>> {
 	
 	private static final String DOCUMENT_ID = "main";
 	

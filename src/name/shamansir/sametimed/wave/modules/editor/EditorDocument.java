@@ -4,28 +4,28 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.waveprotocol.wave.examples.fedone.waveclient.console.ScrollableWaveView.RenderMode;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-import name.shamansir.sametimed.wave.doc.AbstractOperableDocument;
+import name.shamansir.sametimed.wave.doc.AbstractStructuredDocument;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentChunkDeletionCursor;
 import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentChunksExtractionCursor;
 import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentLastChunkIDCursor;
 import name.shamansir.sametimed.wave.modules.editor.cursor.DocumentLastUserChunkCursor;
+import name.shamansir.sametimed.wave.render.RenderMode;
 
 // TODO: This must be a tree-based document, so it will contain not only tags
 //       of one type, but the nested tags also. ChatDocument (or Calendar
 //       (if it does not support dates blocks)), either, is lined.
 
-// FIXME: it must to be possible to move models, related to the module
+// FIXME: it must be possible to move models, related to the module
 //        to module package (possibly, will be so when xml-config will be used)
 
-public class EditorDocument extends AbstractOperableDocument<List<TextChunk>> {
+public class EditorDocument extends AbstractStructuredDocument<List<TextChunk>> {
 
 	protected static final String DOCUMENT_ID = "document";
 	
