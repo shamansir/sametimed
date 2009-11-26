@@ -4,14 +4,14 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-import name.shamansir.sametimed.wave.doc.IMutableDocument;
+import name.shamansir.sametimed.wave.doc.IMutableModule;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.modules.chat.WaveletWithChat;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public class WaveletWithEditor extends WaveletWithChat {
 	
-	private EditorDocument editorView = null;
+	private EditorModule editorView = null;
 
 	public WaveletWithEditor(int clientID, IWavesClientRenderer renderer) {
 		super(clientID, renderer);		
@@ -22,28 +22,28 @@ public class WaveletWithEditor extends WaveletWithChat {
 	}
 	
 	@Override	
-	protected void prepareDocuments() throws ParseException {
-		super.prepareDocuments();
-		editorView = new EditorDocument();
+	protected void prepareModules() throws ParseException {
+		super.prepareModules();
+		editorView = new EditorModule();
 	}
 	
 	@Override
-	protected Map<String, IMutableDocument> registerDocuments(
-			Map<String, IMutableDocument> curHandlers) {
-		curHandlers.put(EditorDocument.DOCUMENT_ID, editorView);
-		return super.registerDocuments(curHandlers);
+	protected Map<String, IMutableModule> registerModules(
+			Map<String, IMutableModule> curModules) {
+		curModules.put(EditorModule.DOCUMENT_ID, editorView);
+		return super.registerModules(curModules);
 	}	
 	
 	@Override
-	protected void updateDocumentsModels() {
-		super.updateDocumentsModels();
+	protected void updateModulesModels() {
+		super.updateModulesModels();
 		updateModel(ModelID.EDITOR_MODEL, editorView.extract(getSource(editorView.getDocumentID())));		
 	}	
 	
 	@Override
-	protected List<ModelID> registerDocumentsModelsTypes(List<ModelID> currentTypes) {
+	protected List<ModelID> registerModulesModels(List<ModelID> currentTypes) {
 		currentTypes.add(ModelID.EDITOR_MODEL);
-		return super.registerDocumentsModelsTypes(currentTypes);
+		return super.registerModulesModels(currentTypes);
 	}	
 	
 	

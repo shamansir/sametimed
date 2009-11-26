@@ -3,13 +3,13 @@ package name.shamansir.sametimed.wave.doc.cursor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
-import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.AbstractModuleTag;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
-public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocumentTag> implements DocInitializationCursor {
+public abstract class AbstractElementsScannerCursor<TagType extends AbstractModuleTag> implements DocInitializationCursor {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractElementsScannerCursor.class.getName());
 	

@@ -6,7 +6,7 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.wave.doc.mutation.IMutable;
 
-public interface IMutableDocument extends IMutable {
+public interface IMutableModule extends IMutable {
 	
 	public boolean isStructured();
 	

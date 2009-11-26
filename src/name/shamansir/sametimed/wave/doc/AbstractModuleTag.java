@@ -9,7 +9,7 @@ import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 
 // TODO: use Atomic types? 
-public abstract class AbstractDocumentTag {
+public abstract class AbstractModuleTag {
 	
 	private final static String DEFAULT_CONTENT = "-empty-";	
 	private String name;
@@ -17,20 +17,20 @@ public abstract class AbstractDocumentTag {
 	private Map<String, String> attributes;
 	private String content;
 	
-	protected AbstractDocumentTag(String name) {
+	protected AbstractModuleTag(String name) {
 		this.name = name;
 		this.attributes = new HashMap<String, String>();
 		this.content = DEFAULT_CONTENT;
 		// this.attributes = AttributesImpl.EMPTY_MAP;
 	}
 	
-	protected AbstractDocumentTag(String name, Attributes attrs) {
+	protected AbstractModuleTag(String name, Attributes attrs) {
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
 		this.content = DEFAULT_CONTENT;
 	}
 	
-	protected AbstractDocumentTag(String name, Attributes attrs, String content) {
+	protected AbstractModuleTag(String name, Attributes attrs, String content) {
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
 		this.content = content;

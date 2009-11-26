@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.wave.modules.editor;
 
-import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.AbstractModuleTag;
 import name.shamansir.sametimed.wave.modules.editor.util.TextStyle;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableMap;
 // TODO: if editor will be tree-based, so this tag, may be, will
 //       represent several tags or some EditorTagParser
 
-public class EditorTag extends AbstractDocumentTag {
+public class EditorTag extends AbstractModuleTag {
 	
 	public final static String TAG_NAME = "chunk";
 	public final static String ID_ATTR_NAME = "id";

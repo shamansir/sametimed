@@ -12,12 +12,12 @@ import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorA
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-public abstract class AbstractMutableDocument<InnerType> implements IMutableDocument {
+public abstract class AbstractMutableModule<InnerType> implements IMutableModule {
 	
 	private final String documentID;
 	private final boolean structured;
 	
-	public AbstractMutableDocument(String documentID, boolean structured) throws ParseException {
+	public AbstractMutableModule(String documentID, boolean structured) throws ParseException {
 		this.documentID = validateID(documentID);
 		this.structured = structured;
 	}

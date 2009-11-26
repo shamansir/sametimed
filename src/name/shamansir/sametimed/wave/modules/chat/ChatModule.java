@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import name.shamansir.sametimed.wave.doc.AbstractLinedDocument;
+import name.shamansir.sametimed.wave.doc.AbstractVerticalModule;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.modules.chat.cursor.ChatLineDeletionCursor;
@@ -29,13 +29,13 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
  * 
  */
 
-public class ChatDocument extends AbstractLinedDocument<List<ChatLine>> {
+public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	
 	private static final String DOCUMENT_ID = "main";
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
-	public ChatDocument() throws ParseException {
+	public ChatModule() throws ParseException {
 		super(DOCUMENT_ID);
 	}
 	

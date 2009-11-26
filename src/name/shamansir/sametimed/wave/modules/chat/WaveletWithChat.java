@@ -4,8 +4,8 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
-import name.shamansir.sametimed.wave.doc.AbstractDocumentsWavelet;
-import name.shamansir.sametimed.wave.doc.IMutableDocument;
+import name.shamansir.sametimed.wave.doc.AbstractModulatedWavelet;
+import name.shamansir.sametimed.wave.doc.IMutableModule;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
@@ -24,10 +24,10 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  */
 
 
-public class WaveletWithChat extends AbstractDocumentsWavelet {	
+public class WaveletWithChat extends AbstractModulatedWavelet {	
 	
 	/* models */
-	private ChatDocument chatView = null;	
+	private ChatModule chatView = null;	
 
 	public WaveletWithChat(int clientID, IWavesClientRenderer renderer) {
 		super(clientID, renderer);		
@@ -38,25 +38,25 @@ public class WaveletWithChat extends AbstractDocumentsWavelet {
 	}
 	
 	@Override	
-	protected void prepareDocuments() throws ParseException {
-		chatView = new ChatDocument();		
+	protected void prepareModules() throws ParseException {
+		chatView = new ChatModule();		
 	}
 	
 	@Override
-	protected Map<String, IMutableDocument> registerDocuments(
-			Map<String, IMutableDocument> curHandlers) {
-		curHandlers.put(chatView.getDocumentID(), chatView);
-		return curHandlers;
+	protected Map<String, IMutableModule> registerModules(
+			Map<String, IMutableModule> curModules) {
+		curModules.put(chatView.getDocumentID(), chatView);
+		return curModules;
 	}
 	
 	@Override
-	protected List<ModelID> registerDocumentsModelsTypes(List<ModelID> currentTypes) {
+	protected List<ModelID> registerModulesModels(List<ModelID> currentTypes) {
 		currentTypes.add(ModelID.CHAT_MODEL);
 		return currentTypes;
 	}		
 	
 	@Override	
-	protected void updateDocumentsModels() {
+	protected void updateModulesModels() {
 		if (isChatReady()) {
 			updateModel(ModelID.CHAT_MODEL, chatView.extract(
 										getSource(chatView.getDocumentID())));
@@ -64,7 +64,7 @@ public class WaveletWithChat extends AbstractDocumentsWavelet {
 	}
 	
 	@Override	
-	protected void resetDocuments() {
+	protected void resetModules() {
 		chatView = null;
 	}
 	

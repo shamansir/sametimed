@@ -19,19 +19,6 @@ import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.render.RenderMode;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
-// NOTE: There are naming problems between wave-protocol Document concept
-//       (an extension of BufferedDocOp for the moment),
-//       and mine document concept, as a model holder, tags-projection
-//       and mutations performer (itself). I even can extend wave-protocol
-//       type, but it is too 'soft' for my version. So I need to keep
-//		 my type of Document as an external interface and keep wave-protocol
-//       documents inside, not allowing for sametimed-api-users to touch it.
-//       Again, in two words: my MutableDocuments are 'very strict 
-//       but easy extendible' wrappers for wave-protocol DocOps-based documents.
-//       Also, wave-protocol are _Sources_ for me and my documents are _Keepers_.
-//       And Also, Mutations are in fact wrappers for DocOps, but applied
-//       not for Wavelets, but for MutableDocuments
-
 /**
  * @see #addUpdatesListener(IUpdatesListener)
  * 
@@ -46,17 +33,17 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
  * 
  */
 
-public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
+public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	
-	private static final Logger LOG = Logger.getLogger(AbstractDocumentsWavelet.class.getName());
+	private static final Logger LOG = Logger.getLogger(AbstractModulatedWavelet.class.getName());
 	
-	private Map<String, IMutableDocument> registeredDocuments = new HashMap<String, IMutableDocument>();	
+	private Map<String, IMutableModule> registeredModules = new HashMap<String, IMutableModule>();	
 	
-	public AbstractDocumentsWavelet(int clientID, IWavesClientRenderer renderer) {
+	public AbstractModulatedWavelet(int clientID, IWavesClientRenderer renderer) {
 		super(clientID, renderer);
 	}
 	
-	public AbstractDocumentsWavelet(int clientID) {
+	public AbstractModulatedWavelet(int clientID) {
 		this(clientID, null);
 	}
 	
@@ -65,33 +52,33 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	@Override
 	protected final List<ModelID> getAdditionalModels() {
 		List<ModelID> modelsTypes = new ArrayList<ModelID>();
-		return registerDocumentsModelsTypes(modelsTypes);
+		return registerModulesModels(modelsTypes);
 	}
 	
 	@Override
 	protected void clear() {
 		super.clear();
-		resetDocuments();
-		registeredDocuments = new HashMap<String, IMutableDocument>();
+		resetModules();
+		registeredModules = new HashMap<String, IMutableModule>();
 	}
 	
 	@Override
 	protected void clearWavePart() {
 		super.clearWavePart();
-        resetDocuments();	
-        registeredDocuments = new HashMap<String, IMutableDocument>();
+        resetModules();	
+        registeredModules = new HashMap<String, IMutableModule>();
 	}
 	
 	@Override 
 	protected void prepareNewWave(ClientWaveView newWave) {
 		super.prepareNewWave(newWave);
 		try {
-			prepareDocuments();
+			prepareModules();
 		} catch (ParseException e) {
 			LOG.severe("Documents preparation failed: " + e.getMessage());
 			e.printStackTrace();
 		}
-		registeredDocuments = registerDocuments(new HashMap<String, IMutableDocument>());		
+		registeredModules = registerModules(new HashMap<String, IMutableModule>());		
 	}
 	
 	@Override
@@ -103,23 +90,23 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	@Override
 	protected void onWavePartUpdated() {
 		super.onWavePartUpdated();
-		updateDocumentsModels();
+		updateModulesModels();
 	}	
 		
-	/* ====== DOCUMENTS OPERATIONS ====== */
+	/* ====== MODULES OPERATIONS ====== */
 	
-	protected abstract Map<String, IMutableDocument> registerDocuments(Map<String, IMutableDocument> curHandlers);
+	protected abstract Map<String, IMutableModule> registerModules(Map<String, IMutableModule> curModules);
 	
-	protected abstract List<ModelID> registerDocumentsModelsTypes(List<ModelID> currentTypes);	
+	protected abstract List<ModelID> registerModulesModels(List<ModelID> currentTypes);	
 	
-	protected abstract void prepareDocuments() throws ParseException;
+	protected abstract void prepareModules() throws ParseException;
 	
-	protected abstract void updateDocumentsModels();	
+	protected abstract void updateModulesModels();	
 	
-	protected abstract void resetDocuments();
+	protected abstract void resetModules();
 	
-	protected IMutableDocument getRegisteredDocument(String documentID) {
-		return registeredDocuments.get(documentID);
+	protected IMutableModule getRegisteredModule(String moduleID) {
+		return registeredModules.get(moduleID);
 	}
 	
 	protected BufferedDocOp getSource(String documentID) {
@@ -129,21 +116,21 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	
 	/* ====== DOCUMENTS-RELATED OPERATIONS ====== */
 	
-	public boolean applyMutationToDocument(String documentID, IMutation mutation) {
+	public boolean applyMutationToDocument(String moduleID, IMutation mutation) {
 		if (isWaveOpen()) {
-			IMutableDocument mutableDoc = getRegisteredDocument(documentID);
-			if (mutableDoc != null) {
-				BufferedDocOp srcDoc = getSource(documentID);
+			IMutableModule module = getRegisteredModule(moduleID);
+			if (module != null) {
+				BufferedDocOp srcDoc = getSource(moduleID);
 				try {
 					// srcDoc can be null!
-					performWaveletOperation(mutableDoc.compileMutation(srcDoc, mutation));
+					performWaveletOperation(module.compileMutation(srcDoc, mutation));
 					return true;
 				} catch (MutationCompilationException mce) {
-					registerError("Document '" + mutableDoc.getDocumentID() + "' mutation error: " + mce.getMessage());
+					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
 					return false;
 				}			
 			} else {
-				registerError("document with id \'" + documentID + "\' is not found or have no handler");
+				registerError("module with id \'" + moduleID + "\' is not found or have no handler");
 				return false;
 			}			
 		} else {
@@ -154,14 +141,14 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 		
 	public void applyMutationToDocuments(IMutation mutation) {
 		if (isWaveOpen()) {
-			for (IMutableDocument mutableDoc: registeredDocuments.values()) {
+			for (IMutableModule module: registeredModules.values()) {
 				try {
 					performWaveletOperation(
-							mutableDoc.compileMutation(
-									getSource(mutableDoc.getDocumentID()), mutation)
+							module.compileMutation(
+									getSource(module.getDocumentID()), mutation)
 						);
 				} catch (MutationCompilationException mce) {
-					registerError("Document '" + mutableDoc.getDocumentID() + "' mutation error: " + mce.getMessage());
+					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
 				}
 			}		
 		} else {
@@ -196,7 +183,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	}	
 	
 	private void documentChangeRenderMode(String documentID, RenderMode mode) {
-		IMutableDocument opHandler = getDocumentOperationsHandler(documentID);
+		IMutableModule opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
 		if (opHandler != null) {
 			if (operableDoc != null) { // if document already created
@@ -208,7 +195,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	}
 	
 	private boolean documentPerformUndo(String documentID, ParticipantId userId) {
-		IMutableDocument opHandler = getDocumentOperationsHandler(documentID);
+		IMutableModule opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
 		if (opHandler != null) {
 			if (operableDoc == null) {
@@ -229,7 +216,7 @@ public abstract class AbstractDocumentsWavelet extends AbstractUpdatingWavelet {
 	}
 	
 	private void documentPerformAppend(String documentID, String text, ParticipantId author) {
-		IMutableDocument opHandler = getDocumentOperationsHandler(documentID);
+		IMutableModule opHandler = getDocumentOperationsHandler(documentID);
 		BufferedDocOp operableDoc = getDocument(documentID); 
 		if (opHandler != null) {
 			WaveletDocumentOperation appendOp = opHandler.getAppendOp(operableDoc, author, text);

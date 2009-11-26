@@ -10,14 +10,14 @@ import name.shamansir.sametimed.wave.messaging.Command;
 import name.shamansir.sametimed.wave.messaging.CommandTypeID;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
-public abstract class AbstractDocumentsWavesClient<WaveletType extends AbstractDocumentsWavelet> extends WavesClient<WaveletType> {
+public abstract class AbstractModulatedWavesClient<WaveletType extends AbstractModulatedWavelet> extends WavesClient<WaveletType> {
 	
-	public AbstractDocumentsWavesClient(IWavesClientRenderer renderer) {
+	public AbstractModulatedWavesClient(IWavesClientRenderer renderer) {
 		super(renderer);
 		registerCommands();
 	}
 	
-	public AbstractDocumentsWavesClient() {
+	public AbstractModulatedWavesClient() {
 		super();
 		registerCommands();
 	}	
@@ -29,7 +29,7 @@ public abstract class AbstractDocumentsWavesClient<WaveletType extends AbstractD
 	}
 
 	public boolean doCommand(Command command) {
-		AbstractDocumentsWavelet curWavelet = getWavelet();
+		AbstractModulatedWavelet curWavelet = getWavelet();
 		ClientBackend backend = getBackend();	
 		
 		if (command.getType() == CommandTypeID.CMD_UNDO_OP) { 
