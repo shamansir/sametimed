@@ -40,8 +40,8 @@ public abstract class AbstractModulatedWavesClient<WaveletType extends AbstractM
 				curWavelet.registerError(AbstractUpdatingWavelet.NOT_CONNECTED_ERR);
 				return false;
 			}
-			return curWavelet.applyMutationToDocument(
-					command.getRelatedDocumentID(),
+			return curWavelet.applyModuleMutation(
+					command.getRelatedModuleID(),
 					new UndoMutation(new ParticipantId(undoTargetUser)));
 			} 		
 		else {

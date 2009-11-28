@@ -4,8 +4,8 @@ import java.text.ParseException;
 
 public abstract class AbstractVerticalModule<InnerType> extends AbstractMutableModule<InnerType> {
 
-	public AbstractVerticalModule(String documentID) throws ParseException {
-		super(documentID, false);
+	public AbstractVerticalModule(String moduleID, String documentID) throws ParseException {
+		super(moduleID, documentID, false);
 	}
 	
 }

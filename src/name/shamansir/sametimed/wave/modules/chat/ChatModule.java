@@ -4,17 +4,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.module.AbstractVerticalModule;
-import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLastUserLineCursor;
-import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLineDeletionCursor;
 import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLinesExtractionCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
-import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
-import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 /**
@@ -32,11 +29,12 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	
 	private static final String DOCUMENT_ID = "main";
+	private static final String MODULE_ID = "main";
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
 	public ChatModule() throws ParseException {
-		super(DOCUMENT_ID);
+		super(MODULE_ID, DOCUMENT_ID);
 	}
 	
 	@Override	
@@ -65,35 +63,20 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 		return xmlChatLines;
 	}
 
-	protected void setOutputMode(RenderMode outputMode) {
+	@Override
+	public void setOutputMode(RenderMode outputMode) {
 		this.outputMode  = outputMode;		
 	}
-	
-	@Override
-	public void handleRenderModeChange(BufferedDocOp srcDoc, RenderMode mode) {
-		setOutputMode(mode);
-	}	
 
 	@Override
-	public WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc, ParticipantId author,
-			String text) {
-		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), srcDoc);
-		docOp = (new ChatTag(author, text)).createTagFor(docOp);		
-		return createDocumentOperation(docOp.finish());
-
+	public boolean enumerateTags() {
+		return false;
 	}
 
 	@Override
-	public WaveletDocumentOperation getUndoOp(BufferedDocOp srcDoc, ParticipantId userId) {
-		Integer lastLine = applyCursor(srcDoc, new ChatLastUserLineCursor(userId.getAddress()));
-
-		// Delete the line
-		if (lastLine >= 0) {
-			return createDocumentOperation(
-					applyCursor(srcDoc, new ChatLineDeletionCursor(lastLine)));
-		} else {
-			return null;
-		}
+	public AbstractDocumentTag makeTag(Integer id, ParticipantId author,
+			String text) {
+		return new ChatTag(author, text);
 	}
 
 }

@@ -14,7 +14,8 @@ import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.module.mutation.ChangeViewModeMutation;
-import name.shamansir.sametimed.wave.module.mutation.proto.IMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.IModuleMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 import name.shamansir.sametimed.wave.render.RenderMode;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
@@ -84,7 +85,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	@Override
 	protected void onViewModeChanged(RenderMode newMode) {
 		super.onViewModeChanged(newMode);
-		applyMutationToDocuments(new ChangeViewModeMutation(newMode));	
+		applyModulesMutation(new ChangeViewModeMutation(newMode));	
 	}
 	
 	@Override
@@ -116,14 +117,16 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	
 	/* ====== DOCUMENTS-RELATED OPERATIONS ====== */
 	
-	public boolean applyMutationToDocument(String moduleID, IMutation mutation) {
+	// FIXME: Test if things work when module ID is different than inner document ID
+	
+	public boolean applyModuleMutation(String moduleID, IModuleMutation mutation) {
 		if (isWaveOpen()) {
 			IMutableModule module = getRegisteredModule(moduleID);
 			if (module != null) {
-				BufferedDocOp srcDoc = getSource(moduleID);
+				BufferedDocOp srcDoc = getSource(module.getDocumentID());
 				try {
 					// srcDoc can be null!
-					performWaveletOperation(module.compileMutation(srcDoc, mutation));
+					performWaveletOperation(module.apply(srcDoc, mutation));
 					return true;
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
@@ -139,12 +142,12 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	    }
 	}
 		
-	public void applyMutationToDocuments(IMutation mutation) {
+	public void applyModulesMutation(IModuleMutation mutation) {
 		if (isWaveOpen()) {
 			for (IMutableModule module: registeredModules.values()) {
 				try {
 					performWaveletOperation(
-							module.compileMutation(
+							module.apply(
 									getSource(module.getDocumentID()), mutation)
 						);
 				} catch (MutationCompilationException mce) {
@@ -155,76 +158,6 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	        registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
 	    }
 	}
-	
-	/*
-	public boolean onUndoCall(String documentID, ParticipantId userId) {
-		if (isWaveOpen()) {
-	    	if (getOpenWavelet().getParticipants().contains(userId)) {
-	    		return documentPerformUndo(documentID, userId);
-	    	} else {
-	    		registerError("Error: " + userId + " is not a participant of this wave");
-	    	}
-	    } else {
-	        registerError(AbstractUpdatingWavelet.NOT_OPENED_WAVE_ERR);
-	    }
-		return false;
-	}
-			
-	public boolean onDocumentAppendMutation(String documentID, String text, ParticipantId author) {
-		if ((text == null) || (text.length() == 0)) {
-			throw new IllegalArgumentException("Cannot append an empty String");
-		} else if (isWaveOpen()) {
-			documentPerformAppend(documentID, text, author);
-			return true;
-		} else {
-			registerError("Error: no open wave, run \"/open\"");
-			return false;
-		}
-	}	
-	
-	private void documentChangeRenderMode(String documentID, RenderMode mode) {
-		IMutableModule opHandler = getDocumentOperationsHandler(documentID);
-		BufferedDocOp operableDoc = getDocument(documentID); 
-		if (opHandler != null) {
-			if (operableDoc != null) { // if document already created
-				opHandler.handleRenderModeChange(operableDoc, mode);
-			}
-		} else {
-			registerError("document with id \'" + documentID + "\' is not found or have no handler");
-		}
-	}
-	
-	private boolean documentPerformUndo(String documentID, ParticipantId userId) {
-		IMutableModule opHandler = getDocumentOperationsHandler(documentID);
-		BufferedDocOp operableDoc = getDocument(documentID); 
-		if (opHandler != null) {
-			if (operableDoc == null) {
-				registerError("Document is empty, nothing to undo");
-				return false;
-			}
-			WaveletDocumentOperation undoOp = opHandler.getUndoOp(operableDoc, userId); 
-			if (undoOp == null) {
-				registerError("Error: " + userId + " hasn't written anything yet");
-				return false;
-			}
-			performDocumentOperation(undoOp);			
-			return true;			
-		} else {
-			registerError("document with id \'" + documentID + "\' is not found or have no handler");
-		}
-		return false;
-	}
-	
-	private void documentPerformAppend(String documentID, String text, ParticipantId author) {
-		IMutableModule opHandler = getDocumentOperationsHandler(documentID);
-		BufferedDocOp operableDoc = getDocument(documentID); 
-		if (opHandler != null) {
-			WaveletDocumentOperation appendOp = opHandler.getAppendOp(operableDoc, author, text);
-			if (appendOp != null) performDocumentOperation(appendOp);
-		} else {
-			registerError("document with id \'" + documentID + "\' is not found or have no handler");
-		}	
-	} */
 	
 	private void performWaveletOperation(WaveletDocumentOperation operation) {
 		if (operation != null) {

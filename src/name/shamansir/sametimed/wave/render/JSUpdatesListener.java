@@ -33,7 +33,7 @@ public class JSUpdatesListener implements IUpdatesListener {
 	 */
 	public JSUpdatesListener() {
 	    // sctx = ServerContextFactory.get();
-	    // FIXME: WavesClient.get(clientId).addUpdatesListener(this);
+	    // FIXME: WavesClient.get(clientID).addUpdatesListener(this);
 	}
 	
 	public void onUpdate(UpdateMessage updateMessage) {

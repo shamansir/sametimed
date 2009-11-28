@@ -56,16 +56,16 @@ public enum CommandTypeID {
      }
 
      private final String name;
-     private final boolean documentRelated;
+     private final boolean moduleRelated;
 
      private CommandTypeID(String name) {
           this.name = name;
-          this.documentRelated = false;
+          this.moduleRelated = false;
      }
      
-     private CommandTypeID(String name, boolean documentRelated) {
+     private CommandTypeID(String name, boolean moduleRelated) {
          this.name = name;
-         this.documentRelated = documentRelated;
+         this.moduleRelated = moduleRelated;
     }     
 
      /**
@@ -76,7 +76,7 @@ public enum CommandTypeID {
      /**
       * @return if command is related to some document
       */
-     public boolean isDocumentRelated() { return documentRelated; }     
+     public boolean isModuleRelated() { return moduleRelated; }     
 
      /**
       * returns command type using the passed alias

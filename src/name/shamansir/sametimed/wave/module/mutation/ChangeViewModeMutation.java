@@ -3,12 +3,12 @@ package name.shamansir.sametimed.wave.module.mutation;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-import name.shamansir.sametimed.wave.module.IMutableModule;
-import name.shamansir.sametimed.wave.module.mutation.proto.IMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.AbstractModuleDocumentMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
-public class ChangeViewModeMutation implements IMutation {
+public class ChangeViewModeMutation extends AbstractModuleDocumentMutation {
 	
 	private final RenderMode targetMode; 
 
@@ -21,9 +21,10 @@ public class ChangeViewModeMutation implements IMutation {
 	}
 
 	@Override
-	public WaveletDocumentOperation compile(BufferedDocOp sourceDoc,
-			IMutableModule targetModule) throws MutationCompilationException {
-		targetModule.handleRenderModeChange(sourceDoc, targetMode);
+	public WaveletDocumentOperation applyTo(IMutableModule module,
+			BufferedDocOp sourceDoc) throws MutationCompilationException {
+		// TODO Auto-generated method stub
+		module.setOutputMode(targetMode);
 		return null;
 	}
 	

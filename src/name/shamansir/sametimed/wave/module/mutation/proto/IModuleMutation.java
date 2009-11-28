@@ -3,8 +3,8 @@ package name.shamansir.sametimed.wave.module.mutation.proto;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-public interface IMutable {
+public interface IModuleMutation {
 	
-	public WaveletDocumentOperation compileMutation(BufferedDocOp sourceDoc, IMutation mutation) throws MutationCompilationException;	
-
+	public WaveletDocumentOperation applyTo(IMutableModule module, BufferedDocOp sourceDoc) throws MutationCompilationException;
+	
 }

@@ -33,7 +33,7 @@ public class CommandsReceiverServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// int clientId = Integer.valueOf(request.getParameter("clientId"));
+		// int clientID = Integer.valueOf(request.getParameter("clientID"));
 		String errorString = null;
 		if (request.getParameter("cmd") != null) {
 			String encodedCmd = URLDecoder.decode(request.getParameter("cmd"), "UTF-8");
@@ -53,7 +53,7 @@ public class CommandsReceiverServlet extends HttpServlet {
 		}
 		/* PrintWriter responseWriter = response.getWriter();
 		if (command != null) {
-			// responseWriter.write(command.getAffectedHoldersIds());
+			// responseWriter.write(command.getAffectedHoldersIDs());
 			// responseWriter.write(command.getPanelsToRedrawContent());			
 		} else {
 			responseWriter.write("");

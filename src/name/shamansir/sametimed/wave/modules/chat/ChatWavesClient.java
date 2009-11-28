@@ -27,8 +27,8 @@ public class ChatWavesClient extends AbstractModulatedWavesClient<WaveletWithCha
 		ClientBackend backend = getBackend();
 		
 		if (command.getType() == CommandTypeID.CMD_SAY) {
-			return curWavelet.applyMutationToDocument(
-					command.getRelatedDocumentID(), 
+			return curWavelet.applyModuleMutation(
+					command.getRelatedModuleID(), 
 					new AppendMutation(backend.getUserId(), 
 							           command.getArgument("text")));
 		} else {

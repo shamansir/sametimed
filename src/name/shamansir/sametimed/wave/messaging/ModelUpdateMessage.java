@@ -22,9 +22,11 @@ public class ModelUpdateMessage extends UpdateMessage {
 	
 	public static final String ALIAS_PARAM_NAME = "alias";
 	public static final String VALUE_PARAM_NAME = "value";
+	
+	// FIXME: make update messages contain both module ID and document ID
 
-	public ModelUpdateMessage(int clientId, ModelID modelID, AbstractModel<?, ?> model) { 
-		super(clientId, MessageTypeID.MSG_MODEL_UPDATE, 
+	public ModelUpdateMessage(int clientID, ModelID modelID, AbstractModel<?, ?> model) { 
+		super(clientID, MessageTypeID.MSG_MODEL_UPDATE, 
 				prepareMsgArguments(modelID, model));
 	}
 	
@@ -39,7 +41,7 @@ public class ModelUpdateMessage extends UpdateMessage {
 	@Override
 	public String encode() {
 		String encodedMsg = getType().getName() + "(";
-		encodedMsg += Integer.toString(getClientId()) + " ";
+		encodedMsg += Integer.toString(getClientID()) + " ";
 		encodedMsg += getArgument(ALIAS_PARAM_NAME) + " ";  
 		encodedMsg += VALUE_PARAM_NAME + "(\"" + escapeThings(getArgument(VALUE_PARAM_NAME)) + "\")";
 		return encodedMsg + ")";

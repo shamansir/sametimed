@@ -47,7 +47,7 @@ public class NullRenderer implements IWavesClientRenderer {
 	}
 
 	@Override
-	public String getHolderElementId() {
+	public String getHolderElementID() {
 		return null;
 	}
 

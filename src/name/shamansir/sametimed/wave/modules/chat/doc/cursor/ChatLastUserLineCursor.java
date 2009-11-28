@@ -5,22 +5,22 @@ import name.shamansir.sametimed.wave.modules.chat.ChatTag;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
-// Find the last line written by the participant given by userId (by
+// Find the last line written by the participant given by userID (by
 // counting the number of
 // <line></line> elements, and comparing to their authors).
 
 public class ChatLastUserLineCursor extends AbstractLastElementSearchingCursor {
 	
-	private final String userId;	
+	private final String userID;	
 	
-	public ChatLastUserLineCursor(String userId) {
+	public ChatLastUserLineCursor(String userID) {
 		super();
-		this.userId = userId;
+		this.userID = userID;
 	}
 
 	@Override
 	protected boolean areAttrsApproved(Attributes attrs) {
-		return userId.equals(attrs.get(ChatTag.AUTHOR_ATTR_NAME));
+		return userID.equals(attrs.get(ChatTag.AUTHOR_ATTR_NAME));
 	}
 
 	@Override

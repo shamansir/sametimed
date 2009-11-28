@@ -72,7 +72,7 @@ public interface IWavesClientRenderer {
 	 * Get ID of the element that holds the view
 	 * @return element ID
 	 */
-	public String getHolderElementId();
+	public String getHolderElementID();
 
 	/**
 	 * Get full initial view (generated after initialize())

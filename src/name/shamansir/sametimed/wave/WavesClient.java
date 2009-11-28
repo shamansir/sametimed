@@ -33,7 +33,7 @@ import name.shamansir.sametimed.wave.render.RenderMode;
  * @see #connect(String)
  * @see #shutdown()
  * @see #doCommand(Command)
- * @see #getViewId()
+ * @see #getViewID()
  * 
  * @see WavesClientBackend
  * 
@@ -59,7 +59,7 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	}
 	
 	public WavesClient(IWavesClientRenderer renderer) {
-		this.VIEW_ID = generateViewId();
+		this.VIEW_ID = generateViewID();
 		this.curWavelet = createWavelet(renderer);
 		
 		registerClient(this.VIEW_ID, this);
@@ -69,10 +69,10 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	
 	/* GETTERS */
 	
-	protected synchronized int generateViewId() {
-		int newId = LAST_VIEW_ID + 1;
-		LAST_VIEW_ID = newId;
-		return newId;
+	protected synchronized int generateViewID() {
+		int newID = LAST_VIEW_ID + 1;
+		LAST_VIEW_ID = newID;
+		return newID;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -136,13 +136,13 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	}
 	
 	@SuppressWarnings("unchecked")
-	private synchronized static void registerClient(int clientId, WavesClient client) {
-		registeredClients.put(Integer.valueOf(clientId), client);
+	private synchronized static void registerClient(int clientID, WavesClient client) {
+		registeredClients.put(Integer.valueOf(clientID), client);
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static WavesClient get(int clientId) {
-		return registeredClients.get(Integer.valueOf(clientId));
+	public static WavesClient get(int clientID) {
+		return registeredClients.get(Integer.valueOf(clientID));
 	}
 
 	public boolean doCommand(Command command) {
@@ -166,9 +166,9 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 			            int entry = Integer.parseInt(command.getArgument("entry"));
 			            
 			    		if (isConnected()) {
-			    			WaveId entryId = curWavelet.getCorrectedEntry(entry, backend.getIndexWave());
-			    			if (entryId != null) {
-			    				return curWavelet.onOpenWave(backend.getWave(entryId));
+			    			WaveId entryID = curWavelet.getCorrectedEntry(entry, backend.getIndexWave());
+			    			if (entryID != null) {
+			    				return curWavelet.onOpenWave(backend.getWave(entryID));
 			    			} else {
 			    				return false;
 			    			}

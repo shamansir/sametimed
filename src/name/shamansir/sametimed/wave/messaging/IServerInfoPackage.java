@@ -14,7 +14,7 @@ import java.util.Map;
 public interface IServerInfoPackage {
 	
 	/** @return id of the client, this package related to */
-	public int getClientId();
+	public int getClientID();
 
 	/** @return package name or alias */
 	public String getID();

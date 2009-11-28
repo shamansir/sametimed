@@ -72,31 +72,31 @@ public class Command implements IServerInfoPackage {
 	private static final Pattern CMD_RE_PATTERN = Pattern.compile(CMD_RE);
 	private static final Pattern ARG_RE_PATTERN = Pattern.compile(ARG_RE);
 	
-	private final int clientId;
+	private final int clientID;
 	private final CommandTypeID typeID;
-	private final String relatedDocumentID;
-	// private final WaveletOperation baseOperation;
+	private final String relatedModuleID;
+	// private final IModuleMutation baseMutation;
 	private final Map<String, String> arguments;
 
-	public Command(int clientId, CommandTypeID typeID, Map<String, String> arguments/*, WaveletOperation baseOperation*/) {
-		this.clientId = clientId;
+	public Command(int clientID, CommandTypeID typeID, Map<String, String> arguments/*, WaveletOperation baseOperation*/) {
+		this.clientID = clientID;
 		this.typeID = typeID;
 		this.arguments = arguments;
-		this.relatedDocumentID = null;		
+		this.relatedModuleID = null;		
 		// this.baseOperation = (baseOperation != null) ? baseOperation : tryToCreate(typeID, arguments);		
 	}
 	
-	public Command(int clientId, CommandTypeID typeID, String relatedDocumentID, Map<String, String> arguments) {
-		this.clientId = clientId;
+	public Command(int clientID, CommandTypeID typeID, String relatedModuleID, Map<String, String> arguments) {
+		this.clientID = clientID;
 		this.typeID = typeID;
-		this.relatedDocumentID = relatedDocumentID;		
+		this.relatedModuleID = relatedModuleID;		
 		this.arguments = arguments;		
 		// this.baseOperation = (baseOperation != null) ? baseOperation : tryToCreate(typeID, arguments);		
 	}	
 
-	public Command(int clientId, CommandTypeID commandType,
+	public Command(int clientID, CommandTypeID commandType,
 			String relatedDocument) {
-		this(clientId, commandType, relatedDocument, new HashMap<String, String>());
+		this(clientID, commandType, relatedDocument, new HashMap<String, String>());
 	}
 	
 	public static synchronized Command decode(String encodedCmd) throws ParseException {
@@ -105,12 +105,12 @@ public class Command implements IServerInfoPackage {
 			try {
 				CommandTypeID commandType = CommandTypeID.fromName(cmdMatcher.group(1));
 				if (commandType == null) throw new ParseException("No matching type found for command with name \"" + cmdMatcher.group(0) + "\"", 0);
-				int clientId = Integer.parseInt(cmdMatcher.group(2));
-				String relatedDocument = null;
-				if (commandType.isDocumentRelated()) {
-					relatedDocument = cmdMatcher.group(3);
-					if ((relatedDocument == null) || "".equals(relatedDocument)) {
-						throw new ParseException("Document-related command must specify ID of the related document (see command format)", 0);
+				int clientID = Integer.parseInt(cmdMatcher.group(2));
+				String relatedModule = null;
+				if (commandType.isModuleRelated()) {
+					relatedModule = cmdMatcher.group(3);
+					if ((relatedModule == null) || "".equals(relatedModule)) {
+						throw new ParseException("Module-related command must specify ID of the related module (see command format)", 0);
 					}
 				}
 				String argsLine = cmdMatcher.group(4);
@@ -119,7 +119,7 @@ public class Command implements IServerInfoPackage {
 				while (argsMatcher.find()) {
 					arguments.put(argsMatcher.group(1), unescapeThings(argsMatcher.group(2)));					
 				}				
-				return new Command(clientId, commandType, relatedDocument, arguments);
+				return new Command(clientID, commandType, relatedModule, arguments);
 			} catch (NumberFormatException nfe) {
 				LOG.severe("Exception thrown while decoding/parsing command text: \"" + encodedCmd + "\"; " + nfe.getMessage());
 				throw new ParseException(nfe.getMessage(), 0);
@@ -133,9 +133,9 @@ public class Command implements IServerInfoPackage {
 	@Override
 	public String encode() {
 		String encodedCmd = getType().getName() + "(";
-		encodedCmd += Integer.toString(getClientId()) + " ";
-		if (getType().isDocumentRelated()) {
-			encodedCmd += getRelatedDocumentID() + " ";
+		encodedCmd += Integer.toString(getClientID()) + " ";
+		if (getType().isModuleRelated()) {
+			encodedCmd += getRelatedModuleID() + " ";
 		}
 		for (Map.Entry<String, String> argPair: getArguments().entrySet()) {
 			encodedCmd += argPair.getKey() + "(\"" + escapeThings(argPair.getValue()) + "\") ";			
@@ -158,8 +158,8 @@ public class Command implements IServerInfoPackage {
 		return null;
 	} */
 	
-	public int getClientId() {
-		return clientId;
+	public int getClientID() {
+		return clientID;
 	}
 
 	public CommandTypeID getType() {
@@ -170,8 +170,8 @@ public class Command implements IServerInfoPackage {
 		return typeID.getName();
 	}	
 	
-	public String getRelatedDocumentID() {
-		return relatedDocumentID;
+	public String getRelatedModuleID() {
+		return relatedModuleID;
 	}	
 
 	/* public WaveletOperation getBaseOperation() {
@@ -188,7 +188,7 @@ public class Command implements IServerInfoPackage {
 	
 	@SuppressWarnings("unchecked")
 	public boolean execute() {
-		WavesClient client = WavesClient.get(clientId); 
+		WavesClient client = WavesClient.get(clientID); 
 		return (client != null) ? client.doCommand(this) : false;
 	}
 	

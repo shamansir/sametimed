@@ -35,7 +35,7 @@ public class CommandsSequenceReceiverServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		// int clientId = Integer.valueOf(request.getParameter("clientId"));
+		// int clientID = Integer.valueOf(request.getParameter("clientID"));
 		String errorString = null;
 		int cmdCounter = -1;
 		List<Command> commandsToExec = new ArrayList<Command>(); // TODO: use [Priority[Blocking]]Queue ?
@@ -60,7 +60,7 @@ public class CommandsSequenceReceiverServlet extends HttpServlet {
 		}
 		/* PrintWriter responseWriter = response.getWriter();
 		if (command != null) {
-			// responseWriter.write(command.getAffectedHoldersIds());
+			// responseWriter.write(command.getAffectedHoldersIDs());
 			// responseWriter.write(command.getPanelsToRedrawContent());			
 		} else {
 			responseWriter.write("");

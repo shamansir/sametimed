@@ -9,6 +9,7 @@ import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.Doc
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 import name.shamansir.sametimed.wave.module.AbstractTreeModule;
@@ -27,10 +28,11 @@ import name.shamansir.sametimed.wave.render.RenderMode;
 
 public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 
+	protected static final String MODULE_ID = "editor"; 
 	protected static final String DOCUMENT_ID = "document";
 	
 	public EditorModule() throws ParseException {
-		super(DOCUMENT_ID);
+		super(MODULE_ID, DOCUMENT_ID);
 	}	
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
@@ -58,39 +60,21 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 		}
 		return xmlTextChunks;
 	}
-
-	@Override
-	public WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc,
-			ParticipantId author, String text) {
-		Integer lastID = applyCursor(srcDoc, new DocumentLastChunkIDCursor());
-		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), srcDoc);
-		// appending is performed only here (for the moment), so we can freely be sure
-		// that chunks ID-s will increment one-by-one 
-		docOp = (new EditorTag(lastID + 1, author, text, false)).createTagFor(docOp);		
-		return createDocumentOperation(docOp.finish());
-	}
-
-	@Override
-	public WaveletDocumentOperation getUndoOp(BufferedDocOp srcDoc,
-			ParticipantId userId) {
-		Integer lastLine = applyCursor(srcDoc, new DocumentLastUserChunkCursor(userId.getAddress()));
-
-		// Delete the line
-		if (lastLine >= 0) {
-			return createDocumentOperation(
-					applyCursor(srcDoc, new DocumentChunkDeletionCursor(lastLine)));
-		} else {
-			return null;
-		}
-	}
 	
-	protected void setOutputMode(RenderMode outputMode) {
+	@Override
+	public void setOutputMode(RenderMode outputMode) {
 		this.outputMode  = outputMode;		
-	}	
+	}
 
 	@Override
-	public void handleRenderModeChange(BufferedDocOp srcDoc, RenderMode mode) {
-		setOutputMode(mode);
+	public boolean enumerateTags() {
+		return false;
+	}
+
+	@Override
+	public AbstractDocumentTag makeTag(Integer id, ParticipantId author,
+			String text) {
+		return new EditorTag(id, author, text, false);
 	}
 
 }

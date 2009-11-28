@@ -43,9 +43,9 @@ public class InboxModelValue extends JSONiableValue implements IModelValue {
 		Iterator<Map.Entry<Integer, InboxElement>> iter = inboxWaves.entrySet().iterator();
 		while (iter.hasNext()) {
 			Map.Entry<Integer, InboxElement> wavesEntry = iter.next();
-			Integer entryId = wavesEntry.getKey();
+			Integer entryID = wavesEntry.getKey();
 			InboxElement inboxEntry = wavesEntry.getValue();
-			jsonString += quot + entryId.toString() + quot + ":" +
+			jsonString += quot + entryID.toString() + quot + ":" +
 						  "{" + 
 						  	quot + "id" + quot + ":" 
 						  		 + quot + escapeJSONString(inboxEntry.getWaveID()) + quot + "," +

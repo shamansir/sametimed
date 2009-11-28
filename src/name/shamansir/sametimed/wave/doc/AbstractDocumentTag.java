@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.module;
+package name.shamansir.sametimed.wave.doc;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 
 // TODO: use Atomic types? 
-public abstract class AbstractModuleTag {
+public abstract class AbstractDocumentTag {
 	
 	private final static String DEFAULT_CONTENT = "-empty-";	
 	private String name;
@@ -17,20 +17,20 @@ public abstract class AbstractModuleTag {
 	private Map<String, String> attributes;
 	private String content;
 	
-	protected AbstractModuleTag(String name) {
+	protected AbstractDocumentTag(String name) {
 		this.name = name;
 		this.attributes = new HashMap<String, String>();
 		this.content = DEFAULT_CONTENT;
 		// this.attributes = AttributesImpl.EMPTY_MAP;
 	}
 	
-	protected AbstractModuleTag(String name, Attributes attrs) {
+	protected AbstractDocumentTag(String name, Attributes attrs) {
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
 		this.content = DEFAULT_CONTENT;
 	}
 	
-	protected AbstractModuleTag(String name, Attributes attrs, String content) {
+	protected AbstractDocumentTag(String name, Attributes attrs, String content) {
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
 		this.content = content;
@@ -87,7 +87,7 @@ public abstract class AbstractModuleTag {
 		return attrsMap; 
 	}
 	
-	public DocOpBuilder createTagFor(DocOpBuilder docOp) {
+	public DocOpBuilder buildOperation(DocOpBuilder docOp) {
 		docOp.elementStart(name, compileAttributes());
 		docOp.characters(getContent());
 		docOp.elementEnd();

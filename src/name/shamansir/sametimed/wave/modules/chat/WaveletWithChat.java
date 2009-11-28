@@ -6,7 +6,7 @@ import java.util.Map;
 
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.module.AbstractModulatedWavelet;
-import name.shamansir.sametimed.wave.module.IMutableModule;
+import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 /**
@@ -43,9 +43,8 @@ public class WaveletWithChat extends AbstractModulatedWavelet {
 	}
 	
 	@Override
-	protected Map<String, IMutableModule> registerModules(
-			Map<String, IMutableModule> curModules) {
-		curModules.put(chatView.getDocumentID(), chatView);
+	protected Map<String, IMutableModule> registerModules(Map<String, IMutableModule> curModules) {
+		curModules.put(chatView.getModuleID(), chatView);
 		return curModules;
 	}
 	

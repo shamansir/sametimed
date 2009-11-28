@@ -31,8 +31,8 @@ public class EditorWavesClient extends ChatWavesClient {
 		
 		switch(command.getType()) {
 			case CMD_PUT: return 
-					curWavelet.applyMutationToDocument(
-							command.getRelatedDocumentID(), 
+					curWavelet.applyModuleMutation(
+							command.getRelatedModuleID(), 
 							new InsertMutation(backend.getUserId(),
 										       command.getArgument("chars"),
 										       Integer.valueOf(command.getArgument("pos"))
