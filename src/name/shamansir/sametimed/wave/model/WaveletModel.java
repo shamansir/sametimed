@@ -68,7 +68,7 @@ public class WaveletModel extends AbstractModel<String, EmptyModelValue> {
 			jsonString += quot + modelID.getAlias() + quot + ":" + innerModels.get(modelID).asJSON(useEscapedQuotes) + ",";
 		}
 		
-		jsonString += quot + "clientID" + quot + ":" + Integer.toString(currentClientID);
+		jsonString += quot + "clientId" + quot + ":" + Integer.toString(currentClientID);
 		
 		return jsonString + "}";
 	}	

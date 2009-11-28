@@ -34,11 +34,13 @@ public abstract class AbstractModulatedWavesClient<WaveletType extends AbstractM
 		
 		if (command.getType() == CommandTypeID.CMD_UNDO_OP) { 
 			String undoTargetUser = command.getArgument("user");
-			if ((undoTargetUser == null) && (backend != null)) {
-				undoTargetUser = backend.getUserId().getAddress();
-			} else {
-				curWavelet.registerError(AbstractUpdatingWavelet.NOT_CONNECTED_ERR);
-				return false;
+			if (undoTargetUser == null) {
+				if (backend != null) {
+					undoTargetUser = backend.getUserId().getAddress();
+				} else {
+					curWavelet.registerError(AbstractUpdatingWavelet.NOT_CONNECTED_ERR);
+					return false;
+				}
 			}
 			return curWavelet.applyModuleMutation(
 					command.getRelatedModuleID(),

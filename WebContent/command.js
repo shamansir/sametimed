@@ -184,7 +184,7 @@ function checkResponse(response) {
 			alert('Response error status ' + responce + ' can not be parsed');
 		}
 	} else {
-		alert('Response ' + responce + ' can not be parsed');
+		alert('Response ' + response + ' can not be parsed');
 	}
 }
 
