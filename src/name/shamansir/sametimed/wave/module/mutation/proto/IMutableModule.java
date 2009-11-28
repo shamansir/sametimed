@@ -16,14 +16,22 @@ public interface IMutableModule {
 	
 	public String getDocumentID();
 	
-	public boolean enumerateTags();
-	
-	public AbstractDocumentTag makeTag(Integer id, ParticipantId author, String text);	
+	public boolean enumerateTags(); // do set numbers for tags // FIXME: always set
 	
 	public <ResultType> ResultType applyCursor(BufferedDocOp srcDoc, ICursorWithResult<ResultType> cursor);
 	
 	public WaveletDocumentOperation apply(BufferedDocOp sourceDoc, IModuleMutation mutation) throws MutationCompilationException;
 
-	public void setOutputMode(RenderMode targetMode);	
+	public void setOutputMode(RenderMode targetMode);
+
+	// tags-based mutations
+	
+	public AbstractDocumentTag makeTag(Integer id, ParticipantId author, String text);	
+	
+	public Integer getLastUserTagPos(BufferedDocOp sourceDoc, String userName);
+
+	public BufferedDocOp deleteTagByPos(BufferedDocOp sourceDoc, Integer position);
+
+	public Integer getLastTagPos(BufferedDocOp sourceDoc);	
 
 }

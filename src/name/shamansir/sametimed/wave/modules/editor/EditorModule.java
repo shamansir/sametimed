@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
-import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
-import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
@@ -75,6 +73,22 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	public AbstractDocumentTag makeTag(Integer id, ParticipantId author,
 			String text) {
 		return new EditorTag(id, author, text, false);
+	}
+
+	@Override
+	public BufferedDocOp deleteTagByPos(BufferedDocOp sourceDoc,
+			Integer position) {
+		return applyCursor(sourceDoc, new DocumentChunkDeletionCursor(position));
+	}
+
+	@Override
+	public Integer getLastTagPos(BufferedDocOp sourceDoc) {
+		return applyCursor(sourceDoc, new DocumentLastChunkIDCursor());
+	}
+
+	@Override
+	public Integer getLastUserTagPos(BufferedDocOp sourceDoc, String userName) {
+		return applyCursor(sourceDoc, new DocumentLastUserChunkCursor(userName));
 	}
 
 }

@@ -8,6 +8,8 @@ import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.module.AbstractVerticalModule;
+import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLastUserLineCursor;
+import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLineDeletionCursor;
 import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLinesExtractionCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
@@ -77,6 +79,21 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	public AbstractDocumentTag makeTag(Integer id, ParticipantId author,
 			String text) {
 		return new ChatTag(author, text);
+	}
+
+	@Override
+	public BufferedDocOp deleteTagByPos(BufferedDocOp sourceDoc, Integer position) {
+		return applyCursor(sourceDoc, new ChatLineDeletionCursor(position));
+	}
+
+	@Override
+	public Integer getLastTagPos(BufferedDocOp sourceDoc) {
+		return null; // FIXME: implement
+	}
+
+	@Override
+	public Integer getLastUserTagPos(BufferedDocOp sourceDoc, String userName) {
+		return applyCursor(sourceDoc, new ChatLastUserLineCursor(userName));
 	}
 
 }

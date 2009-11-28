@@ -11,6 +11,8 @@ import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorAdapter;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
+// FIXME: make getSrcDoc method to get SourceDocument	
+
 public abstract class AbstractMutableModule<InnerType> implements IMutableModule {
 	
 	private final String moduleID;
@@ -60,8 +62,6 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	
 	public abstract InnerType extract(BufferedDocOp srcDoc);
 	// protected abstract ADocumentTag makeTagForAppend(ParticipantId author, String text);
-	
-	// FIXME: may be store sourceDoc in module?	
 	
 	@Override
 	public WaveletDocumentOperation apply(BufferedDocOp sourceDoc, IModuleMutation mutation) throws MutationCompilationException {
