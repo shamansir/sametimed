@@ -111,6 +111,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	}
 	
 	protected BufferedDocOp getSource(String documentID) {
+		// LOG.info("openWaveletet: " + getOpenWavelet());
 		return getOpenWavelet() == null ? null : getOpenWavelet()
 				.getDocuments().get(documentID);
 	}
@@ -123,10 +124,11 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 		if (isWaveOpen()) {
 			IMutableModule module = getRegisteredModule(moduleID);
 			if (module != null) {
-				BufferedDocOp srcDoc = getSource(module.getDocumentID());
+				// FIXME: do not pass sorceDoc every time, let the module know about parent wavelet
+				BufferedDocOp sourceDoc = getSource(module.getDocumentID());
 				try {
 					// srcDoc can be null!
-					performWaveletOperation(module.apply(srcDoc, mutation));
+					performWaveletOperation(module.apply(sourceDoc, mutation));
 					return true;
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());

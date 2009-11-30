@@ -28,9 +28,13 @@ public class InsertMutation extends AbstractModuleDocumentMutation {
 	public WaveletDocumentOperation applyTo(IMutableModule module,
 			BufferedDocOp sourceDoc) throws MutationCompilationException {
 		// FIXME: insert, not append
+		Integer lastID = null;
+		if (module.enumerateTags()) lastID = module.getLastTagPos(sourceDoc);
+			// module.applyCursor(sourceDoc, new DocumentLastChunkIDCursor());
 		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), sourceDoc);
-		docOp = (new ChatTag(author, text)).buildOperation(docOp);		
-		return createDocumentOperation(module.getDocumentID(), docOp.finish());	
+		docOp = (module.makeTag(module.enumerateTags() ? lastID + 1 : null,
+					author, text)).buildOperation(docOp);		
+		return createDocumentOperation(module.getDocumentID(), docOp.finish());		
 	}
 
 }

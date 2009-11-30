@@ -247,7 +247,7 @@ var DocumentEditor = $.inherit({
 	
 	execBtnCommand: function(cmdName) {
 		_log('exec cmd: ' + cmdName);
-		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId, this.__self.DOCUMENT_ALIAS);
+		return this.__self.CMD_BTN_HANDLER(this.clientId, cmdName, this.elmId, this.__self.MODULE_ALIAS);
 	},		
 	
 	lock: function() {
@@ -491,12 +491,12 @@ var DocumentEditor = $.inherit({
 	
 	sendCommands: function(commands) {
 		_log('sending ', commands);
-		this.__self.CMD_SEQENCE_SENDER(this.clientId, commands, this.__self.DOCUMENT_ALIAS);
+		this.__self.CMD_SEQENCE_SENDER(this.clientId, commands, this.__self.MODULE_ALIAS);
 	}
 	
 }, { // static
 	
-	DOCUMENT_ALIAS: 'document',
+	MODULE_ALIAS: 'editor', // FIXME: also use document alias as command parameter
 	
 	COMMIT_CHECK_PERIOD: 2000,
 	

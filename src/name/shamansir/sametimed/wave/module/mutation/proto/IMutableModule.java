@@ -18,7 +18,7 @@ public interface IMutableModule {
 	
 	public boolean enumerateTags(); // do set numbers for tags // FIXME: always set
 	
-	public <ResultType> ResultType applyCursor(BufferedDocOp srcDoc, ICursorWithResult<ResultType> cursor);
+	public <ResultType> ResultType applyCursor(BufferedDocOp sourceDoc, ICursorWithResult<ResultType> cursor);
 	
 	public WaveletDocumentOperation apply(BufferedDocOp sourceDoc, IModuleMutation mutation) throws MutationCompilationException;
 

@@ -18,33 +18,16 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	private final String moduleID;
 	private final String documentID;
 	private final boolean structured;
+	private final boolean enumerateTags;
 	
-	public AbstractMutableModule(String moduleID, String documentID, boolean structured) throws ParseException {
+	public AbstractMutableModule(String moduleID, String documentID, 
+			boolean structured, boolean enumerateTags) throws ParseException {
 		this.moduleID = moduleID;
 		this.documentID = validateID(documentID);
 		this.structured = structured;
+		this.enumerateTags = enumerateTags; // enumerate tags just if document is structured 
 	}
-	
-	/* makes operation easier, but, because getUndoOp is implemented in child, must also be
-	 * implemented there */ 
-	/* 
-	@Override
-	public WaveletDocumentOperation getAppendOp(BufferedDocOp srcDoc, ParticipantId author,
-			String text) {
-		int docSize = (srcDoc == null) ? 0 : ClientUtils
-				.findDocumentSize(srcDoc);
-		DocOpBuilder docOp = new DocOpBuilder();
-
-		if (docSize > 0) {
-			docOp.retain(docSize);
-		}
-
-		docOp = makeTagForAppend(author, text).createTagFor(docOp);
 		
-		return createDocumentOperation(docOp.finish());
-
-	} */	
-	
 	@Override
 	public String getModuleID() {
 		return moduleID;
@@ -60,7 +43,7 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 		return idToValidate;
 	}
 	
-	public abstract InnerType extract(BufferedDocOp srcDoc);
+	public abstract InnerType extract(BufferedDocOp sourceDoc);
 	// protected abstract ADocumentTag makeTagForAppend(ParticipantId author, String text);
 	
 	@Override
@@ -69,15 +52,20 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	}
 	
 	@Override
-	public <ResultType> ResultType applyCursor(BufferedDocOp srcDoc, ICursorWithResult<ResultType> cursor) {
-		if (srcDoc == null) return cursor.getResult();
-		srcDoc.apply(new InitializationCursorAdapter(cursor));
+	public <ResultType> ResultType applyCursor(BufferedDocOp sourceDoc, ICursorWithResult<ResultType> cursor) {
+		if (sourceDoc == null) return cursor.getResult();
+		sourceDoc.apply(new InitializationCursorAdapter(cursor));
 		return cursor.getResult();
 	}	
 
 	@Override
 	public boolean isStructured() {
 		return structured;
+	}
+	
+	@Override
+	public boolean enumerateTags() {
+		return enumerateTags;
 	}
 
 }

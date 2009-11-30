@@ -40,14 +40,14 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	}
 	
 	@Override	
-	public List<ChatLine> extract(BufferedDocOp srcDoc) {		
-	    if (srcDoc != null) {
+	public List<ChatLine> extract(BufferedDocOp sourceDoc) {		
+	    if (sourceDoc != null) {
 	    	// TODO: use cursors as private variables?
 	    	if (outputMode.equals(RenderMode.NORMAL)) {	    		
-	    		return applyCursor(srcDoc, new ChatLinesExtractionCursor());
+	    		return applyCursor(sourceDoc, new ChatLinesExtractionCursor());
 	    	} else if (outputMode.equals(RenderMode.XML)) {
 		    	return makeXMLChatLines(
-		    			applyCursor(srcDoc, new XMLGeneratingCursor()));
+		    			applyCursor(sourceDoc, new XMLGeneratingCursor()));
 	    	} else {
 	    		return new ArrayList<ChatLine>();
 	    	}
@@ -71,13 +71,7 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	}
 
 	@Override
-	public boolean enumerateTags() {
-		return false;
-	}
-
-	@Override
-	public AbstractDocumentTag makeTag(Integer id, ParticipantId author,
-			String text) {
+	public AbstractDocumentTag makeTag(ParticipantId author, String text) {
 		return new ChatTag(author, text);
 	}
 

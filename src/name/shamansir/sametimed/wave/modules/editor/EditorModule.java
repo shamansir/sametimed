@@ -35,14 +35,14 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
-	public List<TextChunk> extract(BufferedDocOp srcDoc) {
-	    if (srcDoc != null) {
+	public List<TextChunk> extract(BufferedDocOp sourceDoc) {
+	    if (sourceDoc != null) {
 	    	// TODO: use cursors as private variables?
 	    	if (outputMode.equals(RenderMode.NORMAL)) {	    		
-	    		return applyCursor(srcDoc, new DocumentChunksExtractionCursor());
+	    		return applyCursor(sourceDoc, new DocumentChunksExtractionCursor());
 	    	} else if (outputMode.equals(RenderMode.XML)) {
 		    	return makeXMLTextChunks(
-		    			applyCursor(srcDoc, new XMLGeneratingCursor()));
+		    			applyCursor(sourceDoc, new XMLGeneratingCursor()));
 	    	} else {
 	    		return new ArrayList<TextChunk>();
 	    	}
@@ -62,11 +62,6 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	@Override
 	public void setOutputMode(RenderMode outputMode) {
 		this.outputMode  = outputMode;		
-	}
-
-	@Override
-	public boolean enumerateTags() {
-		return false;
 	}
 
 	@Override

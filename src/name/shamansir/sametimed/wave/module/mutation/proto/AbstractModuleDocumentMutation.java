@@ -11,8 +11,8 @@ public abstract class AbstractModuleDocumentMutation implements IModuleMutation 
 		return new WaveletDocumentOperation(documentID, operation);
 	}
 	
-	protected static DocOpBuilder alignToTheDocumentEnd(DocOpBuilder docOp, BufferedDocOp srcDoc) {
-		int docSize = (srcDoc == null) ? 0 : ClientUtils.findDocumentSize(srcDoc);		
+	protected static DocOpBuilder alignToTheDocumentEnd(DocOpBuilder docOp, BufferedDocOp sourceDoc) {
+		int docSize = (sourceDoc == null) ? 0 : ClientUtils.findDocumentSize(sourceDoc);		
 		if (docSize > 0) {
 			docOp.retain(docSize);
 		}

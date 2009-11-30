@@ -20,15 +20,11 @@ public class UndoMutation extends AbstractModuleDocumentMutation {
 	public WaveletDocumentOperation applyTo(IMutableModule module,
 			BufferedDocOp sourceDoc) throws MutationCompilationException {
 		Integer lastLine = module.getLastUserTagPos(sourceDoc, userID.getAddress()); 
-			// applyCursor(srcDoc, new DocumentLastUserChunkCursor(userId.getAddress()));
-		    // new ChatLastUserLineCursor(userID.getAddress())
 
 		// Delete the line
 		if (lastLine >= 0) {
 			return createDocumentOperation(module.getDocumentID(), 
 					module.deleteTagByPos(sourceDoc, lastLine));
-					// applyCursor(sourceDoc, new DocumentChunkDeletionCursor(lastLine)));
-					// module.applyCursor(sourceDoc, new ChatLineDeletionCursor(lastLine))
 		} else {
 			return null;
 		}		
