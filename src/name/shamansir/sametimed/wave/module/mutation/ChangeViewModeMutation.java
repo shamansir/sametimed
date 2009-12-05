@@ -1,6 +1,5 @@
 package name.shamansir.sametimed.wave.module.mutation;
 
-import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 import name.shamansir.sametimed.wave.module.mutation.proto.AbstractModuleDocumentMutation;
@@ -21,8 +20,7 @@ public class ChangeViewModeMutation extends AbstractModuleDocumentMutation {
 	}
 
 	@Override
-	public WaveletDocumentOperation applyTo(IMutableModule module,
-			BufferedDocOp sourceDoc) throws MutationCompilationException {
+	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
 		// TODO Auto-generated method stub
 		module.setOutputMode(targetMode);
 		return null;

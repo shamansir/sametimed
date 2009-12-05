@@ -39,7 +39,7 @@ public class WaveletWithChat extends AbstractModulatedWavelet {
 	
 	@Override	
 	protected void prepareModules() throws ParseException {
-		chatView = new ChatModule();		
+		chatView = new ChatModule(this);		
 	}
 	
 	@Override
@@ -57,8 +57,7 @@ public class WaveletWithChat extends AbstractModulatedWavelet {
 	@Override	
 	protected void updateModulesModels() {
 		if (isChatReady()) {
-			updateModel(ModelID.CHAT_MODEL, chatView.extract(
-										getSource(chatView.getDocumentID())));
+			updateModel(ModelID.CHAT_MODEL, chatView.extract());
 		}		
 	}
 	

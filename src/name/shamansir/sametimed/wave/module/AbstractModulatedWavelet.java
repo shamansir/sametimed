@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
-import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
@@ -110,12 +109,6 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 		return registeredModules.get(moduleID);
 	}
 	
-	protected BufferedDocOp getSource(String documentID) {
-		// LOG.info("openWaveletet: " + getOpenWavelet());
-		return getOpenWavelet() == null ? null : getOpenWavelet()
-				.getDocuments().get(documentID);
-	}
-	
 	/* ====== DOCUMENTS-RELATED OPERATIONS ====== */
 	
 	// FIXME: Test if things work when module ID is different than inner document ID
@@ -124,11 +117,8 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 		if (isWaveOpen()) {
 			IMutableModule module = getRegisteredModule(moduleID);
 			if (module != null) {
-				// FIXME: do not pass sorceDoc every time, let the module know about parent wavelet
-				BufferedDocOp sourceDoc = getSource(module.getDocumentID());
 				try {
-					// srcDoc can be null!
-					performWaveletOperation(module.apply(sourceDoc, mutation));
+					performWaveletOperation(module.apply(mutation));
 					return true;
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
@@ -148,10 +138,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 		if (isWaveOpen()) {
 			for (IMutableModule module: registeredModules.values()) {
 				try {
-					performWaveletOperation(
-							module.apply(
-									getSource(module.getDocumentID()), mutation)
-						);
+					performWaveletOperation(module.apply(mutation));
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
 				}

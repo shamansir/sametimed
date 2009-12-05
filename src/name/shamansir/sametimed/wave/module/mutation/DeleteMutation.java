@@ -4,14 +4,12 @@ import name.shamansir.sametimed.wave.module.mutation.proto.AbstractModuleDocumen
 import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 
-import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 public class DeleteMutation extends AbstractModuleDocumentMutation {
 
 	@Override
-	public WaveletDocumentOperation applyTo(IMutableModule module,
-			BufferedDocOp sourceDoc) throws MutationCompilationException {
+	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
 		// TODO Auto-generated method stub
 		return null;
 	}

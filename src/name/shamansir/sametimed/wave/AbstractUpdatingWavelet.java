@@ -20,6 +20,7 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.IndexEntry;
+import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.id.WaveId;
 import org.waveprotocol.wave.model.operation.wave.AddParticipant;
 import org.waveprotocol.wave.model.operation.wave.RemoveParticipant;
@@ -202,7 +203,14 @@ public abstract class AbstractUpdatingWavelet {
 	
 	public void setNotifyUpdates(boolean doNotifyUpdates) {
 		this.notifyUpdates = doNotifyUpdates;
+	}
+	
+	public BufferedDocOp getSource(String documentID) {
+		// LOG.info("openWaveletet: " + getOpenWavelet());
+		return getOpenWavelet() == null ? null : getOpenWavelet()
+				.getDocuments().get(documentID);
 	}	
+	
 	
 	/* ====== SIGNALS FROM CLIENT ====== */
 	

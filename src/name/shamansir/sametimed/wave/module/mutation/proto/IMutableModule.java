@@ -18,9 +18,11 @@ public interface IMutableModule {
 	
 	public boolean enumerateTags(); // do set numbers for tags // FIXME: always set
 	
-	public <ResultType> ResultType applyCursor(BufferedDocOp sourceDoc, ICursorWithResult<ResultType> cursor);
+	public BufferedDocOp getSource(); // return source document
 	
-	public WaveletDocumentOperation apply(BufferedDocOp sourceDoc, IModuleMutation mutation) throws MutationCompilationException;
+	public <ResultType> ResultType applyCursor(ICursorWithResult<ResultType> cursor);
+	
+	public WaveletDocumentOperation apply(IModuleMutation mutation) throws MutationCompilationException;
 
 	public void setOutputMode(RenderMode targetMode);
 
@@ -28,10 +30,10 @@ public interface IMutableModule {
 	
 	public AbstractDocumentTag makeTag(Integer id, ParticipantId author, String text);	
 	
-	public Integer getLastUserTagPos(BufferedDocOp sourceDoc, String userName);
+	public Integer getLastUserTagPos(String userName);
 
-	public BufferedDocOp deleteTagByPos(BufferedDocOp sourceDoc, Integer position);
+	public BufferedDocOp deleteTagByPos(Integer position);
 
-	public Integer getLastTagPos(BufferedDocOp sourceDoc);	
+	public Integer getLastTagPos();	
 
 }

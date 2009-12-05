@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
@@ -35,19 +36,19 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
-	public ChatModule() throws ParseException {
-		super(MODULE_ID, DOCUMENT_ID);
+	public ChatModule(AbstractUpdatingWavelet parent) throws ParseException {
+		super(parent, MODULE_ID, DOCUMENT_ID);
 	}
 	
 	@Override	
-	public List<ChatLine> extract(BufferedDocOp sourceDoc) {		
-	    if (sourceDoc != null) {
+	public List<ChatLine> extract() {
+	    if (getSource() != null) {
 	    	// TODO: use cursors as private variables?
 	    	if (outputMode.equals(RenderMode.NORMAL)) {	    		
-	    		return applyCursor(sourceDoc, new ChatLinesExtractionCursor());
+	    		return applyCursor(new ChatLinesExtractionCursor());
 	    	} else if (outputMode.equals(RenderMode.XML)) {
 		    	return makeXMLChatLines(
-		    			applyCursor(sourceDoc, new XMLGeneratingCursor()));
+		    			applyCursor(new XMLGeneratingCursor()));
 	    	} else {
 	    		return new ArrayList<ChatLine>();
 	    	}
@@ -76,18 +77,18 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	}
 
 	@Override
-	public BufferedDocOp deleteTagByPos(BufferedDocOp sourceDoc, Integer position) {
-		return applyCursor(sourceDoc, new ChatLineDeletionCursor(position));
+	public BufferedDocOp deleteTagByPos(Integer position) {
+		return applyCursor(new ChatLineDeletionCursor(position));
 	}
 
 	@Override
-	public Integer getLastTagPos(BufferedDocOp sourceDoc) {
+	public Integer getLastTagPos() {
 		return null; // FIXME: implement
 	}
 
 	@Override
-	public Integer getLastUserTagPos(BufferedDocOp sourceDoc, String userName) {
-		return applyCursor(sourceDoc, new ChatLastUserLineCursor(userName));
+	public Integer getLastUserTagPos(String userName) {
+		return applyCursor(new ChatLastUserLineCursor(userName));
 	}
 
 }

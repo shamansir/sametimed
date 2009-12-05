@@ -2,6 +2,7 @@ package name.shamansir.sametimed.wave.module;
 
 import java.text.ParseException;
 
+import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.module.mutation.proto.IModuleMutation;
 import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
@@ -15,17 +16,19 @@ import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 public abstract class AbstractMutableModule<InnerType> implements IMutableModule {
 	
+	private final AbstractUpdatingWavelet parent;
 	private final String moduleID;
 	private final String documentID;
 	private final boolean structured;
 	private final boolean enumerateTags;
 	
-	public AbstractMutableModule(String moduleID, String documentID, 
-			boolean structured, boolean enumerateTags) throws ParseException {
-		this.moduleID = moduleID;
-		this.documentID = validateID(documentID);
+	public AbstractMutableModule(AbstractUpdatingWavelet parent, String moduleID, String documentID, 
+			boolean structured, boolean enumerateTags) throws ParseException {		
+		this.moduleID = validateID(moduleID);
+		this.documentID = validateID(documentID);		
 		this.structured = structured;
-		this.enumerateTags = enumerateTags; // enumerate tags just if document is structured 
+		this.enumerateTags = enumerateTags; // enumerate tags just if document is structured
+		this.parent = parent;
 	}
 		
 	@Override
@@ -38,21 +41,26 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 		return documentID;
 	}
 	
+	public BufferedDocOp getSource() {
+		return parent.getSource(documentID);
+	}	
+	
 	protected static String validateID(String idToValidate) throws ParseException {
-		if (idToValidate.contains(" ")) throw new ParseException("Document ID (" + idToValidate + ") must not contain spaces", idToValidate.indexOf(" "));
+		if (idToValidate.contains(" ")) throw new ParseException("ID (" + idToValidate + ") must not contain spaces", idToValidate.indexOf(" "));
 		return idToValidate;
 	}
 	
-	public abstract InnerType extract(BufferedDocOp sourceDoc);
+	public abstract InnerType extract();
 	// protected abstract ADocumentTag makeTagForAppend(ParticipantId author, String text);
 	
 	@Override
-	public WaveletDocumentOperation apply(BufferedDocOp sourceDoc, IModuleMutation mutation) throws MutationCompilationException {
-		return mutation.applyTo(this, sourceDoc);	
+	public WaveletDocumentOperation apply(IModuleMutation mutation) throws MutationCompilationException {
+		return mutation.applyTo(this);	
 	}
 	
 	@Override
-	public <ResultType> ResultType applyCursor(BufferedDocOp sourceDoc, ICursorWithResult<ResultType> cursor) {
+	public <ResultType> ResultType applyCursor(ICursorWithResult<ResultType> cursor) {
+		BufferedDocOp sourceDoc = getSource(); 
 		if (sourceDoc == null) return cursor.getResult();
 		sourceDoc.apply(new InitializationCursorAdapter(cursor));
 		return cursor.getResult();
@@ -66,6 +74,10 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	@Override
 	public boolean enumerateTags() {
 		return enumerateTags;
+	}
+	
+	public AbstractUpdatingWavelet getParentWavelet() {
+		return parent;
 	}
 
 }

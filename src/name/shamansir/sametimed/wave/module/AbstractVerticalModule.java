@@ -4,12 +4,13 @@ import java.text.ParseException;
 
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
+import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 
 public abstract class AbstractVerticalModule<InnerType> extends AbstractMutableModule<InnerType> {
 
-	public AbstractVerticalModule(String moduleID, String documentID) throws ParseException {
-		super(moduleID, documentID, false, false);
+	public AbstractVerticalModule(AbstractUpdatingWavelet parent, String moduleID, String documentID) throws ParseException {
+		super(parent, moduleID, documentID, false, false);
 	}
 	
 	@Override

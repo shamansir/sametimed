@@ -24,7 +24,7 @@ public class WaveletWithEditor extends WaveletWithChat {
 	@Override	
 	protected void prepareModules() throws ParseException {
 		super.prepareModules();
-		editorView = new EditorModule();
+		editorView = new EditorModule(this);
 	}
 	
 	@Override
@@ -37,7 +37,7 @@ public class WaveletWithEditor extends WaveletWithChat {
 	@Override
 	protected void updateModulesModels() {
 		super.updateModulesModels();
-		updateModel(ModelID.EDITOR_MODEL, editorView.extract(getSource(editorView.getDocumentID())));		
+		updateModel(ModelID.EDITOR_MODEL, editorView.extract());		
 	}	
 	
 	@Override

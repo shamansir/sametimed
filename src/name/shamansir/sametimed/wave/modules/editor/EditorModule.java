@@ -7,6 +7,7 @@ import java.util.List;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
+import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
@@ -29,20 +30,21 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	protected static final String MODULE_ID = "editor"; 
 	protected static final String DOCUMENT_ID = "document";
 	
-	public EditorModule() throws ParseException {
-		super(MODULE_ID, DOCUMENT_ID);
+	public EditorModule(AbstractUpdatingWavelet parent) throws ParseException {
+		super(parent, MODULE_ID, DOCUMENT_ID);
 	}	
 	
 	private RenderMode outputMode = RenderMode.NORMAL;
 	
-	public List<TextChunk> extract(BufferedDocOp sourceDoc) {
-	    if (sourceDoc != null) {
+	@Override
+	public List<TextChunk> extract() {
+		if (getSource() != null) {
 	    	// TODO: use cursors as private variables?
 	    	if (outputMode.equals(RenderMode.NORMAL)) {	    		
-	    		return applyCursor(sourceDoc, new DocumentChunksExtractionCursor());
+	    		return applyCursor(new DocumentChunksExtractionCursor());
 	    	} else if (outputMode.equals(RenderMode.XML)) {
 		    	return makeXMLTextChunks(
-		    			applyCursor(sourceDoc, new XMLGeneratingCursor()));
+		    			applyCursor(new XMLGeneratingCursor()));
 	    	} else {
 	    		return new ArrayList<TextChunk>();
 	    	}
@@ -71,19 +73,18 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	}
 
 	@Override
-	public BufferedDocOp deleteTagByPos(BufferedDocOp sourceDoc,
-			Integer position) {
-		return applyCursor(sourceDoc, new DocumentChunkDeletionCursor(position));
+	public BufferedDocOp deleteTagByPos(Integer position) {
+		return applyCursor(new DocumentChunkDeletionCursor(position));
 	}
 
 	@Override
-	public Integer getLastTagPos(BufferedDocOp sourceDoc) {
-		return applyCursor(sourceDoc, new DocumentLastChunkIDCursor());
+	public Integer getLastTagPos() {
+		return applyCursor(new DocumentLastChunkIDCursor());
 	}
 
 	@Override
-	public Integer getLastUserTagPos(BufferedDocOp sourceDoc, String userName) {
-		return applyCursor(sourceDoc, new DocumentLastUserChunkCursor(userName));
+	public Integer getLastUserTagPos(String userName) {
+		return applyCursor(new DocumentLastUserChunkCursor(userName));
 	}
 
 }
