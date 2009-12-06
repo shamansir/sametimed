@@ -4,6 +4,6 @@ import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 public interface IModuleMutation {
 	
-	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException;
+	public <ModuleType extends IMutableModule> WaveletDocumentOperation applyTo(ModuleType module) throws MutationCompilationException;
 	
 }

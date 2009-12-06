@@ -20,14 +20,12 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	private final String moduleID;
 	private final String documentID;
 	private final boolean structured;
-	private final boolean enumerateTags;
-	
+		
 	public AbstractMutableModule(AbstractUpdatingWavelet parent, String moduleID, String documentID, 
 			boolean structured, boolean enumerateTags) throws ParseException {		
 		this.moduleID = validateID(moduleID);
 		this.documentID = validateID(documentID);		
 		this.structured = structured;
-		this.enumerateTags = enumerateTags; // enumerate tags just if document is structured
 		this.parent = parent;
 	}
 		
@@ -69,11 +67,6 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	@Override
 	public boolean isStructured() {
 		return structured;
-	}
-	
-	@Override
-	public boolean enumerateTags() {
-		return enumerateTags;
 	}
 	
 	public AbstractUpdatingWavelet getParentWavelet() {

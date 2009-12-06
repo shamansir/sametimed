@@ -4,7 +4,6 @@ import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.modules.editor.util.TextStyle;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import com.google.common.collect.ImmutableMap;
@@ -15,19 +14,16 @@ import com.google.common.collect.ImmutableMap;
 public class EditorTag extends AbstractDocumentTag {
 	
 	public final static String TAG_NAME = "chunk";
-	public final static String ID_ATTR_NAME = "id";
 	public final static String AUTHOR_ATTR_NAME = "author"; // FIXME: just one author for a chunk
 	public final static String RESERVED_ATTR_NAME = "reserved";
 	public final static String STYLE_ATTR_NAME = "style";
 	
-	private int id;
 	private ParticipantId author;
 	private boolean isReserved;
 	private TextStyle style = null;
 
 	public EditorTag(int id, ParticipantId author, String content, TextStyle style, boolean isReserved) {
-		super(TAG_NAME);
-		setID(id);
+		super(id, TAG_NAME);
 		setAuthor(author);
 		setReserved(isReserved);
 		setStyle(style);
@@ -50,19 +46,10 @@ public class EditorTag extends AbstractDocumentTag {
 		this(id, parseAuthorAttr(author), "", null, isReserved);
 	}		
 
-	public EditorTag() {
-		this(0, (ParticipantId)null, "", false);
+	public EditorTag(int id) {
+		this(id, (ParticipantId)null, "", false);
 	}
 	
-	public int getID() {
-		return this.id;
-	}
-	
-	public void setID(int id) {
-		this.id = id; 
-		setAttribute(ID_ATTR_NAME, idAttr(id));
-	}	
-
 	public ParticipantId getAuthor() {
 		return author;
 	}
@@ -89,14 +76,6 @@ public class EditorTag extends AbstractDocumentTag {
 		setAttribute(STYLE_ATTR_NAME, styleAttr(style));
 	}
 	
-	private static String idAttr(int id) {
-		return String.valueOf(id);
-	}
-	
-	private static int parseIDAttr(String idString) {
-		return Integer.valueOf(idString);
-	}
-	
 	private static String reservedAttr(boolean isReserved) {
 		return isReserved ? "reserved" : "";
 	}
@@ -120,36 +99,28 @@ public class EditorTag extends AbstractDocumentTag {
 	private static ParticipantId parseAuthorAttr(String author) {
 		return (!author.equals("?")) ? new ParticipantId(author) : null;
 	}
-	
-	
-	@Override
-	protected boolean checkTagName(String tagName) {
-		return tagName.equals(TAG_NAME);
-	}	
+		
 	
 	@Override
 	protected boolean checkAttributes(Attributes attrs) {
-		return attrs.containsKey(ID_ATTR_NAME) &&
-			   attrs.containsKey(AUTHOR_ATTR_NAME) &&
+		return attrs.containsKey(AUTHOR_ATTR_NAME) &&
 			   attrs.containsKey(RESERVED_ATTR_NAME) &&
 			   attrs.containsKey(STYLE_ATTR_NAME);
 	}
 
 	@Override
 	protected void initAttributes(Attributes attrs) {
-		setID(parseIDAttr(attrs.get(ID_ATTR_NAME)));
 		setAuthor(parseAuthorAttr(attrs.get(AUTHOR_ATTR_NAME)));
 		setReserved(parseReservedAttr(attrs.get(RESERVED_ATTR_NAME)));
 		setStyle(parseStyleAttr(attrs.get(STYLE_ATTR_NAME)));
 	}
 
 	@Override
-	protected AttributesImpl compileAttributes() {
-		return new AttributesImpl(
-				ImmutableMap.of(ID_ATTR_NAME, idAttr(id),
-							    AUTHOR_ATTR_NAME, authorAttr(author),
-				                RESERVED_ATTR_NAME, reservedAttr(isReserved),
-				                STYLE_ATTR_NAME, styleAttr(style)));
+	protected ImmutableMap<String, String> compileAttributes() {
+		return ImmutableMap.of(
+				AUTHOR_ATTR_NAME, authorAttr(author),
+                RESERVED_ATTR_NAME, reservedAttr(isReserved),
+                STYLE_ATTR_NAME, styleAttr(style));
 	}
 	
 }

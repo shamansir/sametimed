@@ -28,7 +28,7 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 		
 	}
 	
-	protected abstract TagType createTag(String tagName, Attributes attrs) throws IllegalArgumentException;	
+	protected abstract TagType createTag(int id, String tagName, Attributes attrs) throws IllegalArgumentException;	
 	protected abstract void applyTag(TagType tag);
 	
 	@Override
@@ -38,7 +38,9 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 		this.gotEnd.set(false);
 		
 		try {
-			currentTag = createTag(type, attrs);
+			currentTag = createTag(
+					Integer.valueOf(attrs.get(AbstractDocumentTag.ID_ATTR_NAME)), 
+								  type, attrs);
 			if (currentTag == null) this.skipElement.set(true);
 		} catch (IllegalArgumentException iae) {
 			LOG.warning("exception thrown while parsing element " + type +

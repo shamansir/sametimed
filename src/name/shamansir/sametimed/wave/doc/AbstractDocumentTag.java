@@ -8,29 +8,38 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
 
+import com.google.common.collect.ImmutableMap;
+
 // TODO: use Atomic types? 
 public abstract class AbstractDocumentTag {
 	
-	private final static String DEFAULT_CONTENT = "-empty-";	
-	private String name;
+	private final static String DEFAULT_CONTENT = "-empty-";
+	
+	public final static String ID_ATTR_NAME = "id";	
+	
+	private /*final*/ int id; // FIXME: use hashes of timestamps instead?
+	private final String name;
 	// TODO: private Attributes attributes;
 	private Map<String, String> attributes;
 	private String content;
 	
-	protected AbstractDocumentTag(String name) {
+	protected AbstractDocumentTag(int id, String name) {
+		this.id = id;
 		this.name = name;
 		this.attributes = new HashMap<String, String>();
 		this.content = DEFAULT_CONTENT;
 		// this.attributes = AttributesImpl.EMPTY_MAP;
 	}
 	
-	protected AbstractDocumentTag(String name, Attributes attrs) {
+	protected AbstractDocumentTag(int id, String name, Attributes attrs) {
+		this.id = id;
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
 		this.content = DEFAULT_CONTENT;
 	}
 	
-	protected AbstractDocumentTag(String name, Attributes attrs, String content) {
+	protected AbstractDocumentTag(int id, String name, Attributes attrs, String content) {
+		this.id = id;
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
 		this.content = content;
@@ -43,6 +52,24 @@ public abstract class AbstractDocumentTag {
 	public String getName() {
 		return name;
 	}
+	
+	public int getID() {
+		return this.id;
+	}
+	
+	public void setID(int id) {
+		this.id = id; 
+		setAttribute(ID_ATTR_NAME, idAttr(id));
+	}
+	
+	private static String idAttr(int id) {
+		return String.valueOf(id);
+	}
+	
+	private static int parseIDAttr(String idString) {
+		return Integer.valueOf(idString);
+	}	
+
 	
 	public Map<String, String> getAttributes() {
 		return attributes;
@@ -66,11 +93,15 @@ public abstract class AbstractDocumentTag {
 	
 	public void initFromElement(String name, Attributes attrs, String content) throws IllegalArgumentException {
 		if (checkTagName(name)) {
-			if (!checkAttributes(attrs)) {
+			
+			if (!(attrs.containsKey(ID_ATTR_NAME) && checkAttributes(attrs))) {
 				throw new IllegalArgumentException(
 						"There are not correct arguments in the tag " + name + " " + attrs);
-			}			
+			}
+			
+			setID(parseIDAttr(attrs.get(ID_ATTR_NAME)));			
 			initAttributes(attrs);
+			
 			setContent((content != null) ? content : "");
 		} else {
 			throw new IllegalArgumentException(
@@ -88,16 +119,25 @@ public abstract class AbstractDocumentTag {
 	}
 	
 	public DocOpBuilder buildOperation(DocOpBuilder docOp) {
-		docOp.elementStart(name, compileAttributes());
+		AttributesImpl attrs = new AttributesImpl(
+					new ImmutableMap.Builder<String, String>()
+						.put(ID_ATTR_NAME, idAttr(id))
+						.putAll(compileAttributes())
+						.build()
+				);
+		docOp.elementStart(name, attrs);
 		docOp.characters(getContent());
 		docOp.elementEnd();
 		return docOp;
 	}
 	
-	protected abstract boolean checkTagName(String tagName);
+	protected boolean checkTagName(String tagName) {
+		return tagName.equals(name);
+	}	
+	
 	protected abstract boolean checkAttributes(Attributes attrs);
 	
 	protected abstract void initAttributes(Attributes attrs);
-	protected abstract AttributesImpl compileAttributes();
+	protected abstract ImmutableMap<String, String> compileAttributes();
 	
 }

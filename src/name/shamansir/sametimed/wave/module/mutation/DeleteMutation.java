@@ -8,6 +8,8 @@ import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 public class DeleteMutation extends AbstractModuleDocumentMutation {
 
+	// FIXME: Implement
+	
 	@Override
 	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
 		// TODO Auto-generated method stub

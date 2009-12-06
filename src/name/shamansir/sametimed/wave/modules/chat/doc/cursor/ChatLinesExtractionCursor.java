@@ -31,9 +31,9 @@ public class ChatLinesExtractionCursor extends AbstractElementsScannerCursor<Cha
 	}
 
 	@Override
-	protected ChatTag createTag(String tagName, Attributes attrs) throws IllegalArgumentException {
+	protected ChatTag createTag(int id, String tagName, Attributes attrs) throws IllegalArgumentException {
 		// FIXME: must use static method or factory
-		ChatTag newTag = new ChatTag();
+		ChatTag newTag = new ChatTag(id);
 		newTag.initFromElement(tagName, attrs);
 		return newTag;
 	}

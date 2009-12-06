@@ -35,9 +35,9 @@ public class DocumentChunksExtractionCursor extends AbstractElementsScannerCurso
 	}
 
 	@Override
-	protected EditorTag createTag(String tagName, Attributes attrs) throws IllegalArgumentException {
+	protected EditorTag createTag(int id, String tagName, Attributes attrs) throws IllegalArgumentException {
 		// FIXME: must use static method or factory
-		EditorTag newTag = new EditorTag();
+		EditorTag newTag = new EditorTag(id);
 		newTag.initFromElement(tagName, attrs);
 		return newTag;
 	}

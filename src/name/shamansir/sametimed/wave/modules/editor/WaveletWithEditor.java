@@ -38,7 +38,7 @@ public class WaveletWithEditor extends WaveletWithChat {
 	protected void updateModulesModels() {
 		super.updateModulesModels();
 		updateModel(ModelID.EDITOR_MODEL, editorView.extract());		
-	}	
+	}
 	
 	@Override
 	protected List<ModelID> registerModulesModels(List<ModelID> currentTypes) {

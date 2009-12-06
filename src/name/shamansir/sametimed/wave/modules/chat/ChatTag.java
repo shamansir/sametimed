@@ -3,7 +3,6 @@ package name.shamansir.sametimed.wave.modules.chat;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import com.google.common.collect.ImmutableMap;
@@ -15,18 +14,18 @@ public class ChatTag extends AbstractDocumentTag {
 	
 	private ParticipantId author;
 	
-	public ChatTag(ParticipantId author, String content) {
-		super(TAG_NAME);
+	public ChatTag(int id, ParticipantId author, String content) {
+		super(id, TAG_NAME);
 		this.setAuthor(author);
 		this.setContent(content);
 	}
 	
-	public ChatTag(String authorName, String content) {
-		this(new ParticipantId(authorName), content);
+	public ChatTag(int id, String authorName, String content) {
+		this(id, new ParticipantId(authorName), content);
 	}	
 	
-	public ChatTag() {
-		this((ParticipantId)null, "");
+	public ChatTag(int id) {
+		this(id, (ParticipantId)null, "");
 	}	
 
 	public void setAuthor(ParticipantId author) {
@@ -54,8 +53,8 @@ public class ChatTag extends AbstractDocumentTag {
 	}
 
 	@Override
-	protected AttributesImpl compileAttributes() {
-		return new AttributesImpl(ImmutableMap.of(AUTHOR_ATTR_NAME, author.getAddress()));
+	protected ImmutableMap<String, String> compileAttributes() {
+		return ImmutableMap.of(AUTHOR_ATTR_NAME, author.getAddress());
 	}
 
 	@Override

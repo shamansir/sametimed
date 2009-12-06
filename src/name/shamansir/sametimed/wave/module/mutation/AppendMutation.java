@@ -21,10 +21,8 @@ public class AppendMutation extends AbstractModuleDocumentMutation {
 
 	@Override
 	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
-		Integer lastID = null;
-		if (module.enumerateTags()) lastID = module.getLastTagPos();
+		int lastID = module.getLastTagPos();		
 		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), module.getSource());
-		docOp = (module.makeTag(module.enumerateTags() ? lastID + 1 : null,
-					author, text)).buildOperation(docOp);		
+		docOp = (module.makeTag(lastID + 1, author, text)).buildOperation(docOp);		
 		return createDocumentOperation(module.getDocumentID(), docOp.finish());		
 	}}

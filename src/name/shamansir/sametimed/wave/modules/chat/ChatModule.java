@@ -6,6 +6,7 @@ import java.util.List;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.module.AbstractVerticalModule;
@@ -72,8 +73,8 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	}
 
 	@Override
-	public AbstractDocumentTag makeTag(ParticipantId author, String text) {
-		return new ChatTag(author, text);
+	public AbstractDocumentTag makeTag(Integer id, ParticipantId author, String text) {
+		return new ChatTag(id, author, text);
 	}
 
 	@Override
@@ -82,8 +83,8 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	}
 
 	@Override
-	public Integer getLastTagPos() {
-		return null; // FIXME: implement
+	public int getLastTagPos() {
+		return applyCursor(new DocumentLastTagIDCursor(ChatTag.TAG_NAME));
 	}
 
 	@Override

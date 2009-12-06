@@ -9,12 +9,12 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 import name.shamansir.sametimed.wave.module.AbstractTreeModule;
 import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentChunkDeletionCursor;
 import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentChunksExtractionCursor;
-import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentLastChunkIDCursor;
 import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentLastUserChunkCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
@@ -78,8 +78,8 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	}
 
 	@Override
-	public Integer getLastTagPos() {
-		return applyCursor(new DocumentLastChunkIDCursor());
+	public int getLastTagPos() {
+		return applyCursor(new DocumentLastTagIDCursor(EditorTag.TAG_NAME));
 	}
 
 	@Override
