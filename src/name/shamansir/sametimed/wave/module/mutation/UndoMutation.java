@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.module.mutation;
 
+import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.module.mutation.proto.AbstractModuleDocumentMutation;
 import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
@@ -17,12 +18,12 @@ public class UndoMutation extends AbstractModuleDocumentMutation {
 
 	@Override
 	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
-		Integer lastLine = module.getLastUserTagPos(userID.getAddress()); 
+		TagID lastLineID = module.getLastUserTagID(userID.getAddress()); 
 
 		// Delete the line
-		if (lastLine >= 0) {
+		if (lastLineID != null) {
 			return createDocumentOperation(module.getDocumentID(), 
-					module.deleteTagByPos(lastLine));
+					module.deleteTagByID(lastLineID));
 		} else {
 			return null;
 		}		

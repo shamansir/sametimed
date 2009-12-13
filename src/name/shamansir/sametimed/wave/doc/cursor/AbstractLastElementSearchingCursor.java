@@ -1,28 +1,23 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
-public abstract class AbstractLastElementSearchingCursor implements ICursorWithResult<Integer> {
+public abstract class AbstractLastElementSearchingCursor implements ICursorWithResult<TagID> {
 
-	private final AtomicInteger totalElements;
-	private final AtomicInteger lastElement;	
+	private String lastElementID;	
 	
-	public AbstractLastElementSearchingCursor() {
-		this.totalElements = new AtomicInteger(0); 
-		this.lastElement = new AtomicInteger(-1); 
+	public AbstractLastElementSearchingCursor() { 
+		this.lastElementID = null; 
 	}
 	
 	@Override
-	public void elementStart(String type, Attributes attrs) {
-		if (isElementApproved(type)) {
-			totalElements.incrementAndGet();
-
-			if (areAttrsApproved(attrs)) {
-				lastElement.set(totalElements.get() - 1);
-			}
+	public void elementStart(String type, Attributes attrs) {		
+		if (isElementApproved(type) && areAttrsApproved(attrs)) {
+			lastElementID = attrs.get(AbstractDocumentTag.ID_ATTR_NAME);
 		}
 	}
 
@@ -36,11 +31,12 @@ public abstract class AbstractLastElementSearchingCursor implements ICursorWithR
 	public void elementEnd() { }
 	
 	@Override
-	public Integer getResult() {
-		return Integer.valueOf(lastElement.get());
+	public TagID getResult() {
+		return TagID.valueOf(lastElementID);
 	}
 	
+	// FIXME: this checking is not so required, if we use ID-s, remove
 	protected abstract boolean isElementApproved(String elementName);
-	protected abstract boolean areAttrsApproved(Attributes attrs);
+	protected abstract boolean areAttrsApproved(Attributes attrs); 
 	
 }

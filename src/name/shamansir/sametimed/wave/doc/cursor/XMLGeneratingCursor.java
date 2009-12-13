@@ -46,7 +46,7 @@ public class XMLGeneratingCursor implements ICursorWithResult<List<String>> {
 		} else {
 			curXMLLine.append("<" + type + " ");
             for (String key : attrs.keySet()) {
-            	curXMLLine.append(key + "=\"" + attrs.get(key) + "\"");
+            	curXMLLine.append(key + "=\"" + attrs.get(key) + "\" ");
             }
             curXMLLine.append(">");
 		}

@@ -3,6 +3,8 @@ package name.shamansir.sametimed.wave.module;
 import java.text.ParseException;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
+import name.shamansir.sametimed.wave.doc.TagID;
+import name.shamansir.sametimed.wave.doc.cursor.ElementDeletionCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.module.mutation.proto.IModuleMutation;
 import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
@@ -73,4 +75,9 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 		return parent;
 	}
 
+	@Override
+	public BufferedDocOp deleteTagByID(TagID tagID) {
+		return applyCursor(new ElementDeletionCursor(tagID));
+	}	
+	
 }

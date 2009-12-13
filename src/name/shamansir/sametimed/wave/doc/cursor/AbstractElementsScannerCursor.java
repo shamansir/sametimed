@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
@@ -28,7 +29,7 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 		
 	}
 	
-	protected abstract TagType createTag(int id, String tagName, Attributes attrs) throws IllegalArgumentException;	
+	protected abstract TagType createTag(TagID id, String tagName, Attributes attrs) throws IllegalArgumentException;	
 	protected abstract void applyTag(TagType tag);
 	
 	@Override
@@ -39,7 +40,7 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 		
 		try {
 			currentTag = createTag(
-					Integer.valueOf(attrs.get(AbstractDocumentTag.ID_ATTR_NAME)), 
+					TagID.valueOf(attrs.get(AbstractDocumentTag.ID_ATTR_NAME)), 
 								  type, attrs);
 			if (currentTag == null) this.skipElement.set(true);
 		} catch (IllegalArgumentException iae) {

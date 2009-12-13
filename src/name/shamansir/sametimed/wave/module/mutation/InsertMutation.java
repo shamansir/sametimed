@@ -9,6 +9,9 @@ import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.Doc
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
+// TODO: some modules may not want to accept/implement insert mutations,
+//       create a mechanism to ask module if it accepts it
+
 public class InsertMutation extends AbstractModuleDocumentMutation {
 	
 	private final ParticipantId author;
@@ -24,13 +27,11 @@ public class InsertMutation extends AbstractModuleDocumentMutation {
 
 	@Override
 	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
-		// FIXME: insert, not append
-		// Integer insertBefore = module.getTagBeforePos(pos);
-		Integer lastID = module.getLastTagPos();
-			// module.applyCursor(sourceDoc, new DocumentLastChunkIDCursor());
+		// FIXME: insert, not append. if inserting in tree - use tagID.makeForFirstChild
+		// TagID tagID = module.getTagBeforePos(pos);
 		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), module.getSource());
-		// pay attention to number of tag!
-		docOp = (module.makeTag(lastID + 1, author, text)).buildOperation(docOp);		
+		// pay attention to number of tag!, be sure to split tags before inserting
+		docOp = (module.makeTag(module.nextTagID(/*tagID*/), author, text)).buildOperation(docOp);		
 		return createDocumentOperation(module.getDocumentID(), docOp.finish());		
 	}
 

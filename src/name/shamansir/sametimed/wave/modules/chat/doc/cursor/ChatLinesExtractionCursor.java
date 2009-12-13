@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
+import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.AbstractElementsScannerCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
@@ -31,7 +32,8 @@ public class ChatLinesExtractionCursor extends AbstractElementsScannerCursor<Cha
 	}
 
 	@Override
-	protected ChatTag createTag(int id, String tagName, Attributes attrs) throws IllegalArgumentException {
+	protected ChatTag createTag(TagID id, String tagName, Attributes attrs)
+			throws IllegalArgumentException {
 		// FIXME: must use static method or factory
 		ChatTag newTag = new ChatTag(id);
 		newTag.initFromElement(tagName, attrs);

@@ -4,16 +4,15 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 import name.shamansir.sametimed.wave.module.AbstractTreeModule;
-import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentChunkDeletionCursor;
 import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentChunksExtractionCursor;
 import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentLastUserChunkCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
@@ -67,24 +66,24 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	}
 
 	@Override
-	public AbstractDocumentTag makeTag(Integer id, ParticipantId author,
+	public AbstractDocumentTag makeTag(TagID id, ParticipantId author,
 			String text) {
 		return new EditorTag(id, author, text, false);
 	}
-
+	
+	// FIXME: pass all of these operation in AbstractMutableModule,
+	//        seems they just need names of tags - take something Like 
+	//		  getInnerTag() (AbstractDocumentTag).getName() or getTagName() method
+	// 		  all documents tags must have names, authors and id-s, so it is ok
+	
 	@Override
-	public BufferedDocOp deleteTagByPos(Integer position) {
-		return applyCursor(new DocumentChunkDeletionCursor(position));
-	}
-
-	@Override
-	public int getLastTagPos() {
-		return applyCursor(new DocumentLastTagIDCursor(EditorTag.TAG_NAME));
-	}
-
-	@Override
-	public Integer getLastUserTagPos(String userName) {
+	public TagID getLastUserTagID(String userName) {
 		return applyCursor(new DocumentLastUserChunkCursor(userName));
 	}
+
+	@Override
+	public TagID nextTagID() {
+		return applyCursor(new DocumentLastTagIDCursor(EditorTag.TAG_NAME)).makeNext();
+	}	
 
 }

@@ -1,6 +1,7 @@
 package name.shamansir.sametimed.wave.module.mutation.proto;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
@@ -26,12 +27,12 @@ public interface IMutableModule {
 
 	// tags-based mutations
 	
-	public AbstractDocumentTag makeTag(Integer id, ParticipantId author, String text);	
+	public AbstractDocumentTag makeTag(TagID id, ParticipantId author, String text);
 	
-	public Integer getLastUserTagPos(String userName);
+	public BufferedDocOp deleteTagByID(TagID tagID);	
+	
+	public TagID getLastUserTagID(String userName);
 
-	public BufferedDocOp deleteTagByPos(Integer position);
-
-	public int getLastTagPos();
+	public TagID nextTagID();
 
 }

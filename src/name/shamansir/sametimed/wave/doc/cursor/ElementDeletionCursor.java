@@ -1,7 +1,9 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
@@ -11,44 +13,28 @@ import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.Doc
 public class ElementDeletionCursor implements ICursorWithResult<BufferedDocOp> {
 
 	private final DocOpBuilder elmDeletion = new DocOpBuilder();
-	private final AtomicInteger currentElmPos = new AtomicInteger(-1);
-
-	private final AtomicInteger elmDeletionPos;
-	private final AtomicBoolean filterElements;
-	private final String filterName;
-
-	public ElementDeletionCursor(int elmDeletionPos) {
-		this.elmDeletionPos = new AtomicInteger(elmDeletionPos);
-		this.filterElements = new AtomicBoolean(false);
-		this.filterName = "";
-	}
+	private final String elmToDeleteID;
 	
-	public ElementDeletionCursor(int elmDeletionPos, String elmNameFilter) {
-		this.elmDeletionPos = new AtomicInteger(elmDeletionPos);
-		this.filterElements = new AtomicBoolean(true);
-		this.filterName = elmNameFilter;
-	}	
+	private AtomicBoolean insideElmToDelete = new AtomicBoolean(false);
+
+	public ElementDeletionCursor(TagID tagID) {
+		this.elmToDeleteID = tagID.getValue();
+	}
 	
 	@Override
 	public void elementStart(String key, Attributes attrs) {
-		if (filterElements.get()) {
-			if (key.equals(filterName)) {
-				currentElmPos.incrementAndGet();
-			}
+		if (attrs.get(AbstractDocumentTag.ID_ATTR_NAME).equals(elmToDeleteID)) {
+			insideElmToDelete.set(true);
+			elmDeletion.deleteElementStart(key, attrs);			
 		} else {
-			currentElmPos.incrementAndGet();
-		}
-
-		if (currentElmPos.get() == elmDeletionPos.get()) {
-			elmDeletion.deleteElementStart(key, attrs);
-		} else {
+			insideElmToDelete.set(false);
 			elmDeletion.retain(1);
 		}
 	}	
 
 	@Override
 	public void characters(String s) {
-		if (currentElmPos.get() == elmDeletionPos.get()) {
+		if (insideElmToDelete.get()) {
 			elmDeletion.deleteCharacters(s);
 		} else {
 			elmDeletion.retain(s.length());
@@ -57,7 +43,7 @@ public class ElementDeletionCursor implements ICursorWithResult<BufferedDocOp> {
 
 	@Override
 	public void elementEnd() {
-		if (currentElmPos.get() == elmDeletionPos.get()) {
+		if (insideElmToDelete.get()) {
 			elmDeletion.deleteElementEnd();
 		} else {
 			elmDeletion.retain(1);

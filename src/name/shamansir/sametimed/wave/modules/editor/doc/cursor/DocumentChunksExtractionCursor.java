@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.AbstractElementsScannerCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
@@ -23,7 +24,7 @@ public class DocumentChunksExtractionCursor extends AbstractElementsScannerCurso
 	}
 		
 	protected void applyTag(EditorTag tag) {
-		textChunks.add(new TextChunk(tag.getID(), 
+		textChunks.add(new TextChunk(tag.getID().getValue(), 
 									 tag.getContent(), 
 									 (tag.getStyle() != null) ? tag.getStyle().toString() : "", 
 									 (tag.getAuthor() != null) ? tag.getAuthor().toString() : "", 
@@ -35,7 +36,8 @@ public class DocumentChunksExtractionCursor extends AbstractElementsScannerCurso
 	}
 
 	@Override
-	protected EditorTag createTag(int id, String tagName, Attributes attrs) throws IllegalArgumentException {
+	protected EditorTag createTag(TagID id, String tagName, Attributes attrs)
+			throws IllegalArgumentException {
 		// FIXME: must use static method or factory
 		EditorTag newTag = new EditorTag(id);
 		newTag.initFromElement(tagName, attrs);

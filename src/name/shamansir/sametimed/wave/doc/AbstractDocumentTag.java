@@ -17,13 +17,13 @@ public abstract class AbstractDocumentTag {
 	
 	public final static String ID_ATTR_NAME = "id";	
 	
-	private /*final*/ int id; // FIXME: use hashes of timestamps instead?
+	private /*final*/ TagID id;
 	private final String name;
 	// TODO: private Attributes attributes;
 	private Map<String, String> attributes;
 	private String content;
 	
-	protected AbstractDocumentTag(int id, String name) {
+	protected AbstractDocumentTag(TagID id, String name) {
 		this.id = id;
 		this.name = name;
 		this.attributes = new HashMap<String, String>();
@@ -31,14 +31,14 @@ public abstract class AbstractDocumentTag {
 		// this.attributes = AttributesImpl.EMPTY_MAP;
 	}
 	
-	protected AbstractDocumentTag(int id, String name, Attributes attrs) {
+	protected AbstractDocumentTag(TagID id, String name, Attributes attrs) {
 		this.id = id;
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
 		this.content = DEFAULT_CONTENT;
 	}
 	
-	protected AbstractDocumentTag(int id, String name, Attributes attrs, String content) {
+	protected AbstractDocumentTag(TagID id, String name, Attributes attrs, String content) {
 		this.id = id;
 		this.name = name;
 		this.attributes = loadAttributes(attrs);
@@ -53,21 +53,21 @@ public abstract class AbstractDocumentTag {
 		return name;
 	}
 	
-	public int getID() {
+	public TagID getID() {
 		return this.id;
 	}
 	
-	public void setID(int id) {
+	public void setID(TagID id) {
 		this.id = id; 
 		setAttribute(ID_ATTR_NAME, idAttr(id));
 	}
 	
-	private static String idAttr(int id) {
-		return String.valueOf(id);
+	private static String idAttr(TagID id) {
+		return id.getValue();
 	}
 	
-	private static int parseIDAttr(String idString) {
-		return Integer.valueOf(idString);
+	private static TagID parseIDAttr(String idString) {
+		return TagID.valueOf(idString);
 	}	
 
 	

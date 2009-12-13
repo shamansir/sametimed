@@ -1,6 +1,7 @@
 package name.shamansir.sametimed.wave.modules.editor;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.modules.editor.util.TextStyle;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
@@ -22,7 +23,7 @@ public class EditorTag extends AbstractDocumentTag {
 	private boolean isReserved;
 	private TextStyle style = null;
 
-	public EditorTag(int id, ParticipantId author, String content, TextStyle style, boolean isReserved) {
+	public EditorTag(TagID id, ParticipantId author, String content, TextStyle style, boolean isReserved) {
 		super(id, TAG_NAME);
 		setAuthor(author);
 		setReserved(isReserved);
@@ -30,23 +31,23 @@ public class EditorTag extends AbstractDocumentTag {
 		setContent(content);
 	}
 	
-	public EditorTag(int id, String author, String content, String style, boolean isReserved) {
+	public EditorTag(TagID id, String author, String content, String style, boolean isReserved) {
 		this(id, parseAuthorAttr(author), content, TextStyle.fromString(style), isReserved);
 	}	
 	
-	public EditorTag(int id, ParticipantId author, String content, boolean isReserved) {
+	public EditorTag(TagID id, ParticipantId author, String content, boolean isReserved) {
 		this(id, author, content, null, isReserved);
 	}	
 	
-	public EditorTag(int id, String author, String content, boolean isReserved) {
+	public EditorTag(TagID id, String author, String content, boolean isReserved) {
 		this(id, parseAuthorAttr(author), content, null, isReserved);
 	}	
 	
-	public EditorTag(int id, String author, boolean isReserved) {
+	public EditorTag(TagID id, String author, boolean isReserved) {
 		this(id, parseAuthorAttr(author), "", null, isReserved);
 	}		
 
-	public EditorTag(int id) {
+	public EditorTag(TagID id) {
 		this(id, (ParticipantId)null, "", false);
 	}
 	
