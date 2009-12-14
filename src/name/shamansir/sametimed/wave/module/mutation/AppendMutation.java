@@ -11,6 +11,8 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 
 public class AppendMutation extends AbstractModuleDocumentMutation {
 	
+	//private static final Logger LOG = Logger.getLogger(AppendMutation.class.getName());
+	
 	private final ParticipantId author;
 	private final String text;
 	
@@ -22,6 +24,7 @@ public class AppendMutation extends AbstractModuleDocumentMutation {
 	@Override
 	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
 		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), module.getSource());
-		docOp = (module.makeTag(module.nextTagID(), author, text)).buildOperation(docOp);		
+		docOp = (module.makeTag(module.nextTagID(), author, text)).buildOperation(docOp);
+		//LOG.info("created tag for module " + module.getModuleID() + ", document " + module.getDocumentID() + ", id: " + module.nextTagID());
 		return createDocumentOperation(module.getDocumentID(), docOp.finish());		
 	}}

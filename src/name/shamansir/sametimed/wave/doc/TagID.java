@@ -58,11 +58,10 @@ public class TagID { // FIXME: Create a factory?
 	
 	private String TAG_DOMAIN_DELIMITER = ".";
 	
-	/** see {@link #nextPos(char)} method also if you want to change it */ 
+	/** see {@link #nextPos(char)} and {@link #nextValueFor(String)} methods also if you want to change it */ 
 	private static final char[] ALPHABET =
 	      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	      .toCharArray();
-	private static final int ALPHABET_LEN = ALPHABET.length;
 	
 	private final String value;
 	
@@ -83,13 +82,13 @@ public class TagID { // FIXME: Create a factory?
 	}
 	
 	public TagID makeNext() {
-		if (this.value != null) {
-			int lastLevelPos = this.value.lastIndexOf(TAG_DOMAIN_DELIMITER);
-			if (lastLevelPos < 0) { 
-				return new TagID(nextValueFor(this.value));
+		if (value != null) {
+			int lastDot = value.lastIndexOf(TAG_DOMAIN_DELIMITER);
+			if (lastDot < 0) { 
+				return new TagID(nextValueFor(value));
 			} else {
-				String unchangedPart = this.value.substring(0, lastLevelPos);
-				String lastLevelVal = this.value.substring(lastLevelPos + 1);
+				String unchangedPart = value.substring(0, lastDot + 1);
+				String lastLevelVal = value.substring(lastDot + 1);
 				String newLevelVal = nextValueFor(lastLevelVal);
 				return new TagID(unchangedPart + newLevelVal);
 			}
@@ -102,32 +101,43 @@ public class TagID { // FIXME: Create a factory?
 		do {
 			if (pos >= 0) {				
 				char charAt = value.charAt(pos);
-				if ((charAt >= ALPHABET[0]) && (charAt < ALPHABET[ALPHABET_LEN])) {
-					// FIXME: ensure it is a letter (now: c >= 'a' && c < 'Z')
+				if (((charAt >= 'a') && (charAt <= 'z')) ||
+					((charAt >= 'A') && (charAt < 'Z')))
+					{
 					next[pos] = ALPHABET[nextPos(charAt)];
-					return next.toString();
-				} else if (charAt == ALPHABET[ALPHABET_LEN]) {
-					next[pos] = ALPHABET[0];
+					return String.valueOf(next);
+				} else if (charAt == 'Z') {
+					next[pos] = 'a';
 				} /* else throw new IncorrectTagIDValueException() */;
 			} else {
-				return new String(ALPHABET[0] + next.toString());
+				return new String('a' + String.valueOf(next));
 			}
 			pos--;
 		} while (pos >= -1);
 		return null;
 	}
 	
-	private static int nextPos(char charAt) {
+	private static int nextPos(char charAt) { // TODO: use charVal(charAt) + 1, but not for 'Z'
 		int code = (int)charAt;
-		if (code < (int)'z') {
-			return (code - (int)'a') + 1;  
-		} else if (code == 'z') {
+		if ((charAt >= 'a') && (charAt < 'z')) {
+			return (code - (int)'a') + 1;
+		} else if (charAt == 'z') {
 			return 26; 
-		} else if (code < 'Z') {
+		} else if ((charAt >= 'A') && (charAt < 'Z')) {
 			return (code - (int)'A') + 27;
 		}
 		return 0;
 	}
+	
+	private static int charVal(char theChar) {
+		int code = (int)theChar;
+		if ((theChar >= 'a') && (theChar <= 'z')) {
+			return (code - (int)'a');
+		} else if ((theChar >= 'A') && (theChar <= 'Z')) {
+			return (code - (int)'A') + 26;
+		}
+		return 0;
+	}	
 
 	public TagID makeForFirstChild() {
 		return new TagID(this.value + TAG_DOMAIN_DELIMITER + ALPHABET[0]);
@@ -135,6 +145,20 @@ public class TagID { // FIXME: Create a factory?
 	
 	public static TagID makeFirstTagID() {
 		return new TagID(ALPHABET[0]); 
+	}
+	
+	/** always returned for last domain */
+	public int intValue() {
+		if (value == null) return -1;
+		int lastDot = value.lastIndexOf(TAG_DOMAIN_DELIMITER);
+		char[] chars = (lastDot < 0) ? value.toCharArray() : value.substring(lastDot + 1).toCharArray();
+		int len = chars.length;
+		int highVal = 52;
+		int result = 0;
+		for (int i = 0; i < (len - 1); i++) {
+			result += (charVal(chars[i]) + 1) * Math.pow(highVal, len - i - 1); 
+		}
+		return result + charVal(chars[len - 1]); 
 	}
 	
 	/*
@@ -145,6 +169,6 @@ public class TagID { // FIXME: Create a factory?
 		return value;
 	} */
 	
-	// FIXME: implement compareTo and equalsTo
+	// FIXME: implement compareTo and equalsTo, intValue
 		
 }
