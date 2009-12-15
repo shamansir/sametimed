@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
+import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -16,34 +17,38 @@ public abstract class AbstractDocumentTag {
 	private final static String DEFAULT_CONTENT = "-empty-";
 	
 	public final static String ID_ATTR_NAME = "id";	
+	public final static String AUTHOR_ATTR_NAME = "by";
 	
-	private /*final*/ TagID id;
+	private TagID id;	
 	private final String name;
-	// TODO: private Attributes attributes;
-	private Map<String, String> attributes;
+	private ParticipantId author;
+	private Map<String, String> attributes;	
 	private String content;
 	
-	protected AbstractDocumentTag(TagID id, String name) {
-		this.id = id;
-		this.name = name;
-		this.attributes = new HashMap<String, String>();
-		this.content = DEFAULT_CONTENT;
-		// this.attributes = AttributesImpl.EMPTY_MAP;
+	protected AbstractDocumentTag(TagID id, String name, ParticipantId author) {
+		this(id, name, author, new HashMap<String, String>(), DEFAULT_CONTENT);
 	}
 	
+	protected AbstractDocumentTag(TagID id, String name, String author) {
+		this(id, name, parseAuthorAttr(author), 
+					new HashMap<String, String>(), DEFAULT_CONTENT);
+	}	
+	
 	protected AbstractDocumentTag(TagID id, String name, Attributes attrs) {
-		this.id = id;
-		this.name = name;
-		this.attributes = loadAttributes(attrs);
-		this.content = DEFAULT_CONTENT;
+		this(id, name, null, loadAttributes(attrs), DEFAULT_CONTENT);
 	}
 	
 	protected AbstractDocumentTag(TagID id, String name, Attributes attrs, String content) {
-		this.id = id;
+		this(id, name, null, loadAttributes(attrs), content);
+	}
+	
+	private AbstractDocumentTag(TagID id, String name, ParticipantId author, Map<String, String> attrs, String content) {
 		this.name = name;
-		this.attributes = loadAttributes(attrs);
-		this.content = content;
-	}	
+		this.attributes = attrs;
+		this.setID(id);
+		this.setAuthor(author);
+		this.setContent(content);
+	}		
 	
 	public void setContent(String content) {
 		this.content = content;
@@ -60,7 +65,7 @@ public abstract class AbstractDocumentTag {
 	public void setID(TagID id) {
 		this.id = id; 
 		setAttribute(ID_ATTR_NAME, idAttr(id));
-	}
+	}	
 	
 	private static String idAttr(TagID id) {
 		return id.getValue();
@@ -68,8 +73,29 @@ public abstract class AbstractDocumentTag {
 	
 	private static TagID parseIDAttr(String idString) {
 		return TagID.valueOf(idString);
+	}
+	
+	public void setAuthor(ParticipantId author) {
+		this.author = author;
+		setAttribute(AUTHOR_ATTR_NAME, (author != null) ? author.toString() : "-");
+	}
+	
+	public void setAuthor(String authorName) {
+		this.author = new ParticipantId(authorName);
+		setAttribute(AUTHOR_ATTR_NAME, authorAttr(author));
 	}	
 
+	public ParticipantId getAuthor() {
+		return author;
+	}
+	
+	protected static String authorAttr(ParticipantId author) {
+		return (author != null) ? author.getAddress() : "?";
+	}
+	
+	protected static ParticipantId parseAuthorAttr(String author) {
+		return (!author.equals("?")) ? new ParticipantId(author) : null;
+	}	
 	
 	public Map<String, String> getAttributes() {
 		return attributes;
@@ -110,6 +136,7 @@ public abstract class AbstractDocumentTag {
 	}
 	
 	private static Map<String, String> loadAttributes(Attributes attrs) {
+		if (attrs == null) return null;
 		Map<String, String> attrsMap = new HashMap<String, String>();
 		// FIXME: possibly, there really is an easier way
 		for (Entry<String, String> attrEntry: attrs.entrySet()) {
@@ -135,9 +162,16 @@ public abstract class AbstractDocumentTag {
 		return tagName.equals(name);
 	}	
 	
-	protected abstract boolean checkAttributes(Attributes attrs);
+	protected boolean checkAttributes(Attributes attrs) {
+		return attrs.containsKey(AUTHOR_ATTR_NAME);
+	}
 	
-	protected abstract void initAttributes(Attributes attrs);
-	protected abstract ImmutableMap<String, String> compileAttributes();
+	protected ImmutableMap<String, String> compileAttributes() {
+		return ImmutableMap.of(AUTHOR_ATTR_NAME, author.getAddress());
+	}
+
+	protected void initAttributes(Attributes attrs) {
+		setAuthor(parseAuthorAttr(attrs.get(AUTHOR_ATTR_NAME)));
+	}
 	
 }

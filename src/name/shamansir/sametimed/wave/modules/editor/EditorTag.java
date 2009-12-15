@@ -15,17 +15,14 @@ import com.google.common.collect.ImmutableMap;
 public class EditorTag extends AbstractDocumentTag {
 	
 	public final static String TAG_NAME = "chunk";
-	public final static String AUTHOR_ATTR_NAME = "author"; // FIXME: just one author for a chunk
 	public final static String RESERVED_ATTR_NAME = "reserved";
 	public final static String STYLE_ATTR_NAME = "style";
 	
-	private ParticipantId author;
 	private boolean isReserved;
 	private TextStyle style = null;
 
 	public EditorTag(TagID id, ParticipantId author, String content, TextStyle style, boolean isReserved) {
-		super(id, TAG_NAME);
-		setAuthor(author);
+		super(id, TAG_NAME, author);
 		setReserved(isReserved);
 		setStyle(style);
 		setContent(content);
@@ -51,15 +48,6 @@ public class EditorTag extends AbstractDocumentTag {
 		this(id, (ParticipantId)null, "", false);
 	}
 	
-	public ParticipantId getAuthor() {
-		return author;
-	}
-
-	public void setAuthor(ParticipantId author) {
-		this.author = author;
-		setAttribute(AUTHOR_ATTR_NAME, authorAttr(author));
-	}
-
 	public boolean isReserved() {
 		return isReserved;
 	}
@@ -92,36 +80,29 @@ public class EditorTag extends AbstractDocumentTag {
 	private static TextStyle parseStyleAttr(String styleString) {
 		return TextStyle.fromString(styleString);
 	}
-	
-	private static String authorAttr(ParticipantId author) {
-		return (author != null) ? author.getAddress() : "?";
-	}
-	
-	private static ParticipantId parseAuthorAttr(String author) {
-		return (!author.equals("?")) ? new ParticipantId(author) : null;
-	}
 		
 	
 	@Override
 	protected boolean checkAttributes(Attributes attrs) {
-		return attrs.containsKey(AUTHOR_ATTR_NAME) &&
+		return super.checkAttributes(attrs) &&
 			   attrs.containsKey(RESERVED_ATTR_NAME) &&
 			   attrs.containsKey(STYLE_ATTR_NAME);
 	}
 
 	@Override
 	protected void initAttributes(Attributes attrs) {
-		setAuthor(parseAuthorAttr(attrs.get(AUTHOR_ATTR_NAME)));
+		super.initAttributes(attrs);
 		setReserved(parseReservedAttr(attrs.get(RESERVED_ATTR_NAME)));
 		setStyle(parseStyleAttr(attrs.get(STYLE_ATTR_NAME)));
 	}
 
 	@Override
 	protected ImmutableMap<String, String> compileAttributes() {
-		return ImmutableMap.of(
-				AUTHOR_ATTR_NAME, authorAttr(author),
-                RESERVED_ATTR_NAME, reservedAttr(isReserved),
-                STYLE_ATTR_NAME, styleAttr(style));
+		return new ImmutableMap.Builder<String, String>()
+				.putAll(super.compileAttributes())
+				.put(RESERVED_ATTR_NAME, reservedAttr(isReserved))
+				.put(STYLE_ATTR_NAME, styleAttr(style))
+				.build();
 	}
 	
 }

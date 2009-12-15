@@ -9,12 +9,10 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
-import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.TextChunk;
 import name.shamansir.sametimed.wave.module.AbstractTreeModule;
 import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentChunksExtractionCursor;
-import name.shamansir.sametimed.wave.modules.editor.doc.cursor.DocumentLastUserChunkCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
 // TODO: This must be a tree-based document, so it will contain not only tags
@@ -70,20 +68,5 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 			String text) {
 		return new EditorTag(id, author, text, false);
 	}
-	
-	// FIXME: pass all of these operation in AbstractMutableModule,
-	//        seems they just need names of tags - take something Like 
-	//		  getInnerTag() (AbstractDocumentTag).getName() or getTagName() method
-	// 		  all documents tags must have names, authors and id-s, so it is ok
-	
-	@Override
-	public TagID getLastUserTagID(String userName) {
-		return applyCursor(new DocumentLastUserChunkCursor(userName));
-	}
-
-	@Override
-	public TagID nextTagID() {
-		return applyCursor(new DocumentLastTagIDCursor(EditorTag.TAG_NAME)).makeNext();
-	}	
 
 }

@@ -11,11 +11,7 @@ public class DocumentLastTagIDCursor implements
 
 	private String lastID;
 	
-	private final String tagName;
-	
-	public DocumentLastTagIDCursor(String tagName) {
-		this.tagName = tagName; 
-	}
+	public DocumentLastTagIDCursor() { }
 	
 	@Override
 	public void characters(String chars) { }
@@ -25,10 +21,8 @@ public class DocumentLastTagIDCursor implements
 
 	@Override
 	public void elementStart(String type, Attributes attrs) {
-		if (type.equals(tagName)) {
-			if (attrs.get(AbstractDocumentTag.ID_ATTR_NAME) != null) {
-				lastID = attrs.get(AbstractDocumentTag.ID_ATTR_NAME);
-			}
+		if (attrs.get(AbstractDocumentTag.ID_ATTR_NAME) != null) {
+			lastID = attrs.get(AbstractDocumentTag.ID_ATTR_NAME);
 		}
 	}
 	

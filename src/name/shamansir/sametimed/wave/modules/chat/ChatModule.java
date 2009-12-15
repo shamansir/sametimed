@@ -7,11 +7,9 @@ import java.util.List;
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
-import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.XMLGeneratingCursor;
 import name.shamansir.sametimed.wave.model.base.atom.ChatLine;
 import name.shamansir.sametimed.wave.module.AbstractVerticalModule;
-import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLastUserLineCursor;
 import name.shamansir.sametimed.wave.modules.chat.doc.cursor.ChatLinesExtractionCursor;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
@@ -74,20 +72,6 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	@Override
 	public AbstractDocumentTag makeTag(TagID id, ParticipantId author, String text) {
 		return new ChatTag(id, author, text);
-	}
-
-	// FIXME: pass all of these operation in AbstractMutableModule,
-	//        seems they just need names of tags - take something Like 
-	//		  getInnerTag() (AbstractDocumentTag).getName() or getTagName() method
-
-	@Override
-	public TagID getLastUserTagID(String userName) {
-		return applyCursor(new ChatLastUserLineCursor(userName));
-	}
-
-	@Override
-	public TagID nextTagID() {
-		return applyCursor(new DocumentLastTagIDCursor(ChatTag.TAG_NAME)).makeNext();
 	}
 
 }

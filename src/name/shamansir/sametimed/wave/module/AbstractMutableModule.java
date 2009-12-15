@@ -4,6 +4,8 @@ import java.text.ParseException;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.doc.TagID;
+import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
+import name.shamansir.sametimed.wave.doc.cursor.DocumentLastUserElementCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ElementDeletionCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.module.mutation.proto.IModuleMutation;
@@ -78,6 +80,17 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	@Override
 	public BufferedDocOp deleteTagByID(TagID tagID) {
 		return applyCursor(new ElementDeletionCursor(tagID));
+	}
+	
+	@Override
+	public TagID getLastUserTagID(String userName) {
+		return applyCursor(new DocumentLastUserElementCursor(userName));
+	}
+	
+	@Override
+	public TagID nextTagID() {
+		return applyCursor(new DocumentLastTagIDCursor()).makeNext();
 	}	
+	
 	
 }

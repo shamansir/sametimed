@@ -16,7 +16,7 @@ public abstract class AbstractLastElementSearchingCursor implements ICursorWithR
 	
 	@Override
 	public void elementStart(String type, Attributes attrs) {		
-		if (isElementApproved(type) && areAttrsApproved(attrs)) {
+		if (isElementApproved(type) && areAttrsApproved(attrs)) { 
 			lastElementID = attrs.get(AbstractDocumentTag.ID_ATTR_NAME);
 		}
 	}
@@ -34,9 +34,8 @@ public abstract class AbstractLastElementSearchingCursor implements ICursorWithR
 	public TagID getResult() {
 		return TagID.valueOf(lastElementID);
 	}
-	
-	// FIXME: this checking is not so required, if we use ID-s, remove
+
+	protected abstract boolean areAttrsApproved(Attributes attrs);
 	protected abstract boolean isElementApproved(String elementName);
-	protected abstract boolean areAttrsApproved(Attributes attrs); 
-	
+		
 }

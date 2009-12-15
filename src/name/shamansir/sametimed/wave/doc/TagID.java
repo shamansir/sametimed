@@ -46,7 +46,7 @@ package name.shamansir.sametimed.wave.doc;
  *
  */
 
-public class TagID { // FIXME: Create a factory?
+public final class TagID {
 	
 	/* public class TagIDValidationException extends Exception {
 		
