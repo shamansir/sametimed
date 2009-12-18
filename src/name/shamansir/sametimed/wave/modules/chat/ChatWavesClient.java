@@ -1,6 +1,8 @@
 package name.shamansir.sametimed.wave.modules.chat;
 
+import org.waveprotocol.wave.examples.fedone.common.HashedVersion;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
+import org.waveprotocol.wave.model.wave.data.WaveletData;
 
 import name.shamansir.sametimed.wave.module.AbstractModulatedWavesClient;
 import name.shamansir.sametimed.wave.module.mutation.AppendMutation;
@@ -34,6 +36,12 @@ public class ChatWavesClient extends AbstractModulatedWavesClient<WaveletWithCha
 		} else {
 			return super.doCommand(command);
 		}
+	}
+
+	@Override
+	public void onCommitNotice(WaveletData arg0, HashedVersion arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

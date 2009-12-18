@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
+import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
@@ -28,7 +28,7 @@ public class ElementCuttingCursor implements
 
 	@Override
 	public AbstractDocumentTag getResult() {
-		elmDeletion.finish(); // FIXME: where to pass?
+		// elmDeletion.finish(); // FIXME: where to pass?
 		return deleted.get() 
 				? AbstractDocumentTag.createEmpty(tagID, tagName, attrs, content) 
 				: null;		

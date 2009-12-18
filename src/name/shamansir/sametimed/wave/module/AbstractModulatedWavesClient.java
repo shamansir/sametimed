@@ -28,6 +28,7 @@ public abstract class AbstractModulatedWavesClient<WaveletType extends AbstractM
 		// FIXME: implement
 	}
 
+	@Override
 	public boolean doCommand(Command command) {
 		AbstractModulatedWavelet curWavelet = getWavelet();
 		ClientBackend backend = getBackend();	

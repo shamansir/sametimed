@@ -8,7 +8,7 @@ import name.shamansir.sametimed.wave.doc.TagID;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
-import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
+import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 public class ElementDeletionCursor implements ICursorWithResult<BufferedDocOp> {
 
@@ -55,7 +55,7 @@ public class ElementDeletionCursor implements ICursorWithResult<BufferedDocOp> {
 	}
 	
 	public BufferedDocOp getResult() {
-		return elmDeletion.finish();
+		return elmDeletion.build();
 	}
 
 }

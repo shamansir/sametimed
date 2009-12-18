@@ -7,7 +7,7 @@ import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.waveprotocol.wave.model.document.operation.impl.BufferedDocOpImpl.DocOpBuilder;
+import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
@@ -61,7 +61,7 @@ public class InsertMutation extends AbstractModuleDocumentMutation {
 		} else {
 			docOp =  insertingTag.build(new DocOpBuilder());
 		}
-		return createDocumentOperation(module.getDocumentID(), docOp.finish());
+		return createDocumentOperation(module.getDocumentID(), docOp.build());
 	}
 
 }
