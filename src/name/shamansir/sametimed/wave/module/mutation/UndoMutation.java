@@ -23,7 +23,7 @@ public class UndoMutation extends AbstractModuleDocumentMutation {
 		// Delete the line
 		if (lastLineID != null) {
 			return createDocumentOperation(module.getDocumentID(), 
-					module.deleteTagByID(lastLineID));
+					module.deleteTag(lastLineID));
 		} else {
 			return null;
 		}		

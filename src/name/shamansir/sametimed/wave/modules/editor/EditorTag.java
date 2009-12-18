@@ -84,14 +84,12 @@ public class EditorTag extends AbstractDocumentTag {
 	
 	@Override
 	protected boolean checkAttributes(Attributes attrs) {
-		return super.checkAttributes(attrs) &&
-			   attrs.containsKey(RESERVED_ATTR_NAME) &&
+		return attrs.containsKey(RESERVED_ATTR_NAME) &&
 			   attrs.containsKey(STYLE_ATTR_NAME);
 	}
 
 	@Override
 	protected void initAttributes(Attributes attrs) {
-		super.initAttributes(attrs);
 		setReserved(parseReservedAttr(attrs.get(RESERVED_ATTR_NAME)));
 		setStyle(parseStyleAttr(attrs.get(STYLE_ATTR_NAME)));
 	}
@@ -99,7 +97,6 @@ public class EditorTag extends AbstractDocumentTag {
 	@Override
 	protected ImmutableMap<String, String> compileAttributes() {
 		return new ImmutableMap.Builder<String, String>()
-				.putAll(super.compileAttributes())
 				.put(RESERVED_ATTR_NAME, reservedAttr(isReserved))
 				.put(STYLE_ATTR_NAME, styleAttr(style))
 				.build();

@@ -15,9 +15,10 @@ import com.google.common.collect.ImmutableMap;
 public abstract class AbstractDocumentTag {
 	
 	private final static String DEFAULT_CONTENT = "-empty-";
+	public final static String UNKNOWN_AUTHOR = "?";
 	
 	public final static String ID_ATTR_NAME = "id";	
-	public final static String AUTHOR_ATTR_NAME = "by";
+	public final static String AUTHOR_ATTR_NAME = "by";	
 	
 	private TagID id;	
 	private final String name;
@@ -90,11 +91,11 @@ public abstract class AbstractDocumentTag {
 	}
 	
 	protected static String authorAttr(ParticipantId author) {
-		return (author != null) ? author.getAddress() : "?";
+		return (author != null) ? author.getAddress() : UNKNOWN_AUTHOR;
 	}
 	
 	protected static ParticipantId parseAuthorAttr(String author) {
-		return (!author.equals("?")) ? new ParticipantId(author) : null;
+		return (!author.equals(UNKNOWN_AUTHOR)) ? new ParticipantId(author) : null;
 	}	
 	
 	public Map<String, String> getAttributes() {
@@ -120,12 +121,13 @@ public abstract class AbstractDocumentTag {
 	public void initFromElement(String name, Attributes attrs, String content) throws IllegalArgumentException {
 		if (checkTagName(name)) {
 			
-			if (!(attrs.containsKey(ID_ATTR_NAME) && checkAttributes(attrs))) {
+			if (!(attrs.containsKey(ID_ATTR_NAME) && attrs.containsKey(AUTHOR_ATTR_NAME) && checkAttributes(attrs))) {
 				throw new IllegalArgumentException(
 						"There are not correct arguments in the tag " + name + " " + attrs);
 			}
 			
-			setID(parseIDAttr(attrs.get(ID_ATTR_NAME)));			
+			setID(parseIDAttr(attrs.get(ID_ATTR_NAME)));
+			setAuthor(parseAuthorAttr(attrs.get(AUTHOR_ATTR_NAME)));
 			initAttributes(attrs);
 			
 			setContent((content != null) ? content : "");
@@ -145,10 +147,11 @@ public abstract class AbstractDocumentTag {
 		return attrsMap; 
 	}
 	
-	public DocOpBuilder buildOperation(DocOpBuilder docOp) {
+	public DocOpBuilder build(DocOpBuilder docOp) {
 		AttributesImpl attrs = new AttributesImpl(
 					new ImmutableMap.Builder<String, String>()
 						.put(ID_ATTR_NAME, idAttr(id))
+						.put(AUTHOR_ATTR_NAME, authorAttr(author))
 						.putAll(compileAttributes())
 						.build()
 				);
@@ -162,16 +165,16 @@ public abstract class AbstractDocumentTag {
 		return tagName.equals(name);
 	}	
 	
-	protected boolean checkAttributes(Attributes attrs) {
-		return attrs.containsKey(AUTHOR_ATTR_NAME);
-	}
+	protected abstract boolean checkAttributes(Attributes attrs);
 	
-	protected ImmutableMap<String, String> compileAttributes() {
-		return ImmutableMap.of(AUTHOR_ATTR_NAME, author.getAddress());
-	}
+	protected abstract ImmutableMap<String, String> compileAttributes();
 
-	protected void initAttributes(Attributes attrs) {
-		setAuthor(parseAuthorAttr(attrs.get(AUTHOR_ATTR_NAME)));
-	}
+	protected abstract void initAttributes(Attributes attrs);
 	
+	public static AbstractDocumentTag createEmpty(String tagID, String name, Attributes attrs, String content) {
+		EmptyTag emptyTag = new EmptyTag(parseIDAttr(tagID));
+		emptyTag.initFromElement(name, attrs, content);
+		return emptyTag;
+	}	
+		
 }

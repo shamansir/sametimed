@@ -3,9 +3,13 @@ package name.shamansir.sametimed.wave.module;
 import java.text.ParseException;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentLastUserElementCursor;
+import name.shamansir.sametimed.wave.doc.cursor.DocumentElementByPositionCursor;
+import name.shamansir.sametimed.wave.doc.cursor.DocumentElementStartCursor;
+import name.shamansir.sametimed.wave.doc.cursor.ElementCuttingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ElementDeletionCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.module.mutation.proto.IModuleMutation;
@@ -78,7 +82,7 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	}
 
 	@Override
-	public BufferedDocOp deleteTagByID(TagID tagID) {
+	public BufferedDocOp deleteTag(TagID tagID) {
 		return applyCursor(new ElementDeletionCursor(tagID));
 	}
 	
@@ -90,7 +94,21 @@ public abstract class AbstractMutableModule<InnerType> implements IMutableModule
 	@Override
 	public TagID nextTagID() {
 		return applyCursor(new DocumentLastTagIDCursor()).makeNext();
-	}	
+	}
 	
+	@Override
+	public TagID getTagAtPosition(Integer pos) {
+		return applyCursor(new DocumentElementByPositionCursor(pos));
+	}
+
+	@Override
+	public Integer findTagStartPosition(TagID tagToFind) {
+		return applyCursor(new DocumentElementStartCursor(tagToFind));
+	}
+	
+	@Override
+	public AbstractDocumentTag deleteTagAndGet(TagID tagID) {
+		return applyCursor(new ElementCuttingCursor(tagID));
+	}
 	
 }

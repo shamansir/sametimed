@@ -29,10 +29,17 @@ public interface IMutableModule {
 	
 	public AbstractDocumentTag makeTag(TagID id, ParticipantId author, String text);
 	
-	public BufferedDocOp deleteTagByID(TagID tagID);	
+	// FIXME: docOp must not be used here, may be make getLastDocOp method?
+	public BufferedDocOp deleteTag(TagID id);	
+	
+	public AbstractDocumentTag deleteTagAndGet(TagID id);
 	
 	public TagID getLastUserTagID(String userName);
 
 	public TagID nextTagID();
+
+	public TagID getTagAtPosition(Integer pos);
+
+	public Integer findTagStartPosition(TagID tagToFind);
 
 }
