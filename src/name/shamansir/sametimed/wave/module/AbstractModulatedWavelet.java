@@ -13,8 +13,8 @@ import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.module.mutation.ChangeViewModeMutation;
-import name.shamansir.sametimed.wave.module.mutation.proto.IModuleMutation;
-import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
+import name.shamansir.sametimed.wave.module.mutation.proto.IModuleDocumentMutation;
+import name.shamansir.sametimed.wave.module.mutation.proto.IModuleWithDocument;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 import name.shamansir.sametimed.wave.render.RenderMode;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
@@ -37,7 +37,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	
 	private static final Logger LOG = Logger.getLogger(AbstractModulatedWavelet.class.getName());
 	
-	private Map<String, IMutableModule> registeredModules = new HashMap<String, IMutableModule>();	
+	private Map<String, IModuleWithDocument<?>> registeredModules = new HashMap<String, IModuleWithDocument<?>>();	
 	
 	public AbstractModulatedWavelet(int clientID, IWavesClientRenderer renderer) {
 		super(clientID, renderer);
@@ -59,14 +59,14 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	protected void clear() {
 		super.clear();
 		resetModules();
-		registeredModules = new HashMap<String, IMutableModule>();
+		registeredModules = new HashMap<String, IModuleWithDocument<?>>();
 	}
 	
 	@Override
 	protected void clearWavePart() {
 		super.clearWavePart();
         resetModules();	
-        registeredModules = new HashMap<String, IMutableModule>();
+        registeredModules = new HashMap<String, IModuleWithDocument<?>>();
 	}
 	
 	@Override 
@@ -78,7 +78,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 			LOG.severe("Documents preparation failed: " + e.getMessage());
 			e.printStackTrace();
 		}
-		registeredModules = registerModules(new HashMap<String, IMutableModule>());		
+		registeredModules = registerModules(new HashMap<String, IModuleWithDocument<?>>());		
 	}
 	
 	@Override
@@ -95,7 +95,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 		
 	/* ====== MODULES OPERATIONS ====== */
 	
-	protected abstract Map<String, IMutableModule> registerModules(Map<String, IMutableModule> curModules);
+	protected abstract Map<String, IModuleWithDocument<?>> registerModules(Map<String, IModuleWithDocument<?>> curModules);
 	
 	protected abstract List<ModelID> registerModulesModels(List<ModelID> currentTypes);	
 	
@@ -105,7 +105,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	
 	protected abstract void resetModules();
 	
-	protected IMutableModule getRegisteredModule(String moduleID) {
+	protected IModuleWithDocument<?> getRegisteredModule(String moduleID) {
 		return registeredModules.get(moduleID);
 	}
 	
@@ -113,9 +113,9 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	
 	// FIXME: Test if things work when module ID is different than inner document ID
 	
-	public boolean applyModuleMutation(String moduleID, IModuleMutation mutation) {
+	public boolean applyModuleMutation(String moduleID, IModuleDocumentMutation mutation) {
 		if (isWaveOpen()) {
-			IMutableModule module = getRegisteredModule(moduleID);
+			IModuleWithDocument<?> module = getRegisteredModule(moduleID);
 			if (module != null) {
 				try {
 					performWaveletOperation(module.apply(mutation));
@@ -123,7 +123,10 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
 					return false;
-				}			
+				} catch (name.shamansir.sametimed.wave.doc.DocumentProcessingException osbe) {
+					registerError("Document '" + module.getDocumentID() + "' operations sequence error: " + osbe.getMessage());
+					return false;
+				}				
 			} else {
 				registerError("module with id \'" + moduleID + "\' is not found or have no handler");
 				return false;
@@ -134,13 +137,15 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	    }
 	}
 		
-	public void applyModulesMutation(IModuleMutation mutation) {
+	public void applyModulesMutation(IModuleDocumentMutation mutation) {
 		if (isWaveOpen()) {
-			for (IMutableModule module: registeredModules.values()) {
+			for (IModuleWithDocument<?> module: registeredModules.values()) {
 				try {
 					performWaveletOperation(module.apply(mutation));
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
+				} catch (name.shamansir.sametimed.wave.doc.DocumentProcessingException osbe) {
+					registerError("Document '" + module.getDocumentID() + "' operations sequence error: " + osbe.getMessage());
 				}
 			}		
 		} else {

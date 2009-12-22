@@ -2,24 +2,60 @@ package name.shamansir.sametimed.wave.doc.cursor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
-public class ElementDeletionCursor implements ICursorWithResult<BufferedDocOp> {
+public class DocumentElementDeletionCursor implements IOperatingCursor {
 
 	private final DocOpBuilder elmDeletion = new DocOpBuilder();
 	private final String elmToDeleteID;
 	
 	private AtomicBoolean insideElmToDelete = new AtomicBoolean(false);
-
-	public ElementDeletionCursor(TagID tagID) {
+	
+	public DocumentElementDeletionCursor(TagID tagID) {
 		this.elmToDeleteID = tagID.getValue();
 	}
+
+	@Override
+	public void setWalkStart(int pos) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public DocOpBuilder takeDocOp() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void annotationBoundary(AnnotationBoundaryMap map) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void characters(String chars) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void elementEnd() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void elementStart(String type, Attributes attrs) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/*
 	
 	@Override
 	public void elementStart(String key, Attributes attrs) {
@@ -56,6 +92,6 @@ public class ElementDeletionCursor implements ICursorWithResult<BufferedDocOp> {
 	
 	public BufferedDocOp getResult() {
 		return elmDeletion.build();
-	}
+	} */
 
 }

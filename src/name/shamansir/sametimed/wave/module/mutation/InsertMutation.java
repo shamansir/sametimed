@@ -1,41 +1,34 @@
 package name.shamansir.sametimed.wave.module.mutation;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
-import name.shamansir.sametimed.wave.doc.TagID;
-import name.shamansir.sametimed.wave.module.mutation.proto.AbstractModuleDocumentMutation;
-import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
+import name.shamansir.sametimed.wave.doc.DocumentProcessingException;
+import name.shamansir.sametimed.wave.module.AbstractModuleWithDocument;
+import name.shamansir.sametimed.wave.module.mutation.proto.IModuleDocumentMutation;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 // TODO: some modules may not want to accept/implement insert mutations,
 //       create a mechanism to ask module if it accepts it
 
-public class InsertMutation extends AbstractModuleDocumentMutation {
+public class InsertMutation implements IModuleDocumentMutation {
 	
 	private final ParticipantId author;
 	private final String text;
-	private final Integer pos;
+	private final Integer insPos;
 
 	public InsertMutation(ParticipantId author, String text,
 			Integer pos) {
 		this.author = author;
 		this.text = StringEscapeUtils.unescapeXml(text);
-		this.pos = pos;
+		this.insPos = pos;
 	}
 
+	/*
 	@Override
 	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
-		// FIXME: this three operations are too complex - they can be merged in
-		//        one DocOp, need to find the way to optimize. all these
-		//        mutations are performing cursors several times over document
-		//		  when it can be done in only one sequence of steps
-		//		  may be use chaining or something - let the document control
-		//		  the last DocOp applied
-		// TODO: determine if we can just insert (between tags), not always delete
 		DocOpBuilder docOp = null;
 		Integer tagFoundAt = -1;
 		AbstractDocumentTag removedTag = null;
@@ -62,6 +55,24 @@ public class InsertMutation extends AbstractModuleDocumentMutation {
 			docOp =  insertingTag.build(new DocOpBuilder());
 		}
 		return createDocumentOperation(module.getDocumentID(), docOp.build());
+	} */
+
+	@Override
+	public WaveletDocumentOperation applyTo(AbstractModuleWithDocument<?> module)
+			throws MutationCompilationException, DocumentProcessingException {
+		// TODO Auto-generated method stub
+		module.startOperations();		
+		int foundPos = module.scrollToPos(module.findTagStart(insPos));
+		int cutPos = insPos - foundPos; // FIXME may differ with actual value because of elementStart/elementEnd
+		if (foundPos < insPos) {
+			AbstractDocumentTag removedTag = module.deleteTagAndGet(foundPos);
+			module.addTag(module.makeTag(author, removedTag.getContent().substring(foundPos, cutPos)));
+			module.addTag(module.makeTag(author, text));
+			module.addTag(module.makeTag(author, removedTag.getContent().substring(cutPos)));
+		} else {
+			module.addTag(module.makeTag(author, text));
+		}		
+		return module.finishOperations();
 	}
 
 }

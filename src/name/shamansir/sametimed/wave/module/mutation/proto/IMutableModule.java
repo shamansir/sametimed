@@ -1,38 +1,32 @@
 package name.shamansir.sametimed.wave.module.mutation.proto;
 
-import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
-import name.shamansir.sametimed.wave.doc.TagID;
-import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
-import name.shamansir.sametimed.wave.render.RenderMode;
+import name.shamansir.sametimed.wave.doc.DocumentProcessingException;
 
-import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
-import org.waveprotocol.wave.model.wave.ParticipantId;
 
 public interface IMutableModule {
 	
-	public boolean isStructured();
+	
+	// public boolean isStructured();	
 	
 	public String getModuleID();	
 	
-	public String getDocumentID();
+	// public BufferedDocOp getSource(); // return source document
 	
-	public BufferedDocOp getSource(); // return source document
-	
-	public <ResultType> ResultType applyCursor(ICursorWithResult<ResultType> cursor);
-	
-	WaveletDocumentOperation apply(IModuleMutation mutation) throws MutationCompilationException;	
+	// FIXME: OperationsSequenceBrokenException must be unknown to MutableModule
+	WaveletDocumentOperation apply(IModuleDocumentMutation mutation) throws MutationCompilationException, DocumentProcessingException;	
 
-	public void setOutputMode(RenderMode targetMode);
+	/* public void setOutputMode(RenderMode targetMode);
 
 	// tags-based mutations
 	
+	public void addTag(AbstractDocumentTag tagToAdd);
 	public AbstractDocumentTag makeTag(TagID id, ParticipantId author, String text);
 	
 	// FIXME: docOp must not be used here, may be make getLastDocOp method?
-	public BufferedDocOp deleteTag(TagID id);	
+	public AbstractDocumentTag deleteTag(TagID id);	
 	
-	public AbstractDocumentTag deleteTagAndGet(TagID id);
+	// public AbstractDocumentTag deleteTagAndGet(TagID id);
 	
 	public TagID getLastUserTagID(String userName);
 
@@ -40,6 +34,6 @@ public interface IMutableModule {
 
 	public TagID getTagAtPosition(Integer pos);
 
-	public Integer findTagStartPosition(TagID tagToFind);
+	public Integer findTagStartPosition(TagID tagToFind); */
 
 }

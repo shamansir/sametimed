@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import name.shamansir.sametimed.wave.model.ModelID;
-import name.shamansir.sametimed.wave.module.mutation.proto.IMutableModule;
+import name.shamansir.sametimed.wave.module.mutation.proto.IModuleWithDocument;
 import name.shamansir.sametimed.wave.modules.chat.WaveletWithChat;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
@@ -28,8 +28,8 @@ public class WaveletWithEditor extends WaveletWithChat {
 	}
 	
 	@Override
-	protected Map<String, IMutableModule> registerModules(
-			Map<String, IMutableModule> curModules) {
+	protected Map<String, IModuleWithDocument<?>> registerModules(
+			Map<String, IModuleWithDocument<?>> curModules) {
 		curModules.put(editorView.getModuleID(), editorView);
 		return super.registerModules(curModules);
 	}	

@@ -1,7 +1,5 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
@@ -9,10 +7,56 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 
-public class ElementCuttingCursor implements
-		ICursorWithResult<AbstractDocumentTag> {
+public class DocumentElementCuttingCursor implements
+	IOperatingCursorWithResult<AbstractDocumentTag> {
+
+	public DocumentElementCuttingCursor(TagID tagID) {
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public AbstractDocumentTag getResult() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void annotationBoundary(AnnotationBoundaryMap map) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void characters(String chars) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void elementEnd() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void elementStart(String type, Attributes attrs) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setWalkStart(int pos) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public DocOpBuilder takeDocOp() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
-	private final String tagID;
+	/* private final String tagID;
 	
 	private String tagName;
 	private Attributes attrs;
@@ -22,7 +66,7 @@ public class ElementCuttingCursor implements
 	private AtomicBoolean insideElmToDelete = new AtomicBoolean(false);
 	private final DocOpBuilder elmDeletion = new DocOpBuilder();
 	
-	public ElementCuttingCursor(TagID tagID) {
+	public DocumentElementCuttingCursor(TagID tagID) {
 		this.tagID = tagID.getValue();
 	}
 
@@ -67,5 +111,6 @@ public class ElementCuttingCursor implements
 		} else {
 			elmDeletion.retain(1);
 		}
-	}
+	} */
+
 }

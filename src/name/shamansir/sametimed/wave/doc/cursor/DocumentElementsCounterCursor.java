@@ -6,19 +6,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
-public class ElementsCounterCursor implements ICursorWithResult<Integer> {
+public class DocumentElementsCounterCursor implements ICursorWithResult<Integer> {
 
 	private final AtomicInteger elementsCount = new AtomicInteger(-1);
 
 	private final AtomicBoolean filterElements;
 	private final String filterName;
 
-	public ElementsCounterCursor() {
+	public DocumentElementsCounterCursor() {
 		this.filterElements = new AtomicBoolean(false);
 		this.filterName = "";
 	}
 	
-	public ElementsCounterCursor(String elmNameFilter) {
+	public DocumentElementsCounterCursor(String elmNameFilter) {
 		this.filterElements = new AtomicBoolean(true);
 		this.filterName = elmNameFilter;
 	}	

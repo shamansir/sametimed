@@ -4,6 +4,6 @@ import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
 public interface ICursorWithResult<ResultType> extends DocInitializationCursor {
 
-	public abstract ResultType getResult();
+	public ResultType getResult();
 	
 }

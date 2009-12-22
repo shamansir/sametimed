@@ -32,8 +32,6 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 	private static final String DOCUMENT_ID = "main";
 	private static final String MODULE_ID = "main";
 	
-	private RenderMode outputMode = RenderMode.NORMAL;
-	
 	public ChatModule(AbstractUpdatingWavelet parent) throws ParseException {
 		super(parent, MODULE_ID, DOCUMENT_ID);
 	}
@@ -62,11 +60,6 @@ public class ChatModule extends AbstractVerticalModule<List<ChatLine>> {
 			xmlChatLines.add(ChatLine.justWithContent(xmlLine));
 		}
 		return xmlChatLines;
-	}
-
-	@Override
-	public void setOutputMode(RenderMode outputMode) {
-		this.outputMode  = outputMode;		
 	}
 
 	@Override

@@ -31,8 +31,6 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 		super(parent, MODULE_ID, DOCUMENT_ID);
 	}	
 	
-	private RenderMode outputMode = RenderMode.NORMAL;
-	
 	@Override
 	public List<TextChunk> extract() {
 		if (getSource() != null) {
