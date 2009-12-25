@@ -16,13 +16,11 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorAdapter;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-// TODO: may be 
-
 public abstract class AbstractDocumentOperationsSequencer {
 	
 	private boolean started = false;
 	private DocOpBuilder curDocOp = null;
-	private AtomicInteger curDocPos = new AtomicInteger(0);
+	private DocumentPosition curDocPos = new DocumentPosition();
 	
 	abstract protected BufferedDocOp getSource();
 	abstract public String getDocumentID();
@@ -44,7 +42,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");		
 		BufferedDocOp sourceDoc = getSource(); 
 		if (sourceDoc == null) return cursor;		
-		cursor.setWalkStart(curDocPos.get());
+		cursor.setWalkStart(curDocPos.inChars());
 		sourceDoc.apply(new InitializationCursorAdapter(cursor));
 		curDocOp = cursor.takeDocOp();
 		return cursor;
@@ -53,7 +51,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 	public void startOperations() {
 		curDocOp = new DocOpBuilder();
 		started = true;
-		curDocPos = new AtomicInteger(0);
+		curDocPos.clear();
 	}
 	
 	public WaveletDocumentOperation finishOperations() {
@@ -61,7 +59,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 			new WaveletDocumentOperation(getDocumentID(), curDocOp.build());
 		started = false;
 		curDocOp = null;
-		curDocPos = new AtomicInteger(0);
+		curDocPos.clear();
 		return resultOp;
 		
 	}
@@ -75,26 +73,23 @@ public abstract class AbstractDocumentOperationsSequencer {
 		// FIXME: expand exception to be thrown and exit just after that
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		BufferedDocOp sourceDoc = getSource();
-		int docSize = (sourceDoc == null) ? 0 : findDocumentSize(sourceDoc);		
+		int docSize = (sourceDoc == null) ? 0 : findDocumentSize(sourceDoc); // in entities		
 		if (docSize > 0) {
-			int steps = docSize - curDocPos.get();
-			if (steps < 0) throw new DocumentProcessingException("Document size conflict while operating over document");
-			curDocOp.retain(steps);
-			curDocPos.set(curDocPos.addAndGet(steps));
+			int items = docSize - curDocPos.inItems();
+			if (items < 0) throw new DocumentProcessingException("Document size conflict while operating over document");
+			curDocOp.retain(scrollDocument(sourceDoc, curDocPos, items));			
 		} else if (docSize != 0) throw new DocumentProcessingException("Document size conflict while operating over document");
 	}
 	
-	public int scrollToPos(int pos) throws DocumentProcessingException {
+	// need to mention that passed and returned (external) positions are positions in characters, and all
+	// the internal operations are made counting the entities (elm-start, chars, elm-end)	
+	public int scrollToPos(int chars) throws DocumentProcessingException {
 		// FIXME: expand exception to be thrown and exit just after that
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		BufferedDocOp sourceDoc = getSource();
 		if (sourceDoc == null) throw new DocumentProcessingException("Document is lost while making operations");
-		int steps = scrollTo(sourceDoc, curDocPos.get(), pos);
-		// TODO: check, may be negative values for retain are supported
-		if (steps < 0) throw new DocumentProcessingException("Can not scroll back in the document, start new sequence to fix");
-		curDocOp.retain(steps);
-		curDocPos.set(curDocPos.addAndGet(steps));
-		return curDocPos.get();
+		curDocOp.retain(scrollDocumentByChars(sourceDoc, curDocPos, chars));
+		return curDocPos.inChars();
 	}
 	
 	protected DocOpBuilder getCurOp() {		
@@ -133,7 +128,8 @@ public abstract class AbstractDocumentOperationsSequencer {
 		return size.get();		
 	}
 	
-	private static int scrollTo(BufferedDocOp doc, final int start, final int pos) {
+	/*
+	private static int scrollTo(BufferedDocOp doc, final int start, final int entities) {
 		final AtomicInteger result = new AtomicInteger(0);
 		final AtomicInteger lastStartPos = new AtomicInteger(0);
 		final AtomicInteger passed = new AtomicInteger(0);
@@ -169,8 +165,263 @@ public abstract class AbstractDocumentOperationsSequencer {
 		     @Override public void updateAttributes(AttributesUpdate attrUpdate) {}
 		}));
 
-		return result.get();		
+		return result.get();
+	} */
+	
+	private static int scrollDocument(BufferedDocOp doc, final
+			DocumentPosition curDocPos, final int steps) {
+		if (steps <= 0) return steps;
+		
+		final int start = curDocPos.inItems(); // AtomicInteger?
+		final AtomicBoolean done = new AtomicBoolean(false);
+		final AtomicBoolean doingSteps = new AtomicBoolean(false);
+		final AtomicInteger passed = new AtomicInteger(0);
+		final AtomicInteger stepsToDo = new AtomicInteger(0);
+		final AtomicInteger stepsDone = new AtomicInteger(0);
+		
+		doc.apply(new InitializationCursorAdapter(new DocOpCursor() {
+		     @Override public void characters(String s) {
+		    	 if (done.get()) return;
+		    	 int len = s.length();
+		    	 if (doingSteps.get()) {
+			    	 if (stepsToDo.get() == 0) {
+			    		 done.set(true);
+			    		 return;
+			    	 } else if (stepsToDo.get() < len) {
+			    		 done.set(true);
+			    		 curDocPos.addElmChars(stepsToDo.get());
+			    		 stepsDone.addAndGet(stepsToDo.get());
+			    	 } else {
+			    		 curDocPos.addElmChars(len);
+			    		 stepsToDo.set(stepsToDo.get() - len);
+			    		 stepsDone.addAndGet(len);
+			    	 }
+			    	 return;
+		    	 } else if ((passed.get() + len) > start) { // at start
+		    		 doingSteps.set(true);
+		    		 stepsToDo.set(steps);
+		    		 if (stepsToDo.get() < len) {
+			    		 done.set(true);
+			    		 curDocPos.addElmChars(stepsToDo.get());
+			    		 stepsDone.addAndGet(stepsToDo.get());
+			    	 } else {
+			    		 curDocPos.addElmChars(len);
+			    		 stepsToDo.set(stepsToDo.get() - len);
+			    		 stepsDone.addAndGet(len);
+			    	 }
+		    		 return;
+		    	 }
+		    	 passed.addAndGet(len);
+		     }
+
+		     @Override public void elementStart(String key, Attributes attrs) {
+		    	 elementEnd(); // same as on element end
+		     }
+
+		     @Override public void elementEnd() {
+		    	 if (done.get()) return;
+		    	 if (doingSteps.get()) {
+		    		 if (stepsToDo.get() == 0) {
+		    			 done.set(true); 
+		    			 return;
+		    		 } else {
+		    			curDocPos.addElmStart();
+		    			stepsToDo.decrementAndGet();		    			
+		    			stepsDone.incrementAndGet();
+		    			return;
+		    		 }		    		 
+		    	 } else if (passed.get() == start) { // at start
+		    		 doingSteps.set(true);
+		    		 curDocPos.addElmStart();
+		    		 stepsToDo.set(steps - 1);
+		    		 stepsDone.set(1);
+		    		 return;
+		    	 }
+		    	 passed.incrementAndGet();
+		     }
+
+		     @Override public void annotationBoundary(AnnotationBoundaryMap map) {}
+		     @Override public void retain(int itemCount) {}
+		     @Override public void deleteCharacters(String chars) {}
+		     @Override public void deleteElementStart(String type, Attributes attrs) {}
+		     @Override public void deleteElementEnd() {}
+		     @Override public void replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {}
+		     @Override public void updateAttributes(AttributesUpdate attrUpdate) {}
+		}));
+		
+		return stepsDone.get();		
+	}
+	
+	/*
+	private static int scrollDocument(BufferedDocOp doc, final
+			DocumentPosition curDocPos, final int steps) {
+		final int start = curDocPos.inItems(); // TODO: AtomicInteger?		
+		final AtomicBoolean startFound = new AtomicBoolean(false);		
+		final AtomicBoolean skip = new AtomicBoolean(false);
+		final AtomicInteger passed = new AtomicInteger(0);
+		final AtomicInteger stepsDone = new AtomicInteger(0);
+		
+		doc.apply(new InitializationCursorAdapter(new DocOpCursor() {
+		     @Override public void characters(String s) {
+		    	int len = s.length();		    	 
+		    	if (!startFound.get()) {
+		    		final int ipassed = passed.get();
+		    		if ((ipassed >= start) && ((ipassed + len) < start)) {
+		    			startFound.set(true);
+		    			final int toGo = len - (start - ipassed);
+		    			if (steps < toGo) {
+		    				curDocPos.addElmChars(steps);
+		    				stepsDone.set(steps);
+		    				skip.set(true); // scrolled to required position, skip all the following things
+		    			} else {
+		    				curDocPos.addElmChars(toGo);
+		    				stepsDone.set(toGo);
+		    			}
+		    		}
+		     	} else {
+		     		curDocPos.addElmChars(len);
+		     	}
+		        passed.addAndGet(len);		          
+		     }
+
+		     @Override public void elementStart(String key, Attributes attrs) {
+		    	 if (!startFound.get()) {
+		    		 if (passed.get() == start) {
+			    		 startFound.set(true);
+			    		 curDocPos.addElmStart();
+			    	 }
+		    	 } else {
+		    		 curDocPos.addElmStart();
+		    	 }		    	 
+		    	 passed.incrementAndGet();
+		     }
+
+		     @Override public void elementEnd() {
+		    	 if (!startFound.get()) {
+		    		 if (passed.get() == start) {
+			    		 startFound.set(true);
+			    		 curDocPos.addElmEnd();
+			    	 }
+		    	 } else {
+		    		 curDocPos.addElmEnd();
+		    	 }		    	 
+		    	 passed.incrementAndGet();
+		     }
+
+		     @Override public void annotationBoundary(AnnotationBoundaryMap map) {}
+		     @Override public void retain(int itemCount) {}
+		     @Override public void deleteCharacters(String chars) {}
+		     @Override public void deleteElementStart(String type, Attributes attrs) {}
+		     @Override public void deleteElementEnd() {}
+		     @Override public void replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {}
+		     @Override public void updateAttributes(AttributesUpdate attrUpdate) {}
+		}));
+		
+		return curDocPos.inItems();
+	} */
+	
+	private static int scrollDocumentByChars(BufferedDocOp doc, final
+			DocumentPosition curDocPos, final int chars) {
+		if (chars <= 0) return chars;
+		
+		final int start = curDocPos.inItems(); // AtomicInteger?
+		final AtomicBoolean done = new AtomicBoolean(false);
+		final AtomicBoolean doingSteps = new AtomicBoolean(false);
+		final AtomicInteger passed = new AtomicInteger(0);
+		final AtomicInteger charsToDo = new AtomicInteger(0);
+		final AtomicInteger charsDone = new AtomicInteger(0);
+		
+		doc.apply(new InitializationCursorAdapter(new DocOpCursor() {
+		     @Override public void characters(String s) {
+		    	 if (done.get()) return;
+		    	 int len = s.length();
+		    	 if (doingSteps.get()) {
+			    	 if (charsToDo.get() == 0) {
+			    		 done.set(true);
+			    		 return;
+			    	 } else if (charsToDo.get() < len) {
+			    		 done.set(true);
+			    		 curDocPos.addElmChars(charsToDo.get());
+			    		 charsDone.addAndGet(charsToDo.get());
+			    	 } else {
+			    		 curDocPos.addElmChars(len);
+			    		 charsToDo.set(charsToDo.get() - len);
+			    		 charsDone.addAndGet(len);
+			    	 }
+			    	 return;
+		    	 } else if ((passed.get() + len) > start) { // at start
+		    		 doingSteps.set(true);
+		    		 charsToDo.set(chars);
+		    		 if (charsToDo.get() < len) {
+			    		 done.set(true);
+			    		 curDocPos.addElmChars(charsToDo.get());
+			    		 charsDone.addAndGet(charsToDo.get());
+			    	 } else {
+			    		 curDocPos.addElmChars(len);
+			    		 charsToDo.set(charsToDo.get() - len);
+			    		 charsDone.addAndGet(len);
+			    	 }
+		    		 return;
+		    	 }
+		    	 passed.addAndGet(len);
+		     }
+
+		     @Override public void elementStart(String key, Attributes attrs) {
+		    	 elementEnd(); // same as on element end
+		     }
+
+		     @Override public void elementEnd() {
+		    	 if (done.get()) return;
+		    	 if (!doingSteps.get() && (passed.get() == start)) { // at start
+		    		 doingSteps.set(true);
+		    		 curDocPos.addElmStart();
+		    		 return;
+		    	 }
+		    	 passed.incrementAndGet();
+		     }
+
+		     @Override public void annotationBoundary(AnnotationBoundaryMap map) {}
+		     @Override public void retain(int itemCount) {}
+		     @Override public void deleteCharacters(String chars) {}
+		     @Override public void deleteElementStart(String type, Attributes attrs) {}
+		     @Override public void deleteElementEnd() {}
+		     @Override public void replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {}
+		     @Override public void updateAttributes(AttributesUpdate attrUpdate) {}
+		}));
+		
+		return charsDone.get();		
+		
 	}	
 	
+	private class DocumentPosition {
+		private AtomicInteger inItems = new AtomicInteger(0);
+		private AtomicInteger inChars = new AtomicInteger(0);
+		
+		public void addElmStart() {
+			inItems.addAndGet(1);
+		}
+		
+		public int addElmChars(int howMany) {
+			inItems.addAndGet(howMany);
+			return inChars.addAndGet(howMany);
+		}
+		
+		public void addElmEnd() {
+			inItems.addAndGet(1);
+		}		
+		
+		public int inItems() {
+			return inItems.get();
+		}
+		
+		public void clear() {
+			inItems.set(0);
+			inChars.set(0);
+		}
+		
+		public int inChars() {
+			return inChars.get();
+		}
+	}
 
 }

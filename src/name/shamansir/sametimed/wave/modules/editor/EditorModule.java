@@ -57,11 +57,6 @@ public class EditorModule extends AbstractTreeModule<List<TextChunk>> {
 	}
 	
 	@Override
-	public void setOutputMode(RenderMode outputMode) {
-		this.outputMode  = outputMode;		
-	}
-
-	@Override
 	public AbstractDocumentTag makeTag(TagID id, ParticipantId author,
 			String text) {
 		return new EditorTag(id, author, text, false);
