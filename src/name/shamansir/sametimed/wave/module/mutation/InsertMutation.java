@@ -26,37 +26,6 @@ public class InsertMutation implements IModuleDocumentMutation {
 		this.insPos = pos;
 	}
 
-	/*
-	@Override
-	public WaveletDocumentOperation applyTo(IMutableModule module) throws MutationCompilationException {
-		DocOpBuilder docOp = null;
-		Integer tagFoundAt = -1;
-		AbstractDocumentTag removedTag = null;
-		AbstractDocumentTag newBeforeTag = null;
-		TagID tagToRemove = module.getTagAtPosition(pos);
-		boolean needToRemove = (tagToRemove != null) && (tagToRemove.getValue() != null); 
-		if (needToRemove) {
-			tagFoundAt = module.findTagStartPosition(tagToRemove);
-			if (tagFoundAt > -1) {
-				removedTag = module.deleteTagAndGet(tagToRemove);
-				newBeforeTag = module.makeTag(module.nextTagID(), 
-								removedTag.getAuthor(), removedTag.getContent().substring(0, pos - tagFoundAt));
-			}
-		}
-		AbstractDocumentTag insertingTag = 
-								module.makeTag(module.nextTagID(), author, text);
-		if (needToRemove) {
-			AbstractDocumentTag newAfterTag = module.makeTag(module.nextTagID(), 
-								removedTag.getAuthor(), removedTag.getContent().substring(pos - tagFoundAt));
-			docOp = newAfterTag.build(
-									 insertingTag.build(
-									 newBeforeTag.build(new DocOpBuilder())));
-		} else {
-			docOp =  insertingTag.build(new DocOpBuilder());
-		}
-		return createDocumentOperation(module.getDocumentID(), docOp.build());
-	} */
-
 	@Override
 	public WaveletDocumentOperation applyTo(AbstractModuleWithDocument<?> module)
 			throws MutationCompilationException, DocumentProcessingException {
