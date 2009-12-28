@@ -14,6 +14,7 @@ import org.waveprotocol.wave.model.document.operation.EvaluatingDocOpCursor;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuffer;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
+import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 public class TestDocumentSequencer {	
 	
@@ -89,14 +90,26 @@ public class TestDocumentSequencer {
 	
 	@Test
 	public void testScrolling() throws DocumentProcessingException {
+		
+		BufferedDocOp opWasBuilt = null; 
+		
+		// scroll 5 chars
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.startOperations();
 		documentsHolder.setCurrentDocument(encodedDoc);
 		documentsHolder.scrollToPos(5);
-		documentsHolder.finishOperations();
-		encodedDoc.apply(recordingCursor);
-		Assert.assertEquals("{abcd}", recordingCursor.finish().substring(docInitCode.length()));		
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor);
+		Assert.assertEquals("(*5)", recordingCursor.finish());
+		
+		documentsHolder.startOperations();
+		documentsHolder.setCurrentDocument(encodedDoc);
+		documentsHolder.scrollToPos(5);
+		documentsHolder.scrollToPos(11);
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor);
+		Assert.assertEquals("(*5)(*6)", recordingCursor.finish());		
 	}
 	
 	private BufferedDocOp createDocument(String documentCode) {

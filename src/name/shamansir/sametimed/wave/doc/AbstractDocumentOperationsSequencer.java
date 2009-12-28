@@ -269,6 +269,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		    	 if (done.get()) return;
 		    	 if (!doingSteps.get() && (passed.get() == start)) { // at start
 		    		 doingSteps.set(true);
+		    		 charsToDo.set(chars);
 		    		 curDocPos.addElmStart();
 		    		 return;
 		    	 }
