@@ -93,7 +93,7 @@ public class TestDocumentSequencer {
 		
 		BufferedDocOp opWasBuilt = null; 
 		
-		// scroll 5 chars
+		// scroll to 5 chars pos
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.startOperations();
@@ -103,14 +103,49 @@ public class TestDocumentSequencer {
 		opWasBuilt.apply(recordingCursor);
 		Assert.assertEquals("(*5)", recordingCursor.finish());
 		
+		// scroll to 11 chars pos while scrolled before
+		documentsHolder.startOperations();
+		documentsHolder.setCurrentDocument(encodedDoc);
+		documentsHolder.scrollToPos(5);
+		documentsHolder.scrollToPos(11);		
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor);
+		Assert.assertEquals("(*5)(*6)", recordingCursor.finish());// expect 11?		
+	}
+	
+	@Test
+	public void testAdding() throws DocumentProcessingException {
+		
+		BufferedDocOp opWasBuilt = null; 
+		
+		// scroll to 11 chars and add tag there
+		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
+		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.startOperations();
 		documentsHolder.setCurrentDocument(encodedDoc);
 		documentsHolder.scrollToPos(5);
 		documentsHolder.scrollToPos(11);
+		DocOpBuilder doBuilder = documentsHolder.unhideOp();
+		doBuilder.elementStart("a", AttributesImpl.EMPTY_MAP);
+		doBuilder.characters("aaaa");
+		doBuilder.elementEnd();
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor);
-		Assert.assertEquals("(*5)(*6)", recordingCursor.finish());		
-	}
+		Assert.assertEquals("(*5)(*6){aaaa}", recordingCursor.finish());
+
+		documentsHolder.startOperations();
+		documentsHolder.setCurrentDocument(encodedDoc);
+		documentsHolder.scrollToPos(7);
+		documentsHolder.scrollToPos(3);
+		doBuilder = documentsHolder.unhideOp();
+		doBuilder.elementStart("a", AttributesImpl.EMPTY_MAP);
+		doBuilder.characters("aaaa");
+		doBuilder.elementEnd();
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor);
+		Assert.assertEquals("(*4){aaaa}", recordingCursor.finish());		
+		
+	}	
 	
 	private BufferedDocOp createDocument(String documentCode) {
 		return (new EncodedDocumentBuilder(documentCode)).compile();
@@ -132,6 +167,10 @@ public class TestDocumentSequencer {
 		@Override
 		protected BufferedDocOp getSource() {
 			return curDocument;
+		}
+		
+		public DocOpBuilder unhideOp() {
+			return getCurOp();
 		}
 		
 	}	

@@ -32,7 +32,7 @@ public class InsertMutation implements IModuleDocumentMutation {
 		// TODO Auto-generated method stub
 		module.startOperations();		
 		int foundPos = module.scrollToPos(module.findTagStart(insPos));
-		int cutPos = insPos - foundPos; // FIXME may differ with actual value because of elementStart/elementEnd
+		int cutPos = insPos - foundPos;
 		if (foundPos < insPos) {
 			AbstractDocumentTag removedTag = module.deleteTagAndGet(foundPos);
 			module.addTag(module.makeTag(author, removedTag.getContent().substring(foundPos, cutPos)));
