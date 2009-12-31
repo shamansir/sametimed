@@ -14,7 +14,6 @@ import org.waveprotocol.wave.model.document.operation.EvaluatingDocOpCursor;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuffer;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
-import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 public class TestDocumentSequencer {	
 	
@@ -96,16 +95,16 @@ public class TestDocumentSequencer {
 		// scroll to 5 chars pos
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
+		documentsHolder.setCurrentDocument(encodedDoc);		
 		documentsHolder.startOperations();
-		documentsHolder.setCurrentDocument(encodedDoc);
 		documentsHolder.scrollToPos(5);
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor);
 		Assert.assertEquals("(*5)", recordingCursor.finish());
 		
 		// scroll to 11 chars pos while scrolled before
+		documentsHolder.setCurrentDocument(encodedDoc);		
 		documentsHolder.startOperations();
-		documentsHolder.setCurrentDocument(encodedDoc);
 		documentsHolder.scrollToPos(5);
 		documentsHolder.scrollToPos(11);		
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
@@ -121,8 +120,8 @@ public class TestDocumentSequencer {
 		// scroll to 11 chars and add tag there
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
+		documentsHolder.setCurrentDocument(encodedDoc);		
 		documentsHolder.startOperations();
-		documentsHolder.setCurrentDocument(encodedDoc);
 		documentsHolder.scrollToPos(5);
 		documentsHolder.scrollToPos(11);
 		DocOpBuilder doBuilder = documentsHolder.unhideOp();
@@ -133,8 +132,8 @@ public class TestDocumentSequencer {
 		opWasBuilt.apply(recordingCursor);
 		Assert.assertEquals("(*5)(*6){aaaa}", recordingCursor.finish());
 
+		documentsHolder.setCurrentDocument(encodedDoc);		
 		documentsHolder.startOperations();
-		documentsHolder.setCurrentDocument(encodedDoc);
 		documentsHolder.scrollToPos(7);
 		documentsHolder.scrollToPos(3);
 		doBuilder = documentsHolder.unhideOp();
@@ -273,81 +272,6 @@ public class TestDocumentSequencer {
 		}		
 		
 	}
-	
-	/*
-	private class OperationsRecordingCursor implements EvaluatingDocOpCursor<String> {
-		
-		private final StringBuffer operationsRecorder = new StringBuffer();
-		
-		private String escape(String input) {
-			String output = input.replaceAll("}", "\\}");
-			output = input.replaceAll("{", "\\{");
-			output = input.replaceAll(")", "\\)");
-			return output.replaceAll("(", "\\(");
-		}
-
-		@Override
-		public String finish() {
-			return operationsRecorder.toString();
-		}
-
-
-		@Override
-		public void deleteCharacters(String chars) {
-			// TODO Auto-generated method stub
-			operationsRecorder.append("(-" + escape(chars) + ")");
-		}
-
-
-		@Override
-		public void deleteElementEnd() {
-			operationsRecorder.append("(-})");
-		}
-
-
-		@Override
-		public void deleteElementStart(String type, Attributes attrs) {
-			operationsRecorder.append("(-{)");
-		}
-
-
-		@Override
-		public void replaceAttributes(Attributes oldAttrs, Attributes newAttrs) { }
-
-
-		@Override
-		public void retain(int itemCount) {
-			operationsRecorder.append("(*" + itemCount + ")");
-			
-		}
-
-
-		@Override
-		public void updateAttributes(AttributesUpdate attrUpdate) { }
-
-
-		@Override
-		public void annotationBoundary(AnnotationBoundaryMap map) { }
-
-
-		@Override
-		public void characters(String chars) {
-			operationsRecorder.append("(+" + escape(chars) + ")");
-		}
-
-
-		@Override
-		public void elementEnd() {
-			operationsRecorder.append("(+})");			
-		}
-
-
-		@Override
-		public void elementStart(String type, Attributes attrs) {
-			operationsRecorder.append("(+{)");
-		}		
-		
-	} */
 	
 	private class EmptyCursor implements IOperatingCursorWithResult<String> {
 
