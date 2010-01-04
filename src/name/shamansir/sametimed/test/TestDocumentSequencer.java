@@ -18,7 +18,7 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 public class TestDocumentSequencer {	
 	
 	private DocumentsHolder documentsHolder = new DocumentsHolder();
-	EvaluatingDocOpCursor<String> recordingCursor = new SimpleOperationsRecordingCursor();
+	SimpleOperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new SimpleOperationsRecordingCursor();
 	
 	@Test
 	public void testSequencing() {
@@ -90,6 +90,9 @@ public class TestDocumentSequencer {
 	@Test
 	public void testScrolling() throws DocumentProcessingException {
 		
+		// FIXME: check when characters added not by sequence of 'characters(char)' call
+		//        but with characters(several-chars) calls
+		
 		BufferedDocOp opWasBuilt = null; 
 		
 		// scroll to 5 chars pos
@@ -97,19 +100,20 @@ public class TestDocumentSequencer {
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.setCurrentDocument(encodedDoc);		
 		documentsHolder.startOperations();
-		documentsHolder.scrollToPos(5);
+		documentsHolder.scrollToPos(5); // 5 chars, between 'e' and 'f'
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor);
-		Assert.assertEquals("(*5)", recordingCursor.finish());
+		opWasBuilt.apply(recordingCursor); //                     123456
+		Assert.assertEquals("(*6)", recordingCursor.finish()); // [abcde
 		
 		// scroll to 11 chars pos while scrolled before
+		recordingCursor.erase();
 		documentsHolder.setCurrentDocument(encodedDoc);		
 		documentsHolder.startOperations();
-		documentsHolder.scrollToPos(5);
-		documentsHolder.scrollToPos(11);		
+		documentsHolder.scrollToPos(5); // to 5 chars, between 'e' and 'f'
+		documentsHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l' 		
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor);
-		Assert.assertEquals("(*5)(*6)", recordingCursor.finish());// expect 11?		
+		opWasBuilt.apply(recordingCursor); //                        123456 12345678
+		Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk 		
 	}
 	
 	@Test
@@ -130,20 +134,8 @@ public class TestDocumentSequencer {
 		doBuilder.elementEnd();
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor);
-		Assert.assertEquals("(*5)(*6){aaaa}", recordingCursor.finish());
+		Assert.assertEquals("(*6)(*8){aaaa}", recordingCursor.finish());
 
-		documentsHolder.setCurrentDocument(encodedDoc);		
-		documentsHolder.startOperations();
-		documentsHolder.scrollToPos(7);
-		documentsHolder.scrollToPos(3);
-		doBuilder = documentsHolder.unhideOp();
-		doBuilder.elementStart("a", AttributesImpl.EMPTY_MAP);
-		doBuilder.characters("aaaa");
-		doBuilder.elementEnd();
-		opWasBuilt = documentsHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor);
-		Assert.assertEquals("(*4){aaaa}", recordingCursor.finish());		
-		
 	}	
 	
 	private BufferedDocOp createDocument(String documentCode) {
@@ -214,6 +206,10 @@ public class TestDocumentSequencer {
 		public String finish() {
 			return operationsRecorder.toString();
 		}
+		
+		public void erase() {
+			operationsRecorder.delete(0, operationsRecorder.length());
+		}		
 
 
 		@Override
