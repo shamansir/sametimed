@@ -29,7 +29,6 @@ public class InsertMutation implements IModuleDocumentMutation {
 	@Override
 	public WaveletDocumentOperation applyTo(AbstractModuleWithDocument<?> module)
 			throws MutationCompilationException, DocumentProcessingException {
-		// TODO Auto-generated method stub
 		module.startOperations();		
 		int foundPos = module.scrollToPos(module.findTagStart(insPos));
 		int cutPos = insPos - foundPos;

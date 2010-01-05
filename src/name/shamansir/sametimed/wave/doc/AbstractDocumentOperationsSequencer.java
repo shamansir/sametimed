@@ -21,29 +21,6 @@ public abstract class AbstractDocumentOperationsSequencer {
 	abstract protected BufferedDocOp getSource();
 	abstract public String getDocumentID();
 	
-	public <ResultType> ResultType applyCursor(ICursorWithResult<ResultType> cursor) {
-		BufferedDocOp sourceDoc = getSource(); 
-		if (sourceDoc == null) return cursor.getResult();
-		sourceDoc.apply(new InitializationCursorAdapter(cursor));
-		return cursor.getResult();
-	}	
-	
-	@SuppressWarnings("unchecked")
-	public <ResultType> ResultType applyCursor(IOperatingCursorWithResult<ResultType> cursor) throws DocumentProcessingException {
-		return ((IOperatingCursorWithResult<ResultType>)(applyCursor((IOperatingCursor)cursor))).getResult();		
-	}
-	
-	public IOperatingCursor applyCursor(IOperatingCursor cursor) throws DocumentProcessingException {
-		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
-		if (cursor == null) throw new DocumentProcessingException("Null cursor is passed");
-		BufferedDocOp sourceDoc = getSource(); 
-		if (sourceDoc == null) return cursor;		
-		cursor.setWalkStart(docWalker.curPos());
-		sourceDoc.apply(new InitializationCursorAdapter(cursor));
-		curDocOp = cursor.takeDocOp();
-		return cursor;
-	}		
-	
 	// TODO: may be pass sourceDoc as a parameter to startOperations ?
 	public void startOperations() throws DocumentProcessingException {
 		if (started) throw new DocumentProcessingException("Operations sequence was already started and not finished");
@@ -77,6 +54,28 @@ public abstract class AbstractDocumentOperationsSequencer {
 		docWalker.clear();
 	}
 	
+	public <ResultType> ResultType applyCursor(ICursorWithResult<ResultType> cursor) {
+		BufferedDocOp sourceDoc = getSource(); 
+		if (sourceDoc == null) return cursor.getResult();
+		sourceDoc.apply(new InitializationCursorAdapter(cursor));
+		return cursor.getResult();
+	}	
+	
+	@SuppressWarnings("unchecked")
+	public <ResultType> ResultType applyCursor(IOperatingCursorWithResult<ResultType> cursor) throws DocumentProcessingException {
+		return ((IOperatingCursorWithResult<ResultType>)(applyCursor((IOperatingCursor)cursor))).getResult();		
+	}
+		
+	public IOperatingCursor applyCursor(IOperatingCursor cursor) throws DocumentProcessingException {
+		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
+		if (cursor == null) throw new DocumentProcessingException("Null cursor is passed");
+		BufferedDocOp sourceDoc = getSource(); 
+		if (sourceDoc == null) return cursor;		
+		cursor.setWalkStart(docWalker.curPos());
+		sourceDoc.apply(new InitializationCursorAdapter(cursor));
+		curDocOp = cursor.takeDocOp();
+		return cursor;
+	}			
 	public void alignDocToEnd() throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		curDocOp.retain(docWalker.scrollToEnd());		

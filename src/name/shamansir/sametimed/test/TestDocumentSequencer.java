@@ -98,26 +98,73 @@ public class TestDocumentSequencer {
 		// scroll to 5 chars pos
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
-		documentsHolder.setCurrentDocument(encodedDoc);		
+		documentsHolder.setCurrentDocument(encodedDoc);
+		
 		documentsHolder.startOperations();
 		documentsHolder.scrollToPos(5); // 5 chars, between 'e' and 'f'
+		
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor); //                     123456
+		
 		Assert.assertEquals("(*6)", recordingCursor.finish()); // [abcde
 		
 		// scroll to 11 chars pos while scrolled before
 		recordingCursor.erase();
-		documentsHolder.setCurrentDocument(encodedDoc);		
 		documentsHolder.startOperations();
-		documentsHolder.scrollToPos(5); // to 5 chars, between 'e' and 'f'
-		documentsHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l' 		
+		
+		documentsHolder.scrollToPos(5); //  to 5  chars, between 'e' and 'f'
+		documentsHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l'
+		
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor); //                        123456 12345678
-		Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk 		
+		Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk
+		
+		// scroll between tags
+		recordingCursor.erase();	
+		documentsHolder.startOperations();
+		
+		documentsHolder.scrollToPos(8); //  to 8  chars, between 'h' and 'i'
+		documentsHolder.scrollToPos(12); // to 12 chars, between 'l' and 'm'
+		
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor); //                         1234567890 123456 
+		Assert.assertEquals("(*10)(*6)", recordingCursor.finish());// [abcdefgh] [ijkl] [m
+		
+		// scroll to end manually
+		recordingCursor.erase();	
+		documentsHolder.startOperations();
+		
+		documentsHolder.scrollToPos(16); // to the end
+		
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor); 
+		Assert.assertEquals("(*16)", recordingCursor.finish());
+		
+		// scroll to end using func
+		recordingCursor.erase();
+		documentsHolder.startOperations();
+		
+		documentsHolder.alignDocToEnd(); // to the end
+		
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor); 
+		Assert.assertEquals("(*" + docInitCode.length() + ")", recordingCursor.finish());		
+		
+		// scroll further the end
+		recordingCursor.erase();
+		documentsHolder.startOperations();
+		
+		try {
+			documentsHolder.scrollToPos(17); // the end + 1
+			Assert.fail();
+		} catch (DocumentProcessingException dpe) {
+			// pass
+		}
+	
 	}
 	
 	@Test
-	public void testAdding() throws DocumentProcessingException {
+	public void testScrollingAndAdding() throws DocumentProcessingException {
 		
 		BufferedDocOp opWasBuilt = null; 
 		
@@ -125,19 +172,84 @@ public class TestDocumentSequencer {
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.setCurrentDocument(encodedDoc);		
+		
 		documentsHolder.startOperations();
-		documentsHolder.scrollToPos(5);
-		documentsHolder.scrollToPos(11);
+		documentsHolder.scrollToPos(4); //  to 4  chars, between 'd' and 'e'
+		documentsHolder.scrollToPos(14); // to 14 chars, between 'n' and 'o'
+		
 		DocOpBuilder doBuilder = documentsHolder.unhideOp();
 		doBuilder.elementStart("a", AttributesImpl.EMPTY_MAP);
-		doBuilder.characters("aaaa");
+		doBuilder.characters("qrst");
 		doBuilder.elementEnd();
+		
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor);
-		Assert.assertEquals("(*6)(*8){aaaa}", recordingCursor.finish());
+		
+		// 12345 12345678901234
+		// [abcd efgh][ijkl][mn
+		Assert.assertEquals("(*5)(*14){qrst}", recordingCursor.finish());
+		// docCode now: [abcdefgh][ijkl][mn[qrst]op]"		
 
-	}	
+	}
 	
+	@Test
+	public void testAddingAndScrolling() throws DocumentProcessingException {
+		BufferedDocOp opWasBuilt = null; 
+		
+		// make tag and then scroll to 11 chars
+		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
+		BufferedDocOp encodedDoc = createDocument(docInitCode);
+		documentsHolder.setCurrentDocument(encodedDoc);
+		
+		documentsHolder.startOperations();		
+		
+		DocOpBuilder doBuilder = documentsHolder.unhideOp();
+		doBuilder.elementStart("a", AttributesImpl.EMPTY_MAP);
+		doBuilder.characters("qrst");
+		doBuilder.elementEnd();
+		// docCode now: [qrst][abcdefgh][ijkl][mnop]
+		
+		// scrolling back (to 3 chars or less) is not possible, 4 chars
+		// must be positioned just before the 'a' char
+		documentsHolder.scrollToPos(4); //  to 4  chars, between 't' and 'a'
+		documentsHolder.scrollToPos(7); //  to 7  chars, between 'c' and 'd'
+		documentsHolder.scrollToPos(12); // to 12 chars, between 'h' and 'i'
+		
+		opWasBuilt = documentsHolder.finishOperations().getOperation();
+		opWasBuilt.apply(recordingCursor);
+		
+		//        1 123 123456  
+		// [qrst].[ abc defgh] [i
+		Assert.assertEquals("{qrst}(*1)(*3)(*6)", recordingCursor.finish());
+		
+	}
+	
+	
+	@Test
+	public void testScrollingAddingAndScrollingAgain() throws DocumentProcessingException {
+		Assert.fail();
+	}
+	
+	@Test
+	public void testScrollingAndDeleting() throws DocumentProcessingException {
+		Assert.fail();
+	}
+	
+	@Test
+	public void testDeletingAndScrolling() throws DocumentProcessingException {
+		Assert.fail();
+	}
+	
+	@Test
+	public void testAddingAndDeleting() throws DocumentProcessingException {
+		Assert.fail();
+	}
+	
+	@Test
+	public void testDeletingAndAdding() throws DocumentProcessingException {
+		Assert.fail();
+	}	
+		
 	private BufferedDocOp createDocument(String documentCode) {
 		return (new EncodedDocumentBuilder(documentCode)).compile();
 	}	
