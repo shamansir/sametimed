@@ -53,4 +53,10 @@ public class DocumentElementDeletionByPosCursor implements
 		return null;
 	}
 
+	@Override
+	public void useDocOp(DocOpBuilder curDocOp) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

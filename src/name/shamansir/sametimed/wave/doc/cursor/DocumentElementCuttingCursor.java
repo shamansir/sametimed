@@ -55,6 +55,12 @@ public class DocumentElementCuttingCursor implements
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void useDocOp(DocOpBuilder curDocOp) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	/* private final String tagID;
 	

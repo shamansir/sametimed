@@ -23,12 +23,12 @@ public abstract class AbstractDocumentOperationsSequencer {
 	
 	// TODO: may be pass sourceDoc as a parameter to startOperations ?
 	public void startOperations() throws DocumentProcessingException {
-		if (started) throw new DocumentProcessingException("Operations sequence was already started and not finished");
-		curDocOp = new DocOpBuilder();
+		if (started) throw new DocumentProcessingException("Operations sequence was already started and not finished");		
 		started = true;
 		BufferedDocOp sourceDoc = getSource();
 		if (sourceDoc == null) throw new DocumentProcessingException("Inner document must not be null to operate over");
 		docWalker = collectDocumentData(sourceDoc);
+		curDocOp = new WalkingDocOpBuilder(docWalker);		
 	}
 	
 	private DocumentWalker collectDocumentData(BufferedDocOp sourceDoc) {
@@ -70,7 +70,8 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		if (cursor == null) throw new DocumentProcessingException("Null cursor is passed");
 		BufferedDocOp sourceDoc = getSource(); 
-		if (sourceDoc == null) return cursor;		
+		if (sourceDoc == null) return cursor;
+		cursor.useDocOp(curDocOp);
 		cursor.setWalkStart(docWalker.curPos());
 		sourceDoc.apply(new InitializationCursorAdapter(cursor));
 		curDocOp = cursor.takeDocOp();
@@ -96,7 +97,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 	
 	protected void useAsCurOp(DocOpBuilder builtOp) throws DocumentProcessingException {
 		curDocOp = builtOp;
-	}	
+	}
 	
 	private class DocStateEvaluatingCursor implements EvaluatingDocInitializationCursor<DocumentState/*int[]*/> {
 		

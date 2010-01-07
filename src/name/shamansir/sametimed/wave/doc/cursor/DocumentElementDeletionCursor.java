@@ -54,6 +54,12 @@ public class DocumentElementDeletionCursor implements IOperatingCursor {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void useDocOp(DocOpBuilder curDocOp) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	/*
 	

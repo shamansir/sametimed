@@ -55,4 +55,10 @@ public class DocumentElementCuttingByPosCursor implements
 		return null;
 	}
 
+	@Override
+	public void useDocOp(DocOpBuilder curDocOp) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

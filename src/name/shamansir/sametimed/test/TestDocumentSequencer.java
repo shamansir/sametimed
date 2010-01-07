@@ -382,12 +382,10 @@ public class TestDocumentSequencer {
 	
 	private class EmptyCursor implements IOperatingCursorWithResult<String> {
 
-		private final DocOpBuilder docOp = new DocOpBuilder();
+		private DocOpBuilder docOp;
 		
 		@Override
-		public String getResult() {
-			return "";
-		}
+		public String getResult() { return ""; }
 
 		@Override
 		public void annotationBoundary(AnnotationBoundaryMap map) { }
@@ -401,6 +399,8 @@ public class TestDocumentSequencer {
 		public void setWalkStart(int pos) { }
 		@Override
 		public DocOpBuilder takeDocOp() { return docOp; }
+		@Override
+		public void useDocOp(DocOpBuilder curDocOp) { docOp = curDocOp; }
 		
 	}
 	
