@@ -85,6 +85,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 	// the internal operations are made counting the entities (elm-start, chars, elm-end)	
 	public int scrollToPos(int chars) throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
+		if (chars > docWalker.docSizeInChars()) throw new DocumentProcessingException("Can not scroll further the document end");
 		curDocOp.retain(docWalker.scrollBy(chars));
 		return docWalker.curPos();
 	}

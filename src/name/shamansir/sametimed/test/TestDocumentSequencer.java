@@ -95,7 +95,7 @@ public class TestDocumentSequencer {
 		
 		BufferedDocOp opWasBuilt = null; 
 		
-		// scroll to 5 chars pos
+		// test scrolling to 5 chars pos
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.setCurrentDocument(encodedDoc);
@@ -108,7 +108,7 @@ public class TestDocumentSequencer {
 		
 		Assert.assertEquals("(*6)", recordingCursor.finish()); // [abcde
 		
-		// scroll to 11 chars pos while scrolled before
+		// test scrolling to 11 chars pos while scrolled before
 		recordingCursor.erase();
 		documentsHolder.startOperations();
 		
@@ -119,7 +119,7 @@ public class TestDocumentSequencer {
 		opWasBuilt.apply(recordingCursor); //                        123456 12345678
 		Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk
 		
-		// scroll between tags
+		// test scrolling between tags
 		recordingCursor.erase();	
 		documentsHolder.startOperations();
 		
@@ -130,7 +130,7 @@ public class TestDocumentSequencer {
 		opWasBuilt.apply(recordingCursor); //                         1234567890 123456 
 		Assert.assertEquals("(*10)(*6)", recordingCursor.finish());// [abcdefgh] [ijkl] [m
 		
-		// scroll to end manually
+		// test scrolling to end manually
 		recordingCursor.erase();	
 		documentsHolder.startOperations();
 		
@@ -138,9 +138,9 @@ public class TestDocumentSequencer {
 		
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor); 
-		Assert.assertEquals("(*16)", recordingCursor.finish());
+		Assert.assertEquals("(*22)", recordingCursor.finish());
 		
-		// scroll to end using func
+		// test scrolling to end using func
 		recordingCursor.erase();
 		documentsHolder.startOperations();
 		
@@ -150,7 +150,7 @@ public class TestDocumentSequencer {
 		opWasBuilt.apply(recordingCursor); 
 		Assert.assertEquals("(*" + docInitCode.length() + ")", recordingCursor.finish());		
 		
-		// scroll further the end
+		// test scrolling further the end
 		recordingCursor.erase();
 		documentsHolder.startOperations();
 		
@@ -168,7 +168,7 @@ public class TestDocumentSequencer {
 		
 		BufferedDocOp opWasBuilt = null; 
 		
-		// scroll to 11 chars and add tag there
+		// test scrolling to 11 chars and add tag there
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.setCurrentDocument(encodedDoc);		
@@ -196,7 +196,7 @@ public class TestDocumentSequencer {
 	public void testAddingAndScrolling() throws DocumentProcessingException {
 		BufferedDocOp opWasBuilt = null; 
 		
-		// make tag and then scroll to 11 chars
+		// test making tag and then scrolling to 11 chars
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.setCurrentDocument(encodedDoc);
@@ -209,7 +209,7 @@ public class TestDocumentSequencer {
 		doBuilder.elementEnd();
 		// docCode now: [qrst][abcdefgh][ijkl][mnop]
 		
-		// scrolling back (to 3 chars or less) is not possible, 4 chars
+		// test scrolling back (to 3 chars or less) is not possible, 4 chars
 		// must be positioned just before the 'a' char
 		documentsHolder.scrollToPos(4); //  to 4  chars, between 't' and 'a'
 		documentsHolder.scrollToPos(7); //  to 7  chars, between 'c' and 'd'
@@ -326,7 +326,6 @@ public class TestDocumentSequencer {
 
 		@Override
 		public void deleteCharacters(String chars) {
-			// TODO Auto-generated method stub
 			operationsRecorder.append("(-" + escape(chars) + ")");
 		}
 

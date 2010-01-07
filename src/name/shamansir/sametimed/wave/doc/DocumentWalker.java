@@ -61,9 +61,9 @@ public class DocumentWalker extends DocumentState {
 		}
 		return curPosElms - prevPos;
 	}
-
+	
 	// returns required step in elements
-	public int scrollBy(int chars) {
+	protected int scrollBy(int chars) {
 		int prevPos = curPosElms;
 		int size = data.size();
 		while ((curPosChars < chars) && (curPos < size)) {
@@ -76,8 +76,39 @@ public class DocumentWalker extends DocumentState {
 				curPosChars += value;
 			}
 			curPos++;			
-		} 
+		}
+		if ((curPosChars == chars) && (curPos < size) 
+			&& (data.get(curPos) == ELM_END_CODE)) {
+			curPos++; curPosElms++;
+		}
+		return curPosElms - prevPos;
+	}	
+
+	// returns required step in elements
+	/*
+	protected int scrollBy(int chars, boolean doAlign) {
+		int prevPos = curPosElms;
+		int size = data.size();
+		while ((curPosChars < chars) && (curPos < size)) {
+			int value = data.get(curPos); 
+			if ((value == ELM_START_CODE) ||
+				(value == ELM_END_CODE)) {
+				curPosElms++;
+			} else if (value >= 0) {
+				curPosElms += value;
+				curPosChars += value;
+			}
+			curPos++;			
+		}
+		if (doAlign && (curPosChars == chars) &&
+			(curPos < size) && (data.get(curPos) == ELM_END_CODE)) {
+			curPos++; curPosElms++;
+		}
 		return curPosElms - prevPos;
 	}
+	
+	public int scrollBy(int chars) {
+		return scrollBy(chars, true);
+	} */
 
 }
