@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.doc.sequencing;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;

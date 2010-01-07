@@ -1,8 +1,8 @@
 package name.shamansir.sametimed.wave.module.mutation.proto;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
-import name.shamansir.sametimed.wave.doc.DocumentProcessingException;
 import name.shamansir.sametimed.wave.doc.TagID;
+import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
 
 import org.waveprotocol.wave.model.wave.ParticipantId;
 

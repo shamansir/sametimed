@@ -44,7 +44,7 @@ import java.util.ArrayList;
 /**
  * changed by shaman.sir <shaman.sir@gmail.com> by only making methods not final, 
  * to allow overriding (for sequencing, see 
- * {@link name.shamansir.sametimed.wave.doc.WalkingDocOpBuilder})
+ * {@link name.shamansir.sametimed.wave.doc.sequencing.WalkingDocOpBuilder})
  */
 public class DocOpBuilder {
   private static final DocOpComponent[] EMPTY_ARRAY = new DocOpComponent[0];

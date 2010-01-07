@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.doc.sequencing;
 
 @SuppressWarnings("serial")
 public class DocumentProcessingException extends Exception {

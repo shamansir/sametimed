@@ -1,4 +1,4 @@
-package name.shamansir.sametimed.wave.doc;
+package name.shamansir.sametimed.wave.doc.sequencing;
 
 import java.util.ArrayList;
 import java.util.List;

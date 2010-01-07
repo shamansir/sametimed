@@ -3,10 +3,8 @@ package name.shamansir.sametimed.wave.module;
 import java.text.ParseException;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
-import name.shamansir.sametimed.wave.doc.AbstractDocumentOperationsSequencer;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
-import name.shamansir.sametimed.wave.doc.DocumentProcessingException;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementCuttingByPosCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementCuttingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementDeletionByPosCursor;
@@ -14,6 +12,8 @@ import name.shamansir.sametimed.wave.doc.cursor.DocumentElementStartPosSearching
 import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentLastUserElementCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementDeletionCursor;
+import name.shamansir.sametimed.wave.doc.sequencing.AbstractDocumentOperationsSequencer;
+import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
 import name.shamansir.sametimed.wave.module.mutation.proto.IModuleWithDocument;
 import name.shamansir.sametimed.wave.module.mutation.proto.IModuleDocumentMutation;
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;

@@ -11,6 +11,7 @@ import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 import name.shamansir.sametimed.wave.AbstractUpdatingWavelet;
+import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
 import name.shamansir.sametimed.wave.model.ModelID;
 import name.shamansir.sametimed.wave.module.mutation.ChangeViewModeMutation;
 import name.shamansir.sametimed.wave.module.mutation.proto.IModuleDocumentMutation;
@@ -123,8 +124,8 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
 					return false;
-				} catch (name.shamansir.sametimed.wave.doc.DocumentProcessingException osbe) {
-					registerError("Document '" + module.getDocumentID() + "' operations sequence error: " + osbe.getMessage());
+				} catch (DocumentProcessingException dpe) {
+					registerError("Document '" + module.getDocumentID() + "' operations sequence error: " + dpe.getMessage());
 					return false;
 				}				
 			} else {
@@ -144,8 +145,8 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 					performWaveletOperation(module.apply(mutation));
 				} catch (MutationCompilationException mce) {
 					registerError("Document '" + module.getDocumentID() + "' mutation error: " + mce.getMessage());
-				} catch (name.shamansir.sametimed.wave.doc.DocumentProcessingException osbe) {
-					registerError("Document '" + module.getDocumentID() + "' operations sequence error: " + osbe.getMessage());
+				} catch (DocumentProcessingException dpe) {
+					registerError("Document '" + module.getDocumentID() + "' operations sequence error: " + dpe.getMessage());
 				}
 			}		
 		} else {

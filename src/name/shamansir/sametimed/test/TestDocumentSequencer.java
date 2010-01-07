@@ -1,8 +1,8 @@
 package name.shamansir.sametimed.test;
 
-import name.shamansir.sametimed.wave.doc.AbstractDocumentOperationsSequencer;
-import name.shamansir.sametimed.wave.doc.DocumentProcessingException;
 import name.shamansir.sametimed.wave.doc.cursor.IOperatingCursorWithResult;
+import name.shamansir.sametimed.wave.doc.sequencing.AbstractDocumentOperationsSequencer;
+import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
 
 import org.junit.Assert;
 import org.junit.Test;
