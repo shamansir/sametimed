@@ -2,7 +2,9 @@ package name.shamansir.sametimed.client;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -26,7 +28,7 @@ import name.shamansir.sametimed.wave.render.JSUpdatesListener;
 @SuppressWarnings("serial")
 public class GetClientViewServlet extends HttpServlet {
 	
-	private static final Logger LOG = Logger.getLogger(GetClientViewServlet.class.getName());	
+	private static final Log LOG = LogFactory.getLog(GetClientViewServlet.class);	
 
 	private static final String CONNECTION_ERR_STR = "Connection to the Wave Server (as user %s) is failed";	
 	
@@ -63,8 +65,10 @@ public class GetClientViewServlet extends HttpServlet {
 
 		try {
 			newClient.connect(username);
+			
+			LOG.info("Success. Connected as " + username);
 		} catch (Exception e) {
-			LOG.severe(String.format(CONNECTION_ERR_STR + "; Exception thrown: %s, caused by %s", username, e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "nothing"));
+			LOG.error(String.format(CONNECTION_ERR_STR + "; Exception thrown: %s, caused by %s", username, e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "nothing"));
 			
 			responseStr = // FIXME: create ErrorModel class
 					"{\"error\": " + quot + String.format(CONNECTION_ERR_STR + "; Exception thrown: %s", username, e.getMessage()) + quot + "}"
@@ -75,7 +79,7 @@ public class GetClientViewServlet extends HttpServlet {
 		}
 		
 		if (!newClient.isConnected()) {
-			LOG.severe(String.format(CONNECTION_ERR_STR, username));
+			LOG.error(String.format(CONNECTION_ERR_STR, username));
 			
 			responseStr = // FIXME: create ErrorModel class
 				"{" + quot + "error" + quot + ":" + quot + String.format(CONNECTION_ERR_STR, username) + quot + "}"

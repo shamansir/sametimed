@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.text.ParseException;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -28,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class CommandsReceiverServlet extends HttpServlet {
 	
-	private static final Logger LOG = Logger.getLogger(CommandsReceiverServlet.class.getName());	
+    private static final Log LOG = LogFactory.getLog(CommandsReceiverServlet.class);	
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -45,11 +47,11 @@ public class CommandsReceiverServlet extends HttpServlet {
 				 command.execute();
 			} catch (ParseException e) {
 				errorString = "Failed to extract command data on the server side from " + encodedCmd;
-				LOG.severe(errorString);
+				LOG.error(errorString);
 			}
 		} else {
 			errorString = "No command were passed to the Commands Receiver Servlet";
-			LOG.severe(errorString);
+			LOG.error(errorString);
 		}
 		/* PrintWriter responseWriter = response.getWriter();
 		if (command != null) {

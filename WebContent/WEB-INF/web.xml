@@ -25,6 +25,7 @@
     </servlet>
   
     <!-- DWR -->  
+    
 	<servlet>
         <servlet-name>dwr-invoker</servlet-name>
         <servlet-class>org.directwebremoting.servlet.DwrServlet</servlet-class>
@@ -63,6 +64,7 @@
     </servlet-mapping>
     
     <!-- DWR -->
+    
     <servlet-mapping>
         <servlet-name>dwr-invoker</servlet-name>
         <url-pattern>/dwr/*</url-pattern>
@@ -73,5 +75,13 @@
     <welcome-file-list>
         <welcome-file>sametimed.html</welcome-file>
     </welcome-file-list>
+    
+    <!-- Logging -->
+    
+    <!--
+    <system-properties>
+      <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
+    </system-properties>
+    --> 
 
 </web-app>

@@ -169,6 +169,6 @@ public final class TagID {
 		return value;
 	} */
 	
-	// FIXME: implement compareTo and equalsTo, intValue
+	// FIXME: implement compareTo and equalsTo, intValue (fullIntValue?) and test them
 		
 }

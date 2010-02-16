@@ -3,7 +3,9 @@ package name.shamansir.sametimed.wave;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.WaveletOperationListener;
@@ -41,7 +43,7 @@ import name.shamansir.sametimed.wave.render.RenderMode;
 
 public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> implements WaveletOperationListener, ICommandsPerformer {	
 	
-	private static final Logger LOG = Logger.getLogger(WavesClient.class.getName());
+    private static final Log LOG = LogFactory.getLog(WavesClient.class);
 	
 	private final boolean LOG_OPS = true;
 	

@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
@@ -36,7 +38,7 @@ import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	
-	private static final Logger LOG = Logger.getLogger(AbstractModulatedWavelet.class.getName());
+    private static final Log LOG = LogFactory.getLog(AbstractModulatedWavelet.class);
 	
 	private Map<String, IModuleWithDocument<?>> registeredModules = new HashMap<String, IModuleWithDocument<?>>();	
 	
@@ -76,7 +78,7 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 		try {
 			prepareModules();
 		} catch (ParseException e) {
-			LOG.severe("Documents preparation failed: " + e.getMessage());
+			LOG.error("Documents preparation failed: " + e.getMessage());
 			e.printStackTrace();
 		}
 		registeredModules = registerModules(new HashMap<String, IModuleWithDocument<?>>());		

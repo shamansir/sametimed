@@ -15,7 +15,7 @@ import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuffer;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
-public class TestDocumentSequencer {	
+public class TestDocumentSequencer {
 	
 	private DocumentsHolder documentsHolder = new DocumentsHolder();
 	SimpleOperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new SimpleOperationsRecordingCursor();

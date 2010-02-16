@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import name.shamansir.sametimed.wave.messaging.IUpdatesListener;
 import name.shamansir.sametimed.wave.messaging.ModelUpdateMessage;
@@ -16,6 +15,9 @@ import name.shamansir.sametimed.wave.render.RenderMode;
 import name.shamansir.sametimed.wave.render.NullRenderer;
 import name.shamansir.sametimed.wave.render.WavesClientInfoProvider;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientUtils;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientWaveView;
@@ -36,7 +38,7 @@ public abstract class AbstractUpdatingWavelet {
 	public static final String NOT_CONNECTED_ERR = "not connected, run \"/connect user@domain server port\"";
 	public static final String NOT_OPENED_WAVE_ERR = "Error: no wave is open, run \"/open index\"";
 	
-	private static final Logger LOG = Logger.getLogger(AbstractUpdatingWavelet.class.getName());	
+	private static final Log LOG = LogFactory.getLog(AbstractUpdatingWavelet.class);	
 	
 	private final int clientID;
 	
@@ -60,22 +62,28 @@ public abstract class AbstractUpdatingWavelet {
 	private Set<IUpdatesListener> updatesListeners = new HashSet<IUpdatesListener>();
 	
 	public AbstractUpdatingWavelet(int clientID, IWavesClientRenderer renderer) {
+	    
+	    LOG.debug("Creating updating wavelet with ID " + clientID);
 		this.clientID = clientID;
 		this.waveletModel = new WaveletModel(this.clientID, getAdditionalModels());
+		
 		if (renderer == null) {
 			this.renderUpdates = false;
 			this.renderer = getDefaultRenderer();
+			LOG.debug("Using default renderer for wavelet " + clientID);
 		} else {
 			this.renderUpdates = true;
 			this.renderer = renderer;
-		}		
+			LOG.debug("Using renderer " + renderer.getClass().getName() + " for wavelet " + clientID);
+		}
+		
 	}
 	
 	/* ====== BASIC METHODS ====== */
 	
-	// FIXME: store errors texts as constants	
+	// FIXME: store errors texts as constants
 	public void registerError(String errorText) {
-		LOG.warning("Client Error: " + errorText);
+		LOG.warn("Client Error: " + errorText);
 		errors.add(errorText);
 		updateModel(ModelID.ERRORBOX_MODEL, errors);
 	}	

@@ -4,9 +4,11 @@ import java.text.ParseException;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import name.shamansir.sametimed.wave.WavesClient;
 
@@ -32,7 +34,7 @@ import name.shamansir.sametimed.wave.WavesClient;
 
 public class Command implements IServerInfoPackage {
 	
-	private static final Logger LOG = Logger.getLogger(Command.class.getName());
+    private static final Log LOG = LogFactory.getLog(Command.class);
 	
 	// Commands format: cmd(32[ chat][ attr1("val1") attr2("val2") ... ])
 	// Example of correct command: cmd(32 chat arg1("val1") arg2("val2") )
@@ -121,10 +123,10 @@ public class Command implements IServerInfoPackage {
 				}				
 				return new Command(clientID, commandType, relatedModule, arguments);
 			} catch (NumberFormatException nfe) {
-				LOG.severe("Exception thrown while decoding/parsing command text: \"" + encodedCmd + "\"; " + nfe.getMessage());
+				LOG.warn("Exception thrown while decoding/parsing command text: \"" + encodedCmd + "\"; " + nfe.getMessage());
 				throw new ParseException(nfe.getMessage(), 0);
 			} catch (ParseException pe) {
-				LOG.severe("Exception thrown while decoding/parsing command text: \"" + encodedCmd + "\"; " + pe.getMessage());
+				LOG.warn("Exception thrown while decoding/parsing command text: \"" + encodedCmd + "\"; " + pe.getMessage());
 				throw pe;
 			}
 		} else throw new ParseException("Command [" + encodedCmd + "] can not be parsed because it does not matches regular expression " + CMD_RE, 0);

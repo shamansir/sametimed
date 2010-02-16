@@ -1,18 +1,19 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
 public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocumentTag> implements DocInitializationCursor {
 	
-	private static final Logger LOG = Logger.getLogger(AbstractElementsScannerCursor.class.getName());
+    private static final Log LOG = LogFactory.getLog(AbstractElementsScannerCursor.class);
 	
 	private AtomicBoolean gotEnd;
 	private AtomicBoolean gotCharacters;
@@ -44,7 +45,7 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 								  type, attrs);
 			if (currentTag == null) this.skipElement.set(true);
 		} catch (IllegalArgumentException iae) {
-			LOG.warning("exception thrown while parsing element " + type +
+			LOG.warn("exception thrown while parsing element " + type +
 					" with attrs " + attrs + ": " + iae.getMessage());
 			this.skipElement.set(true);
 		}

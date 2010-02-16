@@ -3,7 +3,9 @@ package name.shamansir.sametimed.wave;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * 
@@ -18,7 +20,7 @@ import java.util.logging.Logger;
 @SuppressWarnings("serial")
 public final class WaveServerProperties extends Properties {
 	
-	private static final Logger LOG = Logger.getLogger(WaveServerProperties.class.getName());
+    private static final Log LOG = LogFactory.getLog(WaveServerProperties.class);
 	
 	private static final String PROPS_FILE_PATH = "/waveserver.properties";
 	
@@ -43,8 +45,7 @@ public final class WaveServerProperties extends Properties {
         
         if (null == is) {
         	// throw new FileNotFoundException("Can't locate file:" +PROPS_FILENAME);        	
-        	LOG.warning(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
-        	System.err.println(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
+        	LOG.warn(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
         	return false;
         }
         
@@ -53,8 +54,7 @@ public final class WaveServerProperties extends Properties {
             return true;
         } catch (IOException ioe) {
             // throw new FileNotFoundException("Can't locate file:" +PROPS_FILENAME);        	
-        	LOG.warning(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
-            System.err.println(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
+        	LOG.warn(String.format(NOT_FOUND_STR, PROPS_FILE_PATH));
             return false;
         }		
 	}

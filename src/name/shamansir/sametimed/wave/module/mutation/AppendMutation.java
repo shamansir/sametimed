@@ -6,12 +6,13 @@ import name.shamansir.sametimed.wave.module.mutation.proto.IModuleDocumentMutati
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
 public class AppendMutation implements IModuleDocumentMutation {
 	
-	//private static final Logger LOG = Logger.getLogger(AppendMutation.class.getName());
+    // private static final Log LOG = LogFactory.getLog(AppendMutation.class);
 	
 	private final ParticipantId author;
 	private final String text;
