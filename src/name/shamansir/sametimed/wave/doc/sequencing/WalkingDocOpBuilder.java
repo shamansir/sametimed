@@ -4,7 +4,7 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 public class WalkingDocOpBuilder extends DocOpBuilder {
-	
+    
 	private final DocumentWalker docWalker; 
 	
 	public WalkingDocOpBuilder(DocumentWalker docWalker) {
@@ -14,19 +14,19 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 
 	@Override
 	public DocOpBuilder elementStart(String type, Attributes attrs) {
-		docWalker.stepElmFwd();
+		docWalker.addElmStart();
 		return super.elementStart(type, attrs);
 	}	
 	
 	@Override
 	public DocOpBuilder characters(String s) {
-		docWalker.stepCharsFwd(s.length());
+		docWalker.addElmChars(s.length());
 		return super.characters(s);
 	}	
 
 	@Override
 	public DocOpBuilder elementEnd() {
-		docWalker.stepElmFwd();
+		docWalker.addElmEnd();
 		return super.elementEnd();
 	}
 	

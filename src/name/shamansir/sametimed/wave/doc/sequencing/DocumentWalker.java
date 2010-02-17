@@ -1,31 +1,33 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
 public class DocumentWalker extends DocumentState {
-	
+    
 	private int curPos = 0; // TODO: make atomic
 	private int curPosElms = 0; // TODO: make atomic
 	private int curPosChars = 0; // TODO: make atomic
 	
+	public DocumentWalker() { super(); }
+ 	
+	protected DocumentWalker(DocumentState initFrom) { super(initFrom); }
+	
 	@Override
 	public DocumentState addElmStart() {
-		super.addElmStart();
+		super.addElmStart(curPos);
 		stepElmFwd();
 		return this;
 	}
 	
 	@Override
-	public DocumentState addElmEnd() {	
-		super.addElmEnd();
+	public DocumentState addElmEnd() {
+        super.addElmEnd(curPos);
 		stepElmFwd();
 		return this;
 	}		
 	
 	@Override
 	public DocumentState addElmChars(int howMany) {
-		super.addElmChars(howMany);
-		curPos++;
-		curPosElms += howMany;
-		curPosChars += howMany;
+		super.addElmChars(curPos, howMany);
+		stepCharsFwd(howMany);
 		return this;
 	}
 	
@@ -35,8 +37,8 @@ public class DocumentWalker extends DocumentState {
 	}	
 	
 	@Override
-	public DocumentState clear() {
-		super.clear();
+	public DocumentWalker clear() {
+	    super.clear();
 		curPos = curPosElms = curPosChars = 0;
 		return this;
 	}
@@ -62,9 +64,10 @@ public class DocumentWalker extends DocumentState {
 	}
 	
 	// returns required step in elements
-	protected int scrollBy(int chars) {
+	protected int scrollTo(int chars) {
 		int prevPos = curPosElms;
 		int size = data.size();
+		
 		while ((curPosChars < chars) && (curPos < size)) {
 			int value = data.get(curPos); 
 			if ((value == ELM_START_CODE) ||
@@ -78,6 +81,7 @@ public class DocumentWalker extends DocumentState {
 			&& (data.get(curPos) == ELM_END_CODE)) {
 			stepElmFwd();
 		}
+		
 		return curPosElms - prevPos;
 	}
 
@@ -99,7 +103,7 @@ public class DocumentWalker extends DocumentState {
 		curPos--;
 		curPosElms -= chars;
 		curPosChars -= chars;				
-	}	
+	}
 
 	// returns required step in elements
 	/*

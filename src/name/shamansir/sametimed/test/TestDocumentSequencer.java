@@ -168,7 +168,7 @@ public class TestDocumentSequencer {
 		
 		BufferedDocOp opWasBuilt = null; 
 		
-		// test scrolling to 11 chars and add tag there
+		// test scrolling to 14 chars and add tag there
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.setCurrentDocument(encodedDoc);		
@@ -196,7 +196,7 @@ public class TestDocumentSequencer {
 	public void testAddingAndScrolling() throws DocumentProcessingException {
 		BufferedDocOp opWasBuilt = null; 
 		
-		// test making tag and then scrolling to 11 chars
+		// test making tag and then scrolling to 12 chars
 		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
 		BufferedDocOp encodedDoc = createDocument(docInitCode);
 		documentsHolder.setCurrentDocument(encodedDoc);
@@ -218,9 +218,11 @@ public class TestDocumentSequencer {
 		opWasBuilt = documentsHolder.finishOperations().getOperation();
 		opWasBuilt.apply(recordingCursor);
 		
-		//        1 123 123456  
-		// [qrst].[ abc defgh] [i
-		Assert.assertEquals("{qrst}(*1)(*3)(*6)", recordingCursor.finish());
+		// 0-step will be skipped
+		
+		//        1234 123456  
+		// [qrst].[abc defgh] [i
+		Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());
 		
 	}
 	

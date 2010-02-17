@@ -12,6 +12,16 @@ public class DocumentState {
 	private int sizeInElms = 0; // TODO: make atomic
 	private int sizeInChars = 0; // TODO: make atomic
 	
+	public DocumentState() {
+	    
+	}
+	
+	protected DocumentState(DocumentState initFrom) {
+	    this.data = initFrom.data;
+	    this.sizeInElms = initFrom.sizeInElms;
+	    this.sizeInChars = initFrom.sizeInChars;
+	}
+	
 	public DocumentState addElmStart() {
 		data.add(ELM_START_CODE);
 		sizeInElms++;
@@ -31,6 +41,25 @@ public class DocumentState {
 		return this;
 	}
 	
+    protected DocumentState addElmStart(int pos) {
+        data.add(pos, ELM_START_CODE);
+        sizeInElms++;
+        return this;
+    }
+    
+    protected DocumentState addElmEnd(int pos) {          
+        data.add(pos, ELM_END_CODE);
+        sizeInElms++;
+        return this;
+    }       
+    
+    protected DocumentState addElmChars(int pos, int howMany) {
+        data.add(pos, howMany);
+        sizeInChars += howMany;
+        sizeInElms += howMany;
+        return this;
+    }	
+	
 	public DocumentState clear() {
 		data = new ArrayList<Integer>();
 		sizeInChars = sizeInElms = 0;
@@ -44,5 +73,20 @@ public class DocumentState {
 	public int docSizeInElms() {
 		return sizeInElms;
 	}
+	
+	/* protected DocumentState insElmStart(int pos) {
+	    // TODO: implement
+	    return this;
+	}
+	
+    protected DocumentState insElmEnd(int pos) {
+        // TODO: implement        
+        return this;
+    }
+    
+    protected DocumentState insElmChars(int pos, int howMany) {
+        // TODO: implement   
+        return this;
+    } */  
 	
 }
