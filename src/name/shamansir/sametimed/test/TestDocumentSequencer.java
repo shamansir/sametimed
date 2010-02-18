@@ -16,6 +16,8 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuffer;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 public class TestDocumentSequencer {
+    
+    private static final String DEFAULT_TAG_NAME = "a"; 
 	
 	private DocumentsHolder documentsHolder = new DocumentsHolder();
 	SimpleOperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new SimpleOperationsRecordingCursor();
@@ -178,7 +180,7 @@ public class TestDocumentSequencer {
 		documentsHolder.scrollToPos(14); // to 14 chars, between 'n' and 'o'
 		
 		DocOpBuilder doBuilder = documentsHolder.unhideOp();
-		doBuilder.elementStart("a", AttributesImpl.EMPTY_MAP);
+		doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
 		doBuilder.characters("qrst");
 		doBuilder.elementEnd();
 		
@@ -204,7 +206,7 @@ public class TestDocumentSequencer {
 		documentsHolder.startOperations();		
 		
 		DocOpBuilder doBuilder = documentsHolder.unhideOp();
-		doBuilder.elementStart("a", AttributesImpl.EMPTY_MAP);
+		doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
 		doBuilder.characters("qrst");
 		doBuilder.elementEnd();
 		// docCode now: [qrst][abcdefgh][ijkl][mnop]
@@ -222,24 +224,95 @@ public class TestDocumentSequencer {
 		
 		//        1234 123456  
 		// [qrst].[abc defgh] [i
-		Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());
-		
+		Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());		
 	}
-	
-	
+		
 	@Test
 	public void testScrollingAddingAndScrollingAgain() throws DocumentProcessingException {
-		Assert.fail();
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test scrolling to 5 chars, making tag and then scrolling to 12 chars
+        final String docInitCode = "[abcdefgh][ijkl][mnop]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentsHolder.setCurrentDocument(encodedDoc);
+        
+        documentsHolder.startOperations();
+        
+        documentsHolder.scrollToPos(5); //  to 5 chars, between 'e' and 'f'
+        
+        DocOpBuilder doBuilder = documentsHolder.unhideOp();
+        doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.characters("qrst");
+        doBuilder.elementEnd();
+        // docCode now: [abcde[qrst]fgh][ijkl][mnop]
+        
+        documentsHolder.scrollToPos(10); //  to 10 chars, between 'f' and 'g'
+        documentsHolder.scrollToPos(14); //  to 14  chars, between 'j' and 'k'
+        documentsHolder.scrollToPos(16); // to 16 chars, between 'l' and 'm'
+        
+        opWasBuilt = documentsHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        
+        // 123456        1 123456 123
+        // [abcde [qrst] f gh][ij kl] [mn
+        Assert.assertEquals("(*6){qrst}(*1)(*6)(*3)", recordingCursor.finish());
 	}
 	
 	@Test
 	public void testScrollingAndDeleting() throws DocumentProcessingException {
-		Assert.fail();
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test scrolling to 6 chars and delete tag there
+        final String docInitCode = "[abc][def][ghijkl][mnop]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentsHolder.setCurrentDocument(encodedDoc);     
+        
+        documentsHolder.startOperations();
+        documentsHolder.scrollToPos(4); //  to 4 chars, between 'd' and 'e'
+        documentsHolder.scrollToPos(6); //  to 6 chars, between 'f' and 'g'
+        
+        DocOpBuilder doBuilder = documentsHolder.unhideOp();
+        doBuilder.deleteElementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.deleteCharacters("ghijkl");
+        doBuilder.deleteElementEnd();
+        
+        opWasBuilt = documentsHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        
+        // 1234567 123 -------- 
+        // [abc][d ef] [ghijkl] [mnop]
+        Assert.assertEquals("(*7)(*3)(-{)(-ghijkl)(-})", recordingCursor.finish());
+        // docCode now: [abc][def][mnop]
 	}
 	
 	@Test
 	public void testDeletingAndScrolling() throws DocumentProcessingException {
-		Assert.fail();
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test scrolling to 3 chars, delete tag there, and then scroll more
+        final String docInitCode = "[abc][def][ghijkl][mnop]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentsHolder.setCurrentDocument(encodedDoc);     
+        
+        documentsHolder.startOperations();
+        documentsHolder.scrollToPos(3); //  to 3 chars, between 'c' and 'd'
+        
+        DocOpBuilder doBuilder = documentsHolder.unhideOp();
+        doBuilder.deleteElementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.deleteCharacters("def");
+        doBuilder.deleteElementEnd();
+        // docCode now: [abc][ghijkl][mnop]
+        
+        documentsHolder.scrollToPos(7); //  to 7 chars, between 'j' and 'k'
+        documentsHolder.scrollToPos(9); //  to 9 chars, between 'l' and 'm'
+        
+        opWasBuilt = documentsHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        
+        // 12345 ----- 12345 123 
+        // [abc] [def] [ghij kl] [mnop]
+        Assert.assertEquals("(*5)(-{)(-def)(-})(*5)(*3)", recordingCursor.finish());
+        // docCode now: [abc][ghijkl][mnop]
 	}
 	
 	@Test
@@ -293,7 +366,7 @@ public class TestDocumentSequencer {
 		public BufferedDocOp compile() {
 			for (byte b: code.getBytes()) {
 				if (b == (byte)'[') {
-					document.elementStart("n", AttributesImpl.EMPTY_MAP);
+					document.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
 				} else if (b == (byte)']') {
 					document.elementEnd();
 				} else {

@@ -31,6 +31,11 @@ public class DocumentWalker extends DocumentState {
 		return this;
 	}
 	
+	public DocumentState delCurElm() {
+	    super.deleteElm(curPos);
+	    return this;
+	}
+	
 	public DocumentWalker resetPosition() {
 		curPos = curPosElms = curPosChars = 0;
 		return this;
@@ -45,6 +50,10 @@ public class DocumentWalker extends DocumentState {
 	
 	public int curPos() {
 		return curPosChars;
+	}
+	
+	protected int curPosElms() {
+	    return curPosElms;
 	}
 
 	// returns required step in elements 

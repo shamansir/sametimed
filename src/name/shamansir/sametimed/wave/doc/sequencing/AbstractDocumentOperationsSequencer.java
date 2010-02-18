@@ -94,7 +94,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		BufferedDocOp sourceDoc = getSource(); 
 		if (sourceDoc == null) return cursor;
 		cursor.useDocOp(curDocOp);
-		cursor.setWalkStart(docWalker.curPos());
+		cursor.setWalkStart(docWalker.curPosElms());
 		sourceDoc.apply(new InitializationCursorAdapter(cursor));
 		curDocOp = cursor.takeDocOp();
 		
