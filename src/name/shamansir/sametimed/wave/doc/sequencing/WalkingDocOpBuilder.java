@@ -32,19 +32,19 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	
 	@Override
 	public DocOpBuilder deleteElementStart(String type, Attributes attrs) {
-		docWalker.delCurElm();
+		docWalker.deleteElmStart();
 		return super.deleteElementStart(type, attrs);
 	}
 	
 	@Override
 	public DocOpBuilder deleteCharacters(String s) {
-	    docWalker.delCurElm();
+	    docWalker.deleteElmChars(s.length());
 		return super.deleteCharacters(s);
 	}
 
 	@Override
 	public DocOpBuilder deleteElementEnd() {
-	    docWalker.delCurElm();
+	    docWalker.deleteElmEnd();
 		return super.deleteElementEnd();
 	}
 	

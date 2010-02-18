@@ -60,8 +60,39 @@ public class DocumentState {
         return this;
     }
     
+    protected DocumentState deleteElmStart(int pos) {
+        // TODO: is check == ELM_START_CODE required?
+        data.remove(pos); 
+        sizeInElms--;
+        return this;
+    }
+    
+    protected DocumentState deleteElmEnd(int pos) {
+        // TODO: is check == ELM_END_CODE required?
+        data.remove(pos); 
+        sizeInElms--;
+        return this;        
+    }    
+    
+    protected DocumentState deleteElmChars(int pos, int howMany) {
+        int deleted = 0;
+        if (howMany > 0) {
+            while (deleted <= howMany) {
+                int val = data.get(pos);
+                if (val > 0) {
+                    deleted += val;
+                    data.remove(pos);
+                } else break;
+            }
+        }
+        return this;
+    }
+    
+    /*
     protected DocumentState deleteElm(int pos) {
         int val = data.get(pos);
+        // FIXME: get num of chars and delete while it is not reached,
+        //        because data can be -1, 1, 1, 1, -2, -1, 2, 3, -2 
         if ((val == ELM_START_CODE) || (val == ELM_END_CODE)) {
             data.remove(pos);            
             sizeInElms--;
@@ -71,7 +102,7 @@ public class DocumentState {
             sizeInElms -= val;
         }
         return this;
-    }
+    } */
         
     public DocumentState clear() {
         data = new ArrayList<Integer>();

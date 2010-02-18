@@ -31,10 +31,20 @@ public class DocumentWalker extends DocumentState {
 		return this;
 	}
 	
-	public DocumentState delCurElm() {
-	    super.deleteElm(curPos);
+	public DocumentState deleteElmStart() {
+	    super.deleteElmStart(curPos);
 	    return this;
 	}
+	
+    public DocumentState deleteElmEnd() {
+        super.deleteElmStart(curPos);
+        return this;
+    }	
+	
+    public DocumentState deleteElmChars(int howMany) {
+        super.deleteElmChars(curPos, howMany);
+        return this;
+    }	
 	
 	public DocumentWalker resetPosition() {
 		curPos = curPosElms = curPosChars = 0;

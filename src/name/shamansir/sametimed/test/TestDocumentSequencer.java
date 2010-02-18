@@ -249,13 +249,14 @@ public class TestDocumentSequencer {
         documentsHolder.scrollToPos(10); //  to 10 chars, between 'f' and 'g'
         documentsHolder.scrollToPos(14); //  to 14  chars, between 'j' and 'k'
         documentsHolder.scrollToPos(16); // to 16 chars, between 'l' and 'm'
+        documentsHolder.scrollToPos(20); // to 20 chars, after 'p'
         
         opWasBuilt = documentsHolder.finishOperations().getOperation();
         opWasBuilt.apply(recordingCursor);
         
-        // 123456        1 123456 123
-        // [abcde [qrst] f gh][ij kl] [mn
-        Assert.assertEquals("(*6){qrst}(*1)(*6)(*3)", recordingCursor.finish());
+        // 123456        1 123456 123 123456 
+        // [abcde [qrst] f gh][ij kl] [mnop]
+        Assert.assertEquals("(*6){qrst}(*1)(*6)(*3)(*6)", recordingCursor.finish());
 	}
 	
 	@Test
