@@ -251,6 +251,13 @@ public class TestDocumentSequencer {
         documentsHolder.scrollToPos(16); // to 16 chars, between 'l' and 'm'
         documentsHolder.scrollToPos(20); // to 20 chars, after 'p'
         
+        try {
+            documentsHolder.scrollToPos(21);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass            
+        }        
+        
         opWasBuilt = documentsHolder.finishOperations().getOperation();
         opWasBuilt.apply(recordingCursor);
         
@@ -318,13 +325,92 @@ public class TestDocumentSequencer {
 	
 	@Test
 	public void testAddingAndDeleting() throws DocumentProcessingException {
-		Assert.fail();
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test scrolling to 5 chars, add tag there, then scroll more, and then 
+        // delete tag and scroll to end
+        final String docInitCode = "[abcde][fghi][jklm][nopqr]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentsHolder.setCurrentDocument(encodedDoc);     
+        
+        documentsHolder.startOperations();
+        documentsHolder.scrollToPos(5); //  to 5 chars, between 'e' and 'f'
+        
+        DocOpBuilder doBuilder = documentsHolder.unhideOp();
+        doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.characters("123456");
+        doBuilder.elementEnd();
+        // docCode now: [abcde][123456][fghi][jklm][nopqr]
+        
+        documentsHolder.scrollToPos(15); //  to 15 chars, between 'i' and 'j'
+        
+        doBuilder.deleteElementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.deleteCharacters("jk");
+        doBuilder.deleteCharacters("lm");
+        doBuilder.deleteElementEnd();
+        // docCode now: [abcde][123456][fghi][nopqr]       
+        
+        documentsHolder.scrollToPos(20); //  to 20 chars, after 'r'
+        try {
+            documentsHolder.scrollToPos(21);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass            
+        }
+        
+        opWasBuilt = documentsHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        
+        // 1234567 ++++++++ 123456 ------ 1234567
+        // [abcde] [123456] [fghi] [jklm] [nopqr]
+        Assert.assertEquals("(*7){123456}(*6)(-{)(-jk)(-lm)(-})(*7)", recordingCursor.finish());
+        // docCode now: [abcde][123456][fghi][nopqr]
 	}
 	
 	@Test
 	public void testDeletingAndAdding() throws DocumentProcessingException {
-		Assert.fail();
-	}	
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test scrolling to 5 chars, delete tag there, then scroll more, and then add tag and scroll to end
+        final String docInitCode = "[abcde][fghij][klm][nopqrs]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentsHolder.setCurrentDocument(encodedDoc);     
+        
+        documentsHolder.startOperations();
+        documentsHolder.scrollToPos(5); //  to 5 chars, between 'e' and 'f'
+        
+        DocOpBuilder doBuilder = documentsHolder.unhideOp();
+        doBuilder.deleteElementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.deleteCharacters("fghij");
+        doBuilder.deleteElementEnd();
+        // docCode now: [abcde][klm][nopqrs]
+        
+        documentsHolder.scrollToPos(8); //  to 8 chars, between 'm' and 'n'
+        
+        doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.characters("12");
+        doBuilder.characters("34567");
+        doBuilder.elementEnd();
+        // docCode now: [abcde][klm][1234567][nopqrs]      
+        
+        documentsHolder.scrollToPos(21); //  to 21 chars, after 'r'
+        try {
+            documentsHolder.scrollToPos(22);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass            
+        }
+        
+        opWasBuilt = documentsHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        
+        // 1234567 ------- 12345 +++++++++ 12345678
+        // [abcde] [fghij] [klm] [1234567] [nopqrs]
+        Assert.assertEquals("(*7)(-{)(-fghij)(-})(*5){1234567}(*8)", recordingCursor.finish());
+        // docCode now: [abcde][123456][fghi][nopqr]
+	}
+	
+	// FIXME: add cursors tests
 		
 	private BufferedDocOp createDocument(String documentCode) {
 		return (new EncodedDocumentBuilder(documentCode)).compile();

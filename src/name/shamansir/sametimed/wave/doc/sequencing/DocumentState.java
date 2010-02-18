@@ -84,6 +84,8 @@ public class DocumentState {
                     data.remove(pos);
                 } else break;
             }
+            sizeInElms -= deleted;
+            sizeInChars -= deleted;
         }
         return this;
     }
