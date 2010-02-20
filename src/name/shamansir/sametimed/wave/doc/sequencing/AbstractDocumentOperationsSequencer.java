@@ -89,7 +89,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		if (cursor == null) throw new DocumentProcessingException("Null cursor is passed");
 		
-		LOG.debug("applying cursor " + cursor + " to the document");
+		LOG.debug("applying cursor " + cursor.toString() + " to the document");
 		
 		BufferedDocOp sourceDoc = getSource(); 
 		if (sourceDoc == null) return cursor;

@@ -74,6 +74,8 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	
 	@Override 
 	protected void prepareNewWave(ClientWaveView newWave) {
+	    LOG.debug("preparing new wave " + newWave.getWaveId());
+	    
 		super.prepareNewWave(newWave);
 		try {
 			prepareModules();
@@ -117,6 +119,8 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	// FIXME: Test if things work when module ID is different than inner document ID
 	
 	public boolean applyModuleMutation(String moduleID, IModuleDocumentMutation mutation) {
+	    LOG.debug("applying " + mutation.getClass().getName() + " mutation to module \'" + moduleID + "\'");
+	    
 		if (isWaveOpen()) {
 			IModuleWithDocument<?> module = getRegisteredModule(moduleID);
 			if (module != null) {
@@ -141,6 +145,8 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 	}
 		
 	public void applyModulesMutation(IModuleDocumentMutation mutation) {
+	    LOG.debug("applying " + mutation.getClass().getName() + " mutation to all modules");
+	    
 		if (isWaveOpen()) {
 			for (IModuleWithDocument<?> module: registeredModules.values()) {
 				try {

@@ -37,7 +37,7 @@ public class JSUpdatesListener implements IUpdatesListener {
 	}
 	
 	public void onUpdate(UpdateMessage updateMessage) {
-		// FIXME: Updates are generated even for closed and sent to all clients
+		// FIXME: Updates are generated even for closed clients (sent to all created clients)
 		
 		final ScriptBuffer script = new ScriptBuffer(); 
 		script.appendScript(JS_UPDATES_HANDLER + "(")

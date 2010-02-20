@@ -2,6 +2,9 @@ package name.shamansir.sametimed.wave.messaging;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * @author shamansir <shaman.sir@gmail.com>
  * 
@@ -11,7 +14,7 @@ import java.util.Map;
  */
 public class UpdateMessage implements IServerInfoPackage {
 	
-	// private static final Logger LOG = Logger.getLogger(UpdateMessage.class.getName());	
+	private static final Log LOG = LogFactory.getLog(UpdateMessage.class.getName());	
 	
 	private final int clientID;
 	private final MessageTypeID typeID;
@@ -22,7 +25,9 @@ public class UpdateMessage implements IServerInfoPackage {
 		this.clientID = clientID;
 		this.typeID = typeID;
 		this.arguments = arguments;		
-		// this.baseOperation = (baseOperation != null) ? baseOperation : tryToCreate(typeID, arguments);		
+		// this.baseOperation = (baseOperation != null) ? baseOperation : tryToCreate(typeID, arguments);
+		
+		LOG.debug("created update message for client " + clientID + " with type \'" + typeID.getName() + "\'");
 	}
 	
 	@Override

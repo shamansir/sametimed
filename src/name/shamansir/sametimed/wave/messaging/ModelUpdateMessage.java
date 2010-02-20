@@ -3,6 +3,9 @@ package name.shamansir.sametimed.wave.messaging;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import name.shamansir.sametimed.wave.model.AbstractModel;
 import name.shamansir.sametimed.wave.model.ModelID;
 
@@ -17,6 +20,8 @@ import name.shamansir.sametimed.wave.model.ModelID;
  */
 public class ModelUpdateMessage extends UpdateMessage {
 	
+    private static final Log LOG = LogFactory.getLog(ModelUpdateMessage.class);
+    
 	private ModelID modelID;
 	private AbstractModel<?, ?> model;
 	
@@ -25,9 +30,10 @@ public class ModelUpdateMessage extends UpdateMessage {
 	
 	// FIXME: make update messages contain both module ID and document ID
 
-	public ModelUpdateMessage(int clientID, ModelID modelID, AbstractModel<?, ?> model) { 
+	public ModelUpdateMessage(int clientID, ModelID modelID, AbstractModel<?, ?> model) {
 		super(clientID, MessageTypeID.MSG_MODEL_UPDATE, 
 				prepareMsgArguments(modelID, model));
+        LOG.debug("(created model update message for client " + clientID + " and model \'" + modelID.getAlias() + "\')");		
 	}
 	
 	private static Map<String, String> 
@@ -39,7 +45,7 @@ public class ModelUpdateMessage extends UpdateMessage {
 	}
 	
 	@Override
-	public String encode() {
+	public String encode() {	    
 		String encodedMsg = getType().getName() + "(";
 		encodedMsg += Integer.toString(getClientID()) + " ";
 		encodedMsg += getArgument(ALIAS_PARAM_NAME) + " ";  

@@ -61,9 +61,9 @@ public abstract class AbstractUpdatingWavelet {
 	
 	private Set<IUpdatesListener> updatesListeners = new HashSet<IUpdatesListener>();
 	
-	public AbstractUpdatingWavelet(int clientID, IWavesClientRenderer renderer) {
+	public AbstractUpdatingWavelet(int clientID, IWavesClientRenderer renderer) {	    
+	    LOG.info("Creating updating wavelet with ID " + clientID);
 	    
-	    LOG.debug("Creating updating wavelet with ID " + clientID);
 		this.clientID = clientID;
 		this.waveletModel = new WaveletModel(this.clientID, getAdditionalModels());
 		
@@ -83,7 +83,7 @@ public abstract class AbstractUpdatingWavelet {
 	
 	// FIXME: store errors texts as constants
 	public void registerError(String errorText) {
-		LOG.warn("Client Error: " + errorText);
+		LOG.warn("Wavelet " + clientID + ": Client Error: " + errorText);
 		errors.add(errorText);
 		updateModel(ModelID.ERRORBOX_MODEL, errors);
 	}	
@@ -122,6 +122,8 @@ public abstract class AbstractUpdatingWavelet {
 	}
 	
 	protected <SourceType> void updateModel(ModelID modelType, SourceType model, UpdateMessage message) {
+	    LOG.debug("Wavelet " + clientID + ": update for model type \'" + modelType.getAlias() + "\' requested");
+	    
 		waveletModel.useModel(modelType, model);
 		AbstractModel<?, ?> newModel = waveletModel.getModel(modelType);
 		if (renderUpdates) renderer.renderByModel(newModel);		
@@ -320,6 +322,7 @@ public abstract class AbstractUpdatingWavelet {
 	}	
 	
 	protected boolean setViewMode(RenderMode mode) {
+	    LOG.info("Wavelet " + clientID + ": Changing view mode to " + mode.name());
 		if (isWaveOpen()) {
 			onViewModeChanged(mode);						
 			renderer.setRenderingMode(mode);

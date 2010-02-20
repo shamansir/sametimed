@@ -1,5 +1,7 @@
 package name.shamansir.sametimed.wave.module;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.waveprotocol.wave.examples.fedone.waveclient.common.ClientBackend;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
@@ -11,6 +13,8 @@ import name.shamansir.sametimed.wave.module.mutation.UndoMutation;
 import name.shamansir.sametimed.wave.render.proto.IWavesClientRenderer;
 
 public abstract class AbstractModulatedWavesClient<WaveletType extends AbstractModulatedWavelet> extends WavesClient<WaveletType> {
+    
+    private static final Log LOG = LogFactory.getLog(AbstractModulatedWavesClient.class);
 	
 	public AbstractModulatedWavesClient(IWavesClientRenderer renderer) {
 		super(renderer);
@@ -25,6 +29,7 @@ public abstract class AbstractModulatedWavesClient<WaveletType extends AbstractM
 	protected abstract void registerCommands();
 	
 	protected void registerNewCommand(CommandTypeID command) {
+	    LOG.debug("Registered new command \'" + command.getName() + "\' for wavelet \'" + getViewID() + "\'");
 		// FIXME: implement
 	}
 

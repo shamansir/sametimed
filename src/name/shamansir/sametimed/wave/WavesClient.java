@@ -45,8 +45,6 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	
     private static final Log LOG = LogFactory.getLog(WavesClient.class);
 	
-	private final boolean LOG_OPS = true;
-	
 	private static int LAST_VIEW_ID = -1;
 	private final int VIEW_ID;
 	
@@ -71,7 +69,7 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	
 	/* GETTERS */
 	
-	protected synchronized int generateViewID() {
+	protected static synchronized int generateViewID() {
 		int newID = LAST_VIEW_ID + 1;
 		LAST_VIEW_ID = newID;
 		return newID;
@@ -91,13 +89,13 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	@Override
 	public void noOp(String author, WaveletData wavelet) {
 		// TODO Auto-generated method stub
-		if (LOG_OPS) LOG.info("NoOp fired");
+		LOG.debug("WaveOp: NoOp fired");
 		
 	}
 
 	@Override
 	public void onDeltaSequenceEnd(WaveletData wavelet) {
-		if (LOG_OPS) LOG.info("Delta Sequence End fired");
+		LOG.debug("WaveOp: Delta Sequence End fired");
 		// FIXME: must to make decision what to update		
 		curWavelet.onDeltaSequenceEnd(wavelet, isConnected() && (backend.getIndexWave() != null));
 	}
@@ -105,14 +103,14 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	@Override
 	public void onDeltaSequenceStart(WaveletData wavelet) {
 		// TODO Auto-generated method stub
-		if (LOG_OPS) LOG.info("Delta Sequence Start fired");
+		LOG.debug("WaveOp: Delta Sequence Start fired");
 		
 	}
 
 	@Override
 	public void participantAdded(String name, WaveletData wavelet,
 			ParticipantId participant) {
-		if (LOG_OPS) LOG.info("Participant added fired " + participant.getAddress());
+		LOG.debug("WaveOp: Participant added fired " + participant.getAddress());
 		if (isConnected()) {
 			curWavelet.onParticipantsUpdated();
 		}
@@ -121,7 +119,7 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	@Override
 	public void participantRemoved(String author, WaveletData wavelet,
 			ParticipantId participant) {
-		if (LOG_OPS) LOG.info("Participant added fired " + participant.getAddress());
+		LOG.debug("WaveOp: Participant added fired " + participant.getAddress());
 		if (isConnected()) {
 			curWavelet.onParticipantRemoved(wavelet.getWaveletName().waveId, participant, participant.equals(backend.getUserId()));
 		}
@@ -130,7 +128,7 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	@Override
 	public void waveletDocumentUpdated(String author, WaveletData wavelet,
 			WaveletDocumentOperation performed) {
-		if (LOG_OPS) LOG.info("Document updated fired");		
+		LOG.debug("WaveOp: Document updated fired");		
 	}
 	
 	public int getViewID() {
@@ -139,6 +137,7 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	
 	@SuppressWarnings("unchecked")
 	private synchronized static void registerClient(int clientID, WavesClient client) {
+	    LOG.info("Registering client with ID " + clientID);
 		registeredClients.put(Integer.valueOf(clientID), client);
 	}
 	
@@ -267,6 +266,8 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	
 	// identical to connect(asUser) but passes server and port to backend
 	protected boolean connect(String userAtDomain, String server, int port) {
+	    LOG.info("Client " + VIEW_ID + ": Connecting to " + server + ":" + port + " as " + userAtDomain);
+	    
 		if (isConnected()) {
 			curWavelet.registerError("Already connected to Wave Server");
 			cleanConnection();
@@ -288,7 +289,7 @@ public abstract class WavesClient <WaveletType extends AbstractUpdatingWavelet> 
 	private void afterSuccessfullConnection() {
 		backend.addWaveletOperationListener(this);
 		
-		LOG.info("Connected ok");
+		LOG.info("Client " + VIEW_ID + ": Connected ok");
 		
 		curWavelet.initWith(new WavesProvider(backend),
 				new WaveletOperationsSender(backend),

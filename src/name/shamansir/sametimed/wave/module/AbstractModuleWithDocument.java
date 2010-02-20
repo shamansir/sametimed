@@ -19,14 +19,16 @@ import name.shamansir.sametimed.wave.module.mutation.proto.IModuleDocumentMutati
 import name.shamansir.sametimed.wave.module.mutation.proto.MutationCompilationException;
 import name.shamansir.sametimed.wave.render.RenderMode;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import org.waveprotocol.wave.model.wave.ParticipantId;
 
-// FIXME: make getSrcDoc method to get SourceDocument	
-
 public abstract class AbstractModuleWithDocument<InnerType> extends AbstractDocumentOperationsSequencer implements IModuleWithDocument<InnerType> {
 	
+    private static final Log LOG = LogFactory.getLog(AbstractModuleWithDocument.class);
+    
 	private final AbstractUpdatingWavelet parent;
 	private final String moduleID;
 	private final String documentID;
@@ -35,7 +37,10 @@ public abstract class AbstractModuleWithDocument<InnerType> extends AbstractDocu
 	protected RenderMode outputMode = RenderMode.NORMAL;	
 		
 	public AbstractModuleWithDocument(AbstractUpdatingWavelet parent, String moduleID, String documentID, 
-			boolean structured, boolean enumerateTags) throws ParseException {		
+			boolean structured, boolean enumerateTags) throws ParseException {
+	    LOG.info("creating module \'" + moduleID + "\' with assigned document type \'" + documentID + "\'"
+	            + " (structured: " + structured + ")");
+	    
 		this.moduleID = validateID(moduleID);
 		this.documentID = validateID(documentID);		
 		this.structured = structured;
@@ -95,28 +100,38 @@ public abstract class AbstractModuleWithDocument<InnerType> extends AbstractDocu
 
 	@Override
 	public void addTag(AbstractDocumentTag newTag) throws DocumentProcessingException {
+	    LOG.debug("adding tag \'" + newTag.getName() + "\' to module \'" + moduleID + "\' document \'" + documentID + "\'");
+	    
 		if (getCurOp() == null) throw new DocumentProcessingException("The sequence was not started before adding tag or some similar error occured");
 		useAsCurOp(newTag.build(getCurOp())); // adds tag building operations to the current operation
 	}
 	
-	public AbstractDocumentTag makeTag(ParticipantId author, String text) {		
+	public AbstractDocumentTag makeTag(ParticipantId author, String text) {
 		return makeTag(nextTagID(), author, text);
 	}
 	
 	@Override
 	public void deleteTag(TagID tagID) throws DocumentProcessingException {
+	    LOG.debug("deleting tag \'" + tagID + "\' from module \'" + moduleID + "\' document \'" + documentID + "\'");
+	    
 		applyCursor(new DocumentElementDeletionCursor(tagID));
 	}
 	
 	public void deleteTag(int position) throws DocumentProcessingException {
+	    LOG.debug("deleting tag at pos " + position + " from module \'" + moduleID + "\' document \'" + documentID + "\'");
+	    
 		applyCursor(new DocumentElementDeletionByPosCursor(position));
 	}
 	
 	public AbstractDocumentTag deleteTagAndGet(TagID tagID) throws DocumentProcessingException {
+	    LOG.debug("deleting tag \'" + tagID + "\' from module \'" + moduleID + "\' document \'" + documentID + "\'");
+	    
 		return applyCursor(new DocumentElementCuttingCursor(tagID));
 	}		
 	
 	public AbstractDocumentTag deleteTagAndGet(int position) throws DocumentProcessingException {
+	    LOG.debug("deleting tag at pos " + position + " from module \'" + moduleID + "\' document \'" + documentID + "\'");
+	    
 		return applyCursor(new DocumentElementCuttingByPosCursor(position));
 	}	
 	

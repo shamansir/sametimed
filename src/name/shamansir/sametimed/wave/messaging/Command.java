@@ -81,6 +81,8 @@ public class Command implements IServerInfoPackage {
 	private final Map<String, String> arguments;
 
 	public Command(int clientID, CommandTypeID typeID, Map<String, String> arguments/*, WaveletOperation baseOperation*/) {
+	    LOG.debug("created command \'" + typeID.getName() + "\' for client " + clientID);
+	    
 		this.clientID = clientID;
 		this.typeID = typeID;
 		this.arguments = arguments;
@@ -89,6 +91,8 @@ public class Command implements IServerInfoPackage {
 	}
 	
 	public Command(int clientID, CommandTypeID typeID, String relatedModuleID, Map<String, String> arguments) {
+	    LOG.debug("created command \'" + typeID.getName() + "\' for client " + clientID + ", related to module \'" + relatedModuleID + "\'");
+	    
 		this.clientID = clientID;
 		this.typeID = typeID;
 		this.relatedModuleID = relatedModuleID;		
@@ -102,6 +106,8 @@ public class Command implements IServerInfoPackage {
 	}
 	
 	public static synchronized Command decode(String encodedCmd) throws ParseException {
+	    LOG.debug("decoding command " + encodedCmd);
+	    
 		Matcher cmdMatcher = CMD_RE_PATTERN.matcher(encodedCmd);
 		if (cmdMatcher.matches()) {
 			try {

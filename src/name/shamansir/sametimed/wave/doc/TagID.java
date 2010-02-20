@@ -161,6 +161,8 @@ public final class TagID {
 		return result + charVal(chars[len - 1]); 
 	}
 	
+	// TODO: implement methods allowing to get unique integer from any id
+	
 	/*
 	protected static String validate(String value) throws TagIDValidationException {
 		// NULL allowed

@@ -25,7 +25,6 @@ public class AppendMutation implements IModuleDocumentMutation {
 	@Override
 	public WaveletDocumentOperation applyTo(AbstractModuleWithDocument<?> module)
 			throws MutationCompilationException, DocumentProcessingException {
-		// TODO Auto-generated method stub
 		module.startOperations();
 		module.alignDocToEnd();
 		module.addTag(module.makeTag(author, text));

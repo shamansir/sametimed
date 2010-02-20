@@ -65,8 +65,6 @@ public class GetClientViewServlet extends HttpServlet {
 
 		try {
 			newClient.connect(username);
-			
-			LOG.info("Success. Connected as " + username);
 		} catch (Exception e) {
 			LOG.error(String.format(CONNECTION_ERR_STR + "; Exception thrown: %s, caused by %s", username, e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "nothing"));
 			
@@ -87,6 +85,8 @@ public class GetClientViewServlet extends HttpServlet {
 
 			sendResponseString(response, responseStr);
 			return;			
+		} else {
+	        LOG.info("Success. Connected as \'" + username + "\'");		    
 		}
 		
 		responseStr = newClient.getWavelet().getModel().asJSON(useEscapedQuotes);
