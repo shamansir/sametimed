@@ -31,17 +31,16 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (started) throw new DocumentProcessingException("Operations sequence was already started and not finished");		
 		started = true;
 		
-		BufferedDocOp sourceDoc = getSource();
-		if (sourceDoc == null) throw new DocumentProcessingException("Inner document must not be null to operate over");
-        
 		LOG.debug("Started operations sequence over document "/* + sourceDoc*/);
-        
-		docWalker = new DocumentWalker(collectDocumentData(sourceDoc));
-		curDocOp = new WalkingDocOpBuilder(docWalker);		
+		
+		docWalker = new DocumentWalker(collectDocumentData(getSource()));
+	    curDocOp = new WalkingDocOpBuilder(docWalker);        
 	}
 	
 	private DocumentState collectDocumentData(BufferedDocOp sourceDoc) {
 	    LOG.debug("Collecting document data");
+	    
+	    if (sourceDoc == null) return new DocumentState();
 	    
 		EvaluatingDocInitializationCursor<DocumentState> evaluatingCursor =
 				new DocStateEvaluatingCursor(new DocumentState());
@@ -104,7 +103,10 @@ public abstract class AbstractDocumentOperationsSequencer {
 	}			
 	public void alignDocToEnd() throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
-		curDocOp.retain(docWalker.scrollToEnd());
+		
+		if (docWalker.docSizeInElms() > 0) {		
+		    curDocOp.retain(docWalker.scrollToEnd());
+		}
 		
 		LOG.debug("aligned to the end of the document");
 	}
@@ -116,7 +118,11 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (chars > docWalker.docSizeInChars()) throw new DocumentProcessingException("Can not scroll further the document end");
 		
 		int elmsStep = docWalker.scrollTo(chars);
-		if (elmsStep > 0) curDocOp.retain(elmsStep);
+		if (elmsStep > 0) {
+		    curDocOp.retain(elmsStep);
+		} else if (elmsStep < 0) {
+		    throw new DocumentProcessingException("Can't scroll back");
+		}
 		
 		LOG.debug("document scrolled to " + chars + " chars");
 		

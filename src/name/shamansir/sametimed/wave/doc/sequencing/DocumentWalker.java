@@ -84,8 +84,11 @@ public class DocumentWalker extends DocumentState {
 	
 	// returns required step in elements
 	protected int scrollTo(int chars) {
+	    if (chars > sizeInChars) return (sizeInChars - chars);
+	    if (chars < curPosChars) return (chars - curPosChars);
+	    
 		int prevPos = curPosElms;
-		int size = data.size();
+		int size = data.size();		
 		
 		while ((curPosChars < chars) && (curPos < size)) {
 			int value = data.get(curPos); 

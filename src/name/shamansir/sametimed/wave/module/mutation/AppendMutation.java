@@ -25,13 +25,9 @@ public class AppendMutation implements IModuleDocumentMutation {
 	@Override
 	public WaveletDocumentOperation applyTo(AbstractModuleWithDocument<?> module)
 			throws MutationCompilationException, DocumentProcessingException {
+	    // FIXME: make alignToEnd and addTag to be functions of Document
 		module.startOperations();
 		module.alignDocToEnd();
 		module.addTag(module.makeTag(author, text));
 		return module.finishOperations();
-		/*
-		DocOpBuilder docOp = alignToTheDocumentEnd(new DocOpBuilder(), module.getSource());
-		docOp = (module.makeTag(module.nextTagID(), author, text)).build(docOp);
-		//LOG.info("created tag for module " + module.getModuleID() + ", document " + module.getDocumentID() + ", id: " + module.nextTagID());
-		return createDocumentOperation(module.getDocumentID(), docOp.build()); */				
 	}}

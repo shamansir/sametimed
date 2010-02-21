@@ -9,8 +9,8 @@ public class DocumentState {
     protected static final int ELM_END_CODE = -2;
     
     protected List<Integer> data = new ArrayList<Integer>();
-    private int sizeInElms = 0; // TODO: make atomic
-    private int sizeInChars = 0; // TODO: make atomic
+    protected int sizeInElms = 0; // TODO: make atomic
+    protected int sizeInChars = 0; // TODO: make atomic
     
     public DocumentState() {
         
