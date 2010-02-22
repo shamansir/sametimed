@@ -2,13 +2,12 @@ package name.shamansir.sametimed.wave.doc.cursor;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 
-public class DocumentElementCuttingCursor implements
-	IOperatingCursorWithResult<AbstractDocumentTag> {
+public class DocumentElementCuttingCursor extends
+	AbstractOperatingCursorWithResult<AbstractDocumentTag> {
 
 	public DocumentElementCuttingCursor(TagID tagID) {
 		// TODO Auto-generated constructor stub
@@ -40,24 +39,6 @@ public class DocumentElementCuttingCursor implements
 
 	@Override
 	public void elementStart(String type, Attributes attrs) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setWalkStart(int pos) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public DocOpBuilder takeDocOp() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void useDocOp(DocOpBuilder curDocOp) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.test;
 
-import name.shamansir.sametimed.wave.doc.cursor.IOperatingCursorWithResult;
+import name.shamansir.sametimed.wave.doc.cursor.AbstractOperatingCursorWithResult;
 import name.shamansir.sametimed.wave.doc.sequencing.AbstractDocumentOperationsSequencer;
 import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
 
@@ -77,7 +77,7 @@ public class TestDocumentSequencer {
 		
 		// apply null cursor
 		try {
-			documentsHolder.applyCursor((IOperatingCursorWithResult<String>)null);
+			documentsHolder.applyCursor((AbstractOperatingCursorWithResult<String>)null);
 			Assert.fail("exception expected");
 		} catch (DocumentProcessingException dpe) { }				
 		
@@ -631,10 +631,8 @@ public class TestDocumentSequencer {
 		
 	}
 	
-	private class EmptyCursor implements IOperatingCursorWithResult<String> {
+	private class EmptyCursor extends AbstractOperatingCursorWithResult<String> {
 
-		private DocOpBuilder docOp;
-		
 		@Override
 		public String getResult() { return ""; }
 
@@ -646,12 +644,6 @@ public class TestDocumentSequencer {
 		public void elementEnd() { }
 		@Override
 		public void elementStart(String type, Attributes attrs) { }
-		@Override
-		public void setWalkStart(int pos) { }
-		@Override
-		public DocOpBuilder takeDocOp() { return docOp; }
-		@Override
-		public void useDocOp(DocOpBuilder curDocOp) { docOp = curDocOp; }
 		
 	}
 	

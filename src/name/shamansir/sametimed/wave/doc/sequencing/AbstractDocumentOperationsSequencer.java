@@ -1,8 +1,8 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
+import name.shamansir.sametimed.wave.doc.cursor.AbstractOperatingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
-import name.shamansir.sametimed.wave.doc.cursor.IOperatingCursor;
-import name.shamansir.sametimed.wave.doc.cursor.IOperatingCursorWithResult;
+import name.shamansir.sametimed.wave.doc.cursor.AbstractOperatingCursorWithResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -80,11 +80,11 @@ public abstract class AbstractDocumentOperationsSequencer {
 	}	
 	
 	@SuppressWarnings("unchecked")
-	public <ResultType> ResultType applyCursor(IOperatingCursorWithResult<ResultType> cursor) throws DocumentProcessingException {
-		return ((IOperatingCursorWithResult<ResultType>)(applyCursor((IOperatingCursor)cursor))).getResult();		
+	public <ResultType> ResultType applyCursor(AbstractOperatingCursorWithResult<ResultType> cursor) throws DocumentProcessingException {
+		return ((AbstractOperatingCursorWithResult<ResultType>)(applyCursor((AbstractOperatingCursor)cursor))).getResult();		
 	}
 		
-	public IOperatingCursor applyCursor(IOperatingCursor cursor) throws DocumentProcessingException {
+	public AbstractOperatingCursor applyCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		if (cursor == null) throw new DocumentProcessingException("Null cursor is passed");
 		

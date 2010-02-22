@@ -8,7 +8,7 @@ import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
-public class DocumentElementDeletionCursor implements IOperatingCursor {
+public class DocumentElementDeletionCursor extends AbstractOperatingCursor {
 
 	private final DocOpBuilder elmDeletion = new DocOpBuilder();
 	private final String elmToDeleteID;
@@ -17,18 +17,6 @@ public class DocumentElementDeletionCursor implements IOperatingCursor {
 	
 	public DocumentElementDeletionCursor(TagID tagID) {
 		this.elmToDeleteID = tagID.getValue();
-	}
-
-	@Override
-	public void setWalkStart(int pos) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public DocOpBuilder takeDocOp() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
@@ -55,12 +43,6 @@ public class DocumentElementDeletionCursor implements IOperatingCursor {
 		
 	}
 
-	@Override
-	public void useDocOp(DocOpBuilder curDocOp) {
-		// TODO Auto-generated method stub
-		
-	}
-	
 	/*
 	
 	@Override
