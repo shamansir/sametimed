@@ -4,6 +4,7 @@ import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursorWithResult;
 
 public class DocumentElementCuttingByPosCursor extends
 		AbstractOperatingCursorWithResult<AbstractDocumentTag> {

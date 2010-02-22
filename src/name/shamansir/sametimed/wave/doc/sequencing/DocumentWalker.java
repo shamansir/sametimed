@@ -11,42 +11,42 @@ public class DocumentWalker extends DocumentState {
 	protected DocumentWalker(DocumentState initFrom) { super(initFrom); }
 	
 	@Override
-	public DocumentState addElmStart() {
+	protected DocumentState addElmStart() {
 		super.addElmStart(curPos);
 		stepElmFwd();
 		return this;
 	}
 	
 	@Override
-	public DocumentState addElmEnd() {
+	protected DocumentState addElmEnd() {
         super.addElmEnd(curPos);
 		stepElmFwd();
 		return this;
 	}		
 	
 	@Override
-	public DocumentState addElmChars(int howMany) {
+	protected DocumentState addElmChars(int howMany) {
 		super.addElmChars(curPos, howMany);
 		stepCharsFwd(howMany);
 		return this;
 	}
 	
-	public DocumentState deleteElmStart() {
+	protected DocumentState deleteElmStart() {
 	    super.deleteElmStart(curPos);
 	    return this;
 	}
 	
-    public DocumentState deleteElmEnd() {
+	protected DocumentState deleteElmEnd() {
         super.deleteElmStart(curPos);
         return this;
     }	
 	
-    public DocumentState deleteElmChars(int howMany) {
+	protected DocumentState deleteElmChars(int howMany) {
         super.deleteElmChars(curPos, howMany);
         return this;
     }	
 	
-	public DocumentWalker resetPosition() {
+	protected DocumentWalker resetPosition() {
 		curPos = curPosElms = curPosChars = 0;
 		return this;
 	}	

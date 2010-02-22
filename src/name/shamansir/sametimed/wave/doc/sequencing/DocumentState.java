@@ -22,19 +22,19 @@ public class DocumentState {
         this.sizeInChars = initFrom.sizeInChars;
     }
     
-    public DocumentState addElmStart() {
+    protected DocumentState addElmStart() {
         data.add(ELM_START_CODE);
         sizeInElms++;
         return this;
     }
     
-    public DocumentState addElmEnd() {          
+    protected DocumentState addElmEnd() {          
         data.add(ELM_END_CODE);
         sizeInElms++;
         return this;
     }       
     
-    public DocumentState addElmChars(int howMany) {
+    protected DocumentState addElmChars(int howMany) {
         data.add(howMany);
         sizeInChars += howMany;
         sizeInElms += howMany;

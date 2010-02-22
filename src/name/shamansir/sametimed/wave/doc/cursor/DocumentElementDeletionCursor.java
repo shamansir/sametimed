@@ -3,6 +3,7 @@ package name.shamansir.sametimed.wave.doc.cursor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import name.shamansir.sametimed.wave.doc.TagID;
+import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursor;
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;

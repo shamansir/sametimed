@@ -1,9 +1,9 @@
 package name.shamansir.sametimed.test;
 
-import name.shamansir.sametimed.wave.doc.cursor.AbstractOperatingCursor;
-import name.shamansir.sametimed.wave.doc.cursor.AbstractOperatingCursorWithResult;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 import name.shamansir.sametimed.wave.doc.sequencing.AbstractDocumentOperationsSequencer;
+import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursor;
+import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursorWithResult;
 import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
 
 import org.junit.Assert;
@@ -608,7 +608,7 @@ public class TestDocumentSequencer {
 		}
 		
 		public DocOpBuilder unhideOp() {
-			return getCurOp();
+			return getDocBuilder();
 		}
 		
 	}	

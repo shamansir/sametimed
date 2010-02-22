@@ -102,8 +102,8 @@ public abstract class AbstractModuleWithDocument<InnerType> extends AbstractDocu
 	public void addTag(AbstractDocumentTag newTag) throws DocumentProcessingException {
 	    LOG.debug("adding tag \'" + newTag.getName() + "\' to module \'" + moduleID + "\' document \'" + documentID + "\'");
 	    
-		if (getCurOp() == null) throw new DocumentProcessingException("The sequence was not started before adding tag or some similar error occured");
-		useAsCurOp(newTag.build(getCurOp())); // adds tag building operations to the current operation
+		if (getDocBuilder() == null) throw new DocumentProcessingException("The sequence was not started before adding tag or some similar error occured");
+		useDocBuilder(newTag.build(getDocBuilder())); // adds tag building operations to the current operation
 	}
 	
 	public AbstractDocumentTag makeTag(ParticipantId author, String text) {

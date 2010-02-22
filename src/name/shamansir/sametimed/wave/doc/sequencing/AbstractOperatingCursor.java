@@ -1,4 +1,5 @@
-package name.shamansir.sametimed.wave.doc.cursor;
+package name.shamansir.sametimed.wave.doc.sequencing;
+
 
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
@@ -13,14 +14,17 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
  */
 public abstract class AbstractOperatingCursor implements DocInitializationCursor {
     
-    protected DocOpBuilder curDocOp;
-    protected int walkStart;
+    protected WalkingDocOpBuilder walkingBuilder = null;
 
-    public final void setWalkStart(int pos) { this.walkStart = pos; }
+    public final DocOpBuilder takeDocOp() { 
+        return walkingBuilder; 
+    }
 
-    public final DocOpBuilder takeDocOp() { return curDocOp; }
-
-    public final void useDocOp(DocOpBuilder curDocOp) { this.curDocOp = curDocOp; }
+    protected final void useBuilder(WalkingDocOpBuilder builder) throws DocumentProcessingException {
+        if (walkingBuilder != null) 
+            throw new DocumentProcessingException("Operation for this cursor can be set only once");
+        this.walkingBuilder = builder; 
+    }
 
     public void annotationBoundary(AnnotationBoundaryMap map) { }
 

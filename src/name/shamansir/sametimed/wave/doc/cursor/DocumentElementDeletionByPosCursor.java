@@ -1,5 +1,7 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
+import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursorWithResult;
+
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 

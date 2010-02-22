@@ -1,8 +1,6 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
-import name.shamansir.sametimed.wave.doc.cursor.AbstractOperatingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
-import name.shamansir.sametimed.wave.doc.cursor.AbstractOperatingCursorWithResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,7 +18,7 @@ public abstract class AbstractDocumentOperationsSequencer {
     private static final Log LOG = LogFactory.getLog(AbstractDocumentOperationsSequencer.class);
 	
 	private boolean started = false;
-	private DocOpBuilder curDocOp = null;
+	private WalkingDocOpBuilder walkingBuilder = null;
 	private /*int[]*/ DocumentWalker docWalker; 
 	
 	abstract protected BufferedDocOp getSource();
@@ -34,7 +32,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		LOG.debug("Started operations sequence over document "/* + sourceDoc*/);
 		
 		docWalker = new DocumentWalker(collectDocumentData(getSource()));
-	    curDocOp = new WalkingDocOpBuilder(docWalker);        
+		walkingBuilder = new WalkingDocOpBuilder(docWalker);        
 	}
 	
 	private DocumentState collectDocumentData(BufferedDocOp sourceDoc) {
@@ -51,9 +49,9 @@ public abstract class AbstractDocumentOperationsSequencer {
 	public WaveletDocumentOperation finishOperations() throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence was not started, so nothing to finish");
 		WaveletDocumentOperation resultOp = 
-			new WaveletDocumentOperation(getDocumentID(), curDocOp.build());
+			new WaveletDocumentOperation(getDocumentID(), walkingBuilder.build());
 		started = false;
-		curDocOp = null;
+		walkingBuilder = null;
 		docWalker.clear();
 		
 		LOG.debug("Finished operations sequence");
@@ -63,7 +61,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 	
 	public void finishOperationsEmpty() {
 		started = false;
-		curDocOp = null;
+		walkingBuilder = null;
 		docWalker.clear();
 		
 		LOG.debug("Finished operations sequence");
@@ -92,10 +90,9 @@ public abstract class AbstractDocumentOperationsSequencer {
 		
 		BufferedDocOp sourceDoc = getSource(); 
 		if (sourceDoc == null) return cursor;
-		cursor.useDocOp(curDocOp);
-		cursor.setWalkStart(docWalker.curPosElms());
+		cursor.useBuilder(walkingBuilder);
 		sourceDoc.apply(new InitializationCursorAdapter(cursor));
-		curDocOp = cursor.takeDocOp();
+		walkingBuilder = (WalkingDocOpBuilder)cursor.takeDocOp();
 		
 		LOG.debug("cursor applied starting at pos " + docWalker.curPos());
 		
@@ -105,7 +102,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		
 		if (docWalker.docSizeInElms() > 0) {		
-		    curDocOp.retain(docWalker.scrollToEnd());
+		    walkingBuilder.retain(docWalker.scrollToEnd());
 		}
 		
 		LOG.debug("aligned to the end of the document");
@@ -119,7 +116,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		
 		int elmsStep = docWalker.scrollTo(chars);
 		if (elmsStep > 0) {
-		    curDocOp.retain(elmsStep);
+		    walkingBuilder.retain(elmsStep);
 		} else if (elmsStep < 0) {
 		    throw new DocumentProcessingException("Can't scroll back");
 		}
@@ -129,12 +126,12 @@ public abstract class AbstractDocumentOperationsSequencer {
 		return docWalker.curPos();
 	}
 	
-	protected DocOpBuilder getCurOp() {		
-		return curDocOp;
+	protected DocOpBuilder getDocBuilder() {		
+		return walkingBuilder;
 	}	
 	
-	protected void useAsCurOp(DocOpBuilder builtOp) throws DocumentProcessingException {
-		curDocOp = builtOp;
+	protected void useDocBuilder(DocOpBuilder builder) throws DocumentProcessingException {
+	    walkingBuilder = (WalkingDocOpBuilder)builder;
 	}
 	
 	private class DocStateEvaluatingCursor implements EvaluatingDocInitializationCursor<DocumentState/*int[]*/> {
