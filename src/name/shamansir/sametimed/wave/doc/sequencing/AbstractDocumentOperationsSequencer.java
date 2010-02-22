@@ -92,12 +92,13 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (sourceDoc == null) return cursor;
 		cursor.useBuilder(walkingBuilder);
 		sourceDoc.apply(new InitializationCursorAdapter(cursor));
-		walkingBuilder = (WalkingDocOpBuilder)cursor.takeDocOp();
+		walkingBuilder = cursor.getBuilder();
 		
 		LOG.debug("cursor applied starting at pos " + docWalker.curPos());
 		
 		return cursor;
-	}			
+	}
+	
 	public void alignDocToEnd() throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		

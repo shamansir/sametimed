@@ -7,7 +7,7 @@ public class DocumentWalker extends DocumentState {
 	private int curPosChars = 0; // TODO: make atomic
 	
 	public DocumentWalker() { super(); }
- 	
+	
 	protected DocumentWalker(DocumentState initFrom) { super(initFrom); }
 	
 	@Override
@@ -62,7 +62,7 @@ public class DocumentWalker extends DocumentState {
 		return curPosChars;
 	}
 	
-	protected int curPosElms() {
+	public int curPosElms() {
 	    return curPosElms;
 	}
 

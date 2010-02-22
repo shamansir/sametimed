@@ -5,8 +5,8 @@ import java.util.List;
 
 public class DocumentState {
     
-    protected static final int ELM_START_CODE = -1;
-    protected static final int ELM_END_CODE = -2;
+    static final int ELM_START_CODE = -1;
+    static final int ELM_END_CODE = -2;
     
     protected List<Integer> data = new ArrayList<Integer>();
     protected int sizeInElms = 0; // TODO: make atomic

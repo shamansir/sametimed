@@ -48,7 +48,7 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 		return super.deleteElementEnd();
 	}
 	
-	protected DocumentWalker getWalker() {
+	public DocumentWalker getWalker() {
 	    return docWalker;
 	}
 
