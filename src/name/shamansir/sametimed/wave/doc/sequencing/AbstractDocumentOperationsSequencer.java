@@ -103,7 +103,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		
 		if (docWalker.docSizeInElms() > 0) {		
-		    walkingBuilder.retain(docWalker.scrollToEnd());
+		    walkingBuilder.manualRetain(docWalker.scrollToEnd());
 		}
 		
 		LOG.debug("aligned to the end of the document");
@@ -117,7 +117,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		
 		int elmsStep = docWalker.scrollTo(chars);
 		if (elmsStep > 0) {
-		    walkingBuilder.retain(elmsStep);
+		    walkingBuilder.manualRetain(elmsStep);
 		} else if (elmsStep < 0) {
 		    throw new DocumentProcessingException("Can't scroll back");
 		}

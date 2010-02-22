@@ -14,6 +14,7 @@ import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 public abstract class AbstractOperatingCursor implements DocInitializationCursor {
     
     protected WalkingDocOpBuilder docBuilder = null;
+    protected DocumentWalker docWalker = null;
 
     protected final WalkingDocOpBuilder getBuilder() { 
         return docBuilder; 
@@ -24,9 +25,11 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
     }
 
     final void useBuilder(WalkingDocOpBuilder builder) throws DocumentProcessingException {
-        if (docBuilder != null) 
+        if (this.docBuilder != null) 
             throw new DocumentProcessingException("Operation for this cursor can be set only once");
+        if (builder == null) throw new DocumentProcessingException("Builder must not be null");
         this.docBuilder = builder; 
+        this.docWalker = builder.getWalker();
     }
 
     public void annotationBoundary(AnnotationBoundaryMap map) { }

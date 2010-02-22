@@ -88,7 +88,7 @@ public class DocOpBuilder {
     accu.add(new DeleteCharacters(s));
     return this;
   }
-  public final DocOpBuilder retain(int itemCount) {
+  public DocOpBuilder retain(int itemCount) {
     accu.add(new Retain(itemCount));
     return this;
   }

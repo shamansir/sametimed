@@ -742,18 +742,41 @@ public class TestDocumentSequencer {
 	
     private class TagDeletingCursor extends AbstractOperatingCursor {
         
+        private final int numToDelete;
+        
         public TagDeletingCursor(int number) {
-            
+            numToDelete = number;
         }
 
         @Override
         public void annotationBoundary(AnnotationBoundaryMap map) { }
+        
         @Override
-        public void characters(String chars) { }
+        public void elementStart(String type, Attributes attrs) { 
+            if (docWalker.curPosTags() == numToDelete) {
+                docBuilder.deleteElementStart(type, attrs);
+            } else {
+                docBuilder.retainElementStart();
+            }                    
+        }        
+        
         @Override
-        public void elementEnd() { }
+        public void characters(String chars) { 
+            if (docWalker.curPosTags() == numToDelete) {
+                docBuilder.deleteCharacters(chars);
+            } else {
+                docBuilder.retainCharacters(chars.length());
+            }
+        }
+        
         @Override
-        public void elementStart(String type, Attributes attrs) { }
+        public void elementEnd() { 
+            if (docWalker.curPosTags() == numToDelete) {
+                docBuilder.deleteElementEnd();
+            } else {
+                docBuilder.retainElementEnd(); // -> getWalker().stepElmFwd ??
+            }
+        }
         
     }	
 	

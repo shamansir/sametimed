@@ -5,6 +5,7 @@ public class DocumentWalker extends DocumentState {
 	private int curPos = 0; // TODO: make atomic
 	private int curPosElms = 0; // TODO: make atomic
 	private int curPosChars = 0; // TODO: make atomic
+	private int curPosTags = 0; // TODO: make atomic
 	
 	public DocumentWalker() { super(); }
 	
@@ -13,14 +14,14 @@ public class DocumentWalker extends DocumentState {
 	@Override
 	protected DocumentState addElmStart() {
 		super.addElmStart(curPos);
-		stepElmFwd();
+		stepElmFwd(false);
 		return this;
 	}
 	
 	@Override
 	protected DocumentState addElmEnd() {
         super.addElmEnd(curPos);
-		stepElmFwd();
+		stepElmFwd(true);
 		return this;
 	}		
 	
@@ -49,7 +50,7 @@ public class DocumentWalker extends DocumentState {
 	protected DocumentWalker resetPosition() {
 		curPos = curPosElms = curPosChars = 0;
 		return this;
-	}	
+	}
 	
 	@Override
 	public DocumentWalker clear() {
@@ -65,18 +66,21 @@ public class DocumentWalker extends DocumentState {
 	public int curPosElms() {
 	    return curPosElms;
 	}
+	
+    public int curPosTags() {
+        return curPosTags;
+    }	
 
 	// returns required step in elements 
-	public int scrollToEnd() {
+	protected int scrollToEnd() {
 		int size = data.size();
 		int prevPos = curPosElms;
 		while (curPos < size) {
-			int value = data.get(curPos); 
-			if ((value == ELM_START_CODE) ||
-				(value == ELM_END_CODE)) {
-				stepElmFwd();
-			} else if (value >= 0) {
-				stepCharsFwd(value);
+			int value = data.get(curPos);
+			if (value >= 0) {
+			    stepCharsFwd(value);
+			} else {
+			    stepElmFwd(value == ELM_END_CODE);
 			}
 		}
 		return curPosElms - prevPos;
@@ -92,41 +96,33 @@ public class DocumentWalker extends DocumentState {
 		
 		while ((curPosChars < chars) && (curPos < size)) {
 			int value = data.get(curPos); 
-			if ((value == ELM_START_CODE) ||
-				(value == ELM_END_CODE)) {
-				stepElmFwd();
-			} else if (value >= 0) {
-				stepCharsFwd(value);
-			}			
+            if (value >= 0) {
+                stepCharsFwd(value);
+            } else {
+                stepElmFwd(value == ELM_END_CODE);
+            }		
 		}
 		if ((curPosChars == chars) && (curPos < size) 
 			&& (data.get(curPos) == ELM_END_CODE)) {
-			stepElmFwd();
+			stepElmFwd(true);
 		}
 		
 		return curPosElms - prevPos;
 	}
 
-	protected void stepElmFwd() {
+	protected void stepElmFwd(boolean isEnd) {
 		curPos++; curPosElms++;
-	}
-	
-	protected void stepElmBkwd() {
-		curPos--; curPosElms--;
+		if (isEnd) curPosTags++;
 	}
 
 	protected void stepCharsFwd(int chars) {
-		curPos++;
-		curPosElms += chars;
-		curPosChars += chars;				
+	    if (chars > 0) {
+    		curPos++;
+    		curPosElms += chars;
+    		curPosChars += chars;
+	    }
 	}
 	
-	protected void stepCharsBkwd(int chars) {
-		curPos--;
-		curPosElms -= chars;
-		curPosChars -= chars;				
-	}
-
 	// returns required step in elements
 	/*
 	protected int scrollBy(int chars, boolean doAlign) {
