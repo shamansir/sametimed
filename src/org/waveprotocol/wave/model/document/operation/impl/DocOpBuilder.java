@@ -56,14 +56,14 @@ public class DocOpBuilder {
    *
    * Behaviour is undefined if this builder is used after calling this method.
    */
-  public final BufferedDocOp build() {
+  public BufferedDocOp build() {
     return BufferedDocOpImpl.create(accu.toArray(EMPTY_ARRAY));
   }
 
   /** @see #build() */
   // This is dangerous; we currently use it for ill-formedness-detection
   // tests, and may use it for efficiency in other places in the future.
-  public final BufferedDocOp buildUnchecked() {
+  public BufferedDocOp buildUnchecked() {
     // TODO: This should not need a call to asInitialization().
     return BufferedDocOpImpl.createUnchecked(accu.toArray(EMPTY_ARRAY));
   }
@@ -100,11 +100,11 @@ public class DocOpBuilder {
     accu.add(new DeleteElementStart(type, attrs));
     return this;
   }
-  public final DocOpBuilder replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {
+  public DocOpBuilder replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {
     accu.add(new ReplaceAttributes(oldAttrs, newAttrs));
     return this;
   }
-  public final DocOpBuilder updateAttributes(AttributesUpdate update) {
+  public DocOpBuilder updateAttributes(AttributesUpdate update) {
     accu.add(new UpdateAttributes(update));
     return this;
   }

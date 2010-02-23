@@ -2,11 +2,15 @@ package name.shamansir.sametimed.wave.doc.sequencing;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.waveprotocol.wave.model.document.operation.Attributes;
+import org.waveprotocol.wave.model.document.operation.AttributesUpdate;
+import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 public class WalkingDocOpBuilder extends DocOpBuilder {
     
-	private final DocumentWalker docWalker; 
+	private final DocumentWalker docWalker;
+	
+	private int savedRetain = 0;
 	
 	public WalkingDocOpBuilder(DocumentWalker docWalker) {
 		super();
@@ -15,54 +19,69 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 
 	@Override
 	public DocOpBuilder elementStart(String type, Attributes attrs) {
+	    flushRetain();
 		docWalker.addElmStart();
 		return super.elementStart(type, attrs);
 	}	
 	
 	@Override
 	public DocOpBuilder characters(String s) {
+	    flushRetain();
 		docWalker.addElmChars(s.length());
 		return super.characters(s);
 	}	
 
 	@Override
 	public DocOpBuilder elementEnd() {
+	    flushRetain();
 		docWalker.addElmEnd();
 		return super.elementEnd();
 	}
 	
 	@Override
 	public DocOpBuilder deleteElementStart(String type, Attributes attrs) {
+	    flushRetain();
 		docWalker.deleteElmStart();
 		return super.deleteElementStart(type, attrs);
 	}
 	
 	@Override
 	public DocOpBuilder deleteCharacters(String s) {
+	    flushRetain();
 	    docWalker.deleteElmChars(s.length());
 		return super.deleteCharacters(s);
-	}
+	}	
 
 	@Override
 	public DocOpBuilder deleteElementEnd() {
+	    flushRetain();
 	    docWalker.deleteElmEnd();
 		return super.deleteElementEnd();
 	}
 	
+	@Override
+	public DocOpBuilder replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {
+	    flushRetain();
+	    return super.replaceAttributes(oldAttrs, newAttrs);
+	}
+	
+	@Override 
+	public DocOpBuilder updateAttributes(AttributesUpdate update) {
+	    flushRetain();
+        return super.updateAttributes(update);
+	}
+	
 	public DocOpBuilder retainElementStart() {
-	   // FIXME: ensure stepping is required
 	    docWalker.stepElmFwd(false);
 	    return manualRetain(1);
 	}
 	
     public DocOpBuilder retainElementEnd() {
-        // FIXME: ensure stepping is required
          docWalker.stepElmFwd(true);
          return manualRetain(1);
     }
     
     public DocOpBuilder retainCharacters(int chars) {
-        // FIXME: ensure stepping is required
          docWalker.stepCharsFwd(chars);
          return manualRetain(chars);
     }    
@@ -82,9 +101,31 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	}
 	
 	protected DocOpBuilder manualRetain(int elmCount) {
-	    // FIXME: implement
-	    return super.retain(elmCount);
+	    // return super.retain(elmCount);  
+	    // FIXME: be sure to flush retain in the end of operations with builder
+	    savedRetain += elmCount;
+	    return this;
 	}
+	
+	private DocOpBuilder flushRetain() {
+	    if (savedRetain > 0) {
+	        super.retain(savedRetain);
+	        savedRetain = 0;
+	    }
+	    return this;
+	}
+	
+	@Override
+    public BufferedDocOp build() {
+	    flushRetain();
+	    return super.build();
+    }
+	
+    @Override
+    public BufferedDocOp buildUnchecked() {
+        flushRetain();
+        return super.buildUnchecked();
+    }	
 	
 	public DocumentWalker getWalker() {
 	    return docWalker;

@@ -120,8 +120,9 @@ public class TestDocumentSequencer {
 		documentHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l'
 		
 		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor); //                        123456 12345678
-		Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk
+		opWasBuilt.apply(recordingCursor); //                          123456 12345678
+		//Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk
+		Assert.assertEquals("(*14)", recordingCursor.finish());
 		
 		// test scrolling between tags
 		recordingCursor.erase();	
@@ -131,8 +132,9 @@ public class TestDocumentSequencer {
 		documentHolder.scrollToPos(12); // to 12 chars, between 'l' and 'm'
 		
 		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor); //                         1234567890 123456 
-		Assert.assertEquals("(*10)(*6)", recordingCursor.finish());// [abcdefgh] [ijkl] [m
+		opWasBuilt.apply(recordingCursor); //                            1234567890 123456 
+		// Assert.assertEquals("(*10)(*6)", recordingCursor.finish());// [abcdefgh] [ijkl] [m
+		Assert.assertEquals("(*16)", recordingCursor.finish());
 		
 		// test scrolling to end manually
 		recordingCursor.erase();	
@@ -170,7 +172,8 @@ public class TestDocumentSequencer {
 		
 		// 12345 12345678901234
 		// [abcd efgh][ijkl][mn
-		Assert.assertEquals("(*5)(*14){qrst}", recordingCursor.finish());
+		//Assert.assertEquals("(*5)(*14){qrst}", recordingCursor.finish());
+		Assert.assertEquals("(*19){qrst}", recordingCursor.finish());
 		// docCode now: [abcdefgh][ijkl][mn[qrst]op]"		
 
 	}
@@ -205,7 +208,8 @@ public class TestDocumentSequencer {
 		
 		//        1234 123456  
 		// [qrst].[abc defgh] [i
-		Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());		
+		//Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());
+		Assert.assertEquals("{qrst}(*10)", recordingCursor.finish());
 	}
 		
 	@Test
@@ -244,7 +248,8 @@ public class TestDocumentSequencer {
         
         // 123456        1 123456 123 123456 
         // [abcde [qrst] f gh][ij kl] [mnop]
-        Assert.assertEquals("(*6){qrst}(*1)(*6)(*3)(*6)", recordingCursor.finish());
+        //Assert.assertEquals("(*6){qrst}(*1)(*6)(*3)(*6)", recordingCursor.finish());
+        Assert.assertEquals("(*6){qrst}(*16)", recordingCursor.finish());
 	}
 	
 	@Test
@@ -270,7 +275,8 @@ public class TestDocumentSequencer {
         
         // 1234567 123 -------- 
         // [abc][d ef] [ghijkl] [mnop]
-        Assert.assertEquals("(*7)(*3)(-{)(-ghijkl)(-})", recordingCursor.finish());
+        //Assert.assertEquals("(*7)(*3)(-{)(-ghijkl)(-})", recordingCursor.finish());
+        Assert.assertEquals("(*10)(-{)(-ghijkl)(-})", recordingCursor.finish());
         // docCode now: [abc][def][mnop]
 	}
 	
@@ -300,7 +306,8 @@ public class TestDocumentSequencer {
         
         // 12345 ----- 12345 123 
         // [abc] [def] [ghij kl] [mnop]
-        Assert.assertEquals("(*5)(-{)(-def)(-})(*5)(*3)", recordingCursor.finish());
+        //Assert.assertEquals("(*5)(-{)(-def)(-})(*5)(*3)", recordingCursor.finish());
+        Assert.assertEquals("(*5)(-{)(-def)(-})(*8)", recordingCursor.finish());
         // docCode now: [abc][ghijkl][mnop]
 	}
 	
@@ -487,7 +494,8 @@ public class TestDocumentSequencer {
         opWasBuilt.apply(recordingCursor);
         // 1234 12345
         // [abc de][f ghij]
-        Assert.assertEquals("(*4)(*5)", recordingCursor.finish());
+        //Assert.assertEquals("(*4)(*5)", recordingCursor.finish());
+        Assert.assertEquals("(*9)", recordingCursor.finish());
     }
 	
 	@Test
@@ -546,6 +554,7 @@ public class TestDocumentSequencer {
         documentHolder.startOperations();
         documentHolder.scrollToPos(6);
         documentHolder.applyCursor(new TagDeletingCursor(3)); // deletes third tag
+        // docCode now: [abcde][fghij][nopqrs]
         documentHolder.scrollToPos(12);
         
         BufferedDocOp opWasBuilt = documentHolder.finishOperations().getOperation();
