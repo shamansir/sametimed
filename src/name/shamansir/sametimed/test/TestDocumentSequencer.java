@@ -505,7 +505,7 @@ public class TestDocumentSequencer {
 	    documentHolder.finishOperations();
 	}
 	
-	// FIXME: add addTag/deleteTag tests
+	// FIXME: add addTag tests
 	
 	@Test
 	public void testScrollingReturnsCorrectValues() throws DocumentProcessingException {

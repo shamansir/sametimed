@@ -19,8 +19,8 @@ public class DocumentState implements IDocumentDataAssembler {
     static final int ELM_START_CODE = -1;
     static final int ELM_END_CODE = -2;
     
-    private BufferedDocOp source; // FIXME: must be final
-    protected List<Integer> data = new ArrayList<Integer>();
+    private final BufferedDocOp source; // FIXME: must be final
+    protected final List<Integer> data = new ArrayList<Integer>();
     protected int sizeInElms = 0; // TODO: make atomic
     protected int sizeInChars = 0; // TODO: make atomic
     
@@ -125,14 +125,6 @@ public class DocumentState implements IDocumentDataAssembler {
     @Override
     public BufferedDocOp getSource() {
         return source;
-    }
-    
-    protected final void loadDataFrom(DocumentState other) { // FIXME: better be private
-        this.source = other.source;
-        this.data.clear();
-        this.data.addAll(other.data);
-        this.sizeInChars = other.sizeInChars;
-        this.sizeInElms = other.sizeInElms;
     }
     
     protected final static IDocumentDataAssembler collectDocumentData(IDocumentDataAssembler with) {

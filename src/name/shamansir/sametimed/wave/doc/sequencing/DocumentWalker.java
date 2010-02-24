@@ -19,24 +19,17 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
         // resetPosition();
 	}
 	
-	// FIXME: Walker.addElmStart/addElmEnd/addChars can be renamed to 
-	//        foundElmStart/foundElmEnd/foundChars so no collectData
-	//        overriding and additional DocumentState will be required
-	
-	@Override
-	public void addElmStart() {
+	public void foundElmStart() {
 	    super.addElmStart(curPos);
 		stepElmFwd(false);
 	}
 	
-	@Override
-	public void addElmEnd() {
+	public void foundElmEnd() {
 	    super.addElmEnd(curPos);
 		stepElmFwd(true);
 	}		
 	
-	@Override
-	public void addElmChars(int howMany) {
+	public void foundChars(int howMany) {
 	    super.addElmChars(curPos, howMany);
 		stepCharsFwd(howMany);
 	}
@@ -160,13 +153,5 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
             } else cursor.elementEnd();
         }
     }
-	
-	@Override
-    protected DocumentState collectDocumentData() {
-	    // creates new state to collect data there and then loads data from it
-        loadDataFrom((DocumentState)collectDocumentData(
-                                              new DocumentState(getSource()) ));
-        return this;
-    }
-	
+		
 }

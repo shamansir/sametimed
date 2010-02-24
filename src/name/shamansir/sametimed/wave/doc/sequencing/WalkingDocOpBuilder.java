@@ -20,21 +20,21 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	@Override
 	public DocOpBuilder elementStart(String type, Attributes attrs) {
 	    flushRetain();
-		docWalker.addElmStart();
+		docWalker.foundElmStart();
 		return super.elementStart(type, attrs);
 	}	
 	
 	@Override
 	public DocOpBuilder characters(String s) {
 	    flushRetain();
-		docWalker.addElmChars(s.length());
+		docWalker.foundChars(s.length());
 		return super.characters(s);
 	}	
 
 	@Override
 	public DocOpBuilder elementEnd() {
 	    flushRetain();
-		docWalker.addElmEnd();
+		docWalker.foundElmEnd();
 		return super.elementEnd();
 	}
 	
