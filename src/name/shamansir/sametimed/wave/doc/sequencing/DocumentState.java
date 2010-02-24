@@ -24,7 +24,7 @@ public class DocumentState implements IDocumentDataAssembler {
     protected int sizeInElms = 0; // TODO: make atomic
     protected int sizeInChars = 0; // TODO: make atomic
     
-    private DocumentState(BufferedDocOp sourceDoc) {
+    protected DocumentState(BufferedDocOp sourceDoc) {
         this.source = sourceDoc;
     }
     
@@ -58,40 +58,35 @@ public class DocumentState implements IDocumentDataAssembler {
         sizeInElms += howMany;
     }
     
-    protected DocumentState addElmStart(int pos) {
+    protected void addElmStart(int pos) {
         data.add(pos, ELM_START_CODE);
         sizeInElms++;
-        return this;
     }
     
-    protected DocumentState addElmEnd(int pos) {          
+    protected void addElmEnd(int pos) {          
         data.add(pos, ELM_END_CODE);
         sizeInElms++;
-        return this;
     }       
     
-    protected DocumentState addElmChars(int pos, int howMany) {
+    protected void addElmChars(int pos, int howMany) {
         data.add(pos, howMany);
         sizeInChars += howMany;
         sizeInElms += howMany;
-        return this;
     }
     
-    protected DocumentState deleteElmStart(int pos) {
+    protected void deleteElmStart(int pos) {
         // TODO: is check == ELM_START_CODE required?
         data.remove(pos); 
         sizeInElms--;
-        return this;
     }
     
-    protected DocumentState deleteElmEnd(int pos) {
+    protected void deleteElmEnd(int pos) {
         // TODO: is check == ELM_END_CODE required?
         data.remove(pos); 
         sizeInElms--;
-        return this;        
     }    
     
-    protected DocumentState deleteElmChars(int pos, int howMany) {
+    protected void deleteElmChars(int pos, int howMany) {
         int deleted = 0;
         if (howMany > 0) {
             while (deleted <= howMany) {
@@ -104,7 +99,6 @@ public class DocumentState implements IDocumentDataAssembler {
             sizeInElms -= deleted;
             sizeInChars -= deleted;
         }
-        return this;
     }
     
     /*
@@ -129,31 +123,54 @@ public class DocumentState implements IDocumentDataAssembler {
         sizeInChars = sizeInElms = 0;
     }
     
+    @Override
     public int docSizeInChars() {
         return sizeInChars;
     }
     
+    @Override
     public int docSizeInElms() {
         return sizeInElms;
     }
     
-    protected final static DocumentState collectDocumentData(BufferedDocOp sourceDoc) {
+    @Override
+    public BufferedDocOp getSource() {
+        return source;
+    }
+    
+    protected final static IDocumentDataAssembler collectDocumentData(BufferedDocOp sourceDoc) {
         LOG.debug("Collecting document data");
         
         if (sourceDoc == null) return new DocumentState(sourceDoc);
         
-        EvaluatingDocInitializationCursor<DocumentState> evaluatingCursor =
+        EvaluatingDocInitializationCursor<IDocumentDataAssembler> evaluatingCursor =
                 new DocStateEvaluatingCursor(new DocumentState(sourceDoc));
         sourceDoc.apply(new InitializationCursorAdapter(evaluatingCursor));
         return evaluatingCursor.finish();       
     }
     
-    private static class DocStateEvaluatingCursor implements EvaluatingDocInitializationCursor<DocumentState/*int[]*/> {
+    protected final static void collectDocumentData(IDocumentDataAssembler with, BufferedDocOp sourceDoc) {
+        LOG.debug("Collecting document data");
         
-        private final DocumentState state;
+        if (sourceDoc == null) return;
         
-        public DocStateEvaluatingCursor(DocumentState state) {
-            this.state = state;
+        EvaluatingDocInitializationCursor<IDocumentDataAssembler> evaluatingCursor =
+                new DocStateEvaluatingCursor(with);
+        sourceDoc.apply(new InitializationCursorAdapter(evaluatingCursor));
+        with = evaluatingCursor.finish();       
+    }
+
+    protected final static void collectDocumentData(IDocumentDataAssembler with) {
+        collectDocumentData(with, with.getSource());      
+    }
+    
+    
+    private static class DocStateEvaluatingCursor implements EvaluatingDocInitializationCursor<IDocumentDataAssembler/*int[]*/> {
+        
+        private final IDocumentDataAssembler assembler;
+        
+        public DocStateEvaluatingCursor(IDocumentDataAssembler assembler) {
+            this.assembler = assembler;
         }
 
         @Override
@@ -161,22 +178,22 @@ public class DocumentState implements IDocumentDataAssembler {
 
         @Override
         public void characters(String chars) { 
-            state.addElmChars(chars.length());
+            assembler.addElmChars(chars.length());
         }
 
         @Override
         public void elementEnd() {
-            state.addElmEnd();          
+            assembler.addElmEnd();          
         }
 
         @Override
         public void elementStart(String type, Attributes attrs) {
-            state.addElmStart();
+            assembler.addElmStart();
         }
 
         @Override
-        public DocumentState finish() {
-            return state;
+        public IDocumentDataAssembler finish() {
+            return assembler;
         }
         
     }

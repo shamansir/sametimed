@@ -87,7 +87,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 	public void alignDocToEnd() throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
 		
-		if (docWalker.getState().docSizeInElms() > 0) {		
+		if (docWalker.docSizeInElms() > 0) {		
 		    walkingBuilder.manualRetain(docWalker.scrollToEnd());
 		}
 		
@@ -98,7 +98,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 	// the internal operations are made counting the entities (elm-start, chars, elm-end)	
 	public int scrollToPos(int chars) throws DocumentProcessingException {
 		if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
-		if (chars > docWalker.getState().docSizeInChars()) throw new DocumentProcessingException("Can not scroll further the document end");
+		if (chars > docWalker.docSizeInChars()) throw new DocumentProcessingException("Can not scroll further the document end");
 		
 		int elmsStep = docWalker.scrollTo(chars);
 		if (elmsStep > 0) {

@@ -3,6 +3,8 @@
  */
 package name.shamansir.sametimed.wave.doc.sequencing;
 
+import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
+
 /**
  * IDocumentDataAssembler
  *
@@ -17,5 +19,10 @@ public interface IDocumentDataAssembler {
     public void addElmChars(int howMany);
 
     public void clear();
+    
+    public int docSizeInChars();
+    public int docSizeInElms();
+    
+    public BufferedDocOp getSource();
     
 }
