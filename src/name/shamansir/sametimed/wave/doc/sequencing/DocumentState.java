@@ -3,42 +3,59 @@ package name.shamansir.sametimed.wave.doc.sequencing;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DocumentState {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
+import org.waveprotocol.wave.model.document.operation.Attributes;
+import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
+import org.waveprotocol.wave.model.document.operation.EvaluatingDocInitializationCursor;
+import org.waveprotocol.wave.model.document.operation.impl.InitializationCursorAdapter;
+
+public class DocumentState implements IDocumentDataAssembler {
+    
+    private static final Log LOG = LogFactory.getLog(DocumentState.class);
     
     static final int ELM_START_CODE = -1;
     static final int ELM_END_CODE = -2;
     
-    protected List<Integer> data = new ArrayList<Integer>();
+    protected final BufferedDocOp source;
+    protected final List<Integer> data = new ArrayList<Integer>();
     protected int sizeInElms = 0; // TODO: make atomic
     protected int sizeInChars = 0; // TODO: make atomic
     
-    public DocumentState() {
-        
+    private DocumentState(BufferedDocOp sourceDoc) {
+        this.source = sourceDoc;
     }
     
-    protected DocumentState(DocumentState initFrom) {
+    /* private DocumentState(BufferedDocOp sourceDoc) {
+        this(collectDocumentData(sourceDoc));
+    } */
+    
+    /* protected DocumentState(DocumentState initFrom) {
+        this.source = initFrom.source;
         this.data = initFrom.data;
-        this.sizeInElms = initFrom.sizeInElms;
         this.sizeInChars = initFrom.sizeInChars;
-    }
-    
-    protected DocumentState addElmStart() {
+        this.sizeInElms = initFrom.sizeInElms;
+    } */  
+      
+    @Override
+    public void addElmStart() {
         data.add(ELM_START_CODE);
         sizeInElms++;
-        return this;
     }
     
-    protected DocumentState addElmEnd() {          
+    @Override
+    public void addElmEnd() {          
         data.add(ELM_END_CODE);
         sizeInElms++;
-        return this;
     }       
     
-    protected DocumentState addElmChars(int howMany) {
-        data.add(howMany);
+    @Override
+    public void addElmChars(int howMany) {
+        data.add(howMany); // TODO: may be accumulate? 
         sizeInChars += howMany;
         sizeInElms += howMany;
-        return this;
     }
     
     protected DocumentState addElmStart(int pos) {
@@ -106,10 +123,10 @@ public class DocumentState {
         return this;
     } */
         
-    public DocumentState clear() {
-        data = new ArrayList<Integer>();
+    @Override
+    public void clear() {
+        data.clear();
         sizeInChars = sizeInElms = 0;
-        return this;
     }
     
     public int docSizeInChars() {
@@ -119,5 +136,50 @@ public class DocumentState {
     public int docSizeInElms() {
         return sizeInElms;
     }
+    
+    protected final static DocumentState collectDocumentData(BufferedDocOp sourceDoc) {
+        LOG.debug("Collecting document data");
+        
+        if (sourceDoc == null) return new DocumentState(sourceDoc);
+        
+        EvaluatingDocInitializationCursor<DocumentState> evaluatingCursor =
+                new DocStateEvaluatingCursor(new DocumentState(sourceDoc));
+        sourceDoc.apply(new InitializationCursorAdapter(evaluatingCursor));
+        return evaluatingCursor.finish();       
+    }
+    
+    private static class DocStateEvaluatingCursor implements EvaluatingDocInitializationCursor<DocumentState/*int[]*/> {
+        
+        private final DocumentState state;
+        
+        public DocStateEvaluatingCursor(DocumentState state) {
+            this.state = state;
+        }
+
+        @Override
+        public void annotationBoundary(AnnotationBoundaryMap map) { }
+
+        @Override
+        public void characters(String chars) { 
+            state.addElmChars(chars.length());
+        }
+
+        @Override
+        public void elementEnd() {
+            state.addElmEnd();          
+        }
+
+        @Override
+        public void elementStart(String type, Attributes attrs) {
+            state.addElmStart();
+        }
+
+        @Override
+        public DocumentState finish() {
+            return state;
+        }
+        
+    }
+    
     
 }

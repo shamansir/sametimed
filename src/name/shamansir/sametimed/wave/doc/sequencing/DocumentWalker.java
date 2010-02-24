@@ -1,62 +1,62 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
-public class DocumentWalker extends DocumentState {
+import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
+
+public class DocumentWalker implements IDocumentDataAssembler {
+    
+    private final DocumentState state;
     
 	private int curPos = 0; // TODO: make atomic
 	private int curPosElms = 0; // TODO: make atomic
 	private int curPosChars = 0; // TODO: make atomic
-	private int curPosTags = 0; // TODO: make atomic
+	private int curPosTags = 1; // TODO: make atomic // staring from 1
 	
-	public DocumentWalker() { super(); }
-	
-	protected DocumentWalker(DocumentState initFrom) { super(initFrom); }
-	
-	@Override
-	protected DocumentState addElmStart() {
-		super.addElmStart(curPos);
-		stepElmFwd(false);
-		return this;
+	public DocumentWalker(BufferedDocOp sourceDoc) { 
+	    state = DocumentState.collectDocumentData(sourceDoc); 
 	}
 	
 	@Override
-	protected DocumentState addElmEnd() {
-        super.addElmEnd(curPos);
+	public void addElmStart() {
+	    state.addElmStart(curPos);
+		stepElmFwd(false);
+	}
+	
+	@Override
+	public void addElmEnd() {
+	    state.addElmEnd(curPos);
 		stepElmFwd(true);
-		return this;
 	}		
 	
 	@Override
-	protected DocumentState addElmChars(int howMany) {
-		super.addElmChars(curPos, howMany);
+	public void addElmChars(int howMany) {
+	    state.addElmChars(curPos, howMany);
 		stepCharsFwd(howMany);
-		return this;
 	}
 	
-	protected DocumentState deleteElmStart() {
-	    super.deleteElmStart(curPos);
-	    return this;
+	public void deleteElmStart() {
+	    state.deleteElmStart(curPos);
 	}
 	
-	protected DocumentState deleteElmEnd() {
-        super.deleteElmStart(curPos);
-        return this;
+	public void deleteElmEnd() {
+        state.deleteElmStart(curPos);
+        curPosTags++;
     }	
 	
-	protected DocumentState deleteElmChars(int howMany) {
-        super.deleteElmChars(curPos, howMany);
-        return this;
+	public void deleteElmChars(int howMany) {
+        state.deleteElmChars(curPos, howMany);
     }	
 	
-	protected DocumentWalker resetPosition() {
+	public DocumentWalker resetPosition() {
 		curPos = curPosElms = curPosChars = 0;
+		curPosTags = 1;
 		return this;
 	}
 	
 	@Override
-	public DocumentWalker clear() {
-	    super.clear();
+    public void clear() {
+	    state.clear();
 		curPos = curPosElms = curPosChars = 0;
-		return this;
+	    curPosTags = 1;
 	}
 	
 	public int curPos() {
@@ -73,14 +73,14 @@ public class DocumentWalker extends DocumentState {
 
 	// returns required step in elements 
 	protected int scrollToEnd() {
-		int size = data.size();
+		int size = state.data.size();
 		int prevPos = curPosElms;
 		while (curPos < size) {
-			int value = data.get(curPos);
+			int value = state.data.get(curPos);
 			if (value >= 0) {
 			    stepCharsFwd(value);
 			} else {
-			    stepElmFwd(value == ELM_END_CODE);
+			    stepElmFwd(value == DocumentState.ELM_END_CODE);
 			}
 		}
 		return curPosElms - prevPos;
@@ -88,22 +88,22 @@ public class DocumentWalker extends DocumentState {
 	
 	// returns required step in elements
 	protected int scrollTo(int chars) {
-	    if (chars > sizeInChars) return (sizeInChars - chars);
+	    if (chars > state.sizeInChars) return (state.sizeInChars - chars);
 	    if (chars < curPosChars) return (chars - curPosChars);
 	    
 		int prevPos = curPosElms;
-		int size = data.size();		
+		int size = state.data.size();		
 		
 		while ((curPosChars < chars) && (curPos < size)) {
-			int value = data.get(curPos); 
+			int value = state.data.get(curPos); 
             if (value >= 0) {
                 stepCharsFwd(value);
             } else {
-                stepElmFwd(value == ELM_END_CODE);
+                stepElmFwd(value == DocumentState.ELM_END_CODE);
             }		
 		}
 		if ((curPosChars == chars) && (curPos < size) 
-			&& (data.get(curPos) == ELM_END_CODE)) {
+			&& (state.data.get(curPos) == DocumentState.ELM_END_CODE)) {
 			stepElmFwd(true);
 		}
 		
@@ -122,6 +122,36 @@ public class DocumentWalker extends DocumentState {
     		curPosChars += chars;
 	    }
 	}
+
+    /**
+     * @param source
+     * @param cursor
+     */
+    public void walkWithCursor(AbstractOperatingCursor cursor) {
+        // FIXME: assert that source conforms with the state?
+        int size = state.data.size();
+        while (cursor.doContinue() && (curPos < size)) {
+            int value = state.data.get(curPos);
+            // FIXME: implement            
+            if (value == DocumentState.ELM_START_CODE) {
+               cursor.elementStart(state.source.getElementStartTag(curPos), 
+                                   state.source.getElementStartAttributes(curPos));
+               //stepElmFwd(false);
+            } else if (value == DocumentState.ELM_END_CODE) {
+               cursor.elementEnd();
+               //stepElmFwd(true);
+            } else {
+               final String chars = state.source.getCharactersString(curPos); 
+               cursor.characters(chars);
+               //stepCharsFwd(chars.length());
+            }
+            curPos++;
+        }
+    }
+
+    public DocumentState getState() {
+        return state;
+    }
 	
 	// returns required step in elements
 	/*

@@ -115,6 +115,11 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	    return this;
 	}
 	
+    protected void trackCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException {
+        cursor.assignBuilder(this);
+        docWalker.walkWithCursor(cursor);
+    }
+	
 	@Override
     public BufferedDocOp build() {
 	    flushRetain();
