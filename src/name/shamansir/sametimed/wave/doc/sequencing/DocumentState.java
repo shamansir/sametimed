@@ -19,26 +19,15 @@ public class DocumentState implements IDocumentDataAssembler {
     static final int ELM_START_CODE = -1;
     static final int ELM_END_CODE = -2;
     
-    protected final BufferedDocOp source;
-    protected final List<Integer> data = new ArrayList<Integer>();
+    private BufferedDocOp source; // FIXME: must be final
+    protected List<Integer> data = new ArrayList<Integer>();
     protected int sizeInElms = 0; // TODO: make atomic
     protected int sizeInChars = 0; // TODO: make atomic
     
     protected DocumentState(BufferedDocOp sourceDoc) {
         this.source = sourceDoc;
     }
-    
-    /* private DocumentState(BufferedDocOp sourceDoc) {
-        this(collectDocumentData(sourceDoc));
-    } */
-    
-    /* protected DocumentState(DocumentState initFrom) {
-        this.source = initFrom.source;
-        this.data = initFrom.data;
-        this.sizeInChars = initFrom.sizeInChars;
-        this.sizeInElms = initFrom.sizeInElms;
-    } */  
-      
+          
     @Override
     public void addElmStart() {
         data.add(ELM_START_CODE);
@@ -138,33 +127,33 @@ public class DocumentState implements IDocumentDataAssembler {
         return source;
     }
     
-    protected final static IDocumentDataAssembler collectDocumentData(BufferedDocOp sourceDoc) {
-        LOG.debug("Collecting document data");
-        
-        if (sourceDoc == null) return new DocumentState(sourceDoc);
-        
-        EvaluatingDocInitializationCursor<IDocumentDataAssembler> evaluatingCursor =
-                new DocStateEvaluatingCursor(new DocumentState(sourceDoc));
-        sourceDoc.apply(new InitializationCursorAdapter(evaluatingCursor));
-        return evaluatingCursor.finish();       
+    protected final void loadDataFrom(DocumentState other) { // FIXME: better be private
+        this.source = other.source;
+        this.data.clear();
+        this.data.addAll(other.data);
+        this.sizeInChars = other.sizeInChars;
+        this.sizeInElms = other.sizeInElms;
     }
     
-    protected final static void collectDocumentData(IDocumentDataAssembler with, BufferedDocOp sourceDoc) {
+    protected final static IDocumentDataAssembler collectDocumentData(IDocumentDataAssembler with) {
+        return collectDocumentData(with, with.getSource());      
+    }    
+    
+    protected final static IDocumentDataAssembler collectDocumentData(IDocumentDataAssembler with, BufferedDocOp sourceDoc) {
         LOG.debug("Collecting document data");
         
-        if (sourceDoc == null) return;
+        if (sourceDoc == null) return with;
         
         EvaluatingDocInitializationCursor<IDocumentDataAssembler> evaluatingCursor =
                 new DocStateEvaluatingCursor(with);
         sourceDoc.apply(new InitializationCursorAdapter(evaluatingCursor));
-        with = evaluatingCursor.finish();       
-    }
-
-    protected final static void collectDocumentData(IDocumentDataAssembler with) {
-        collectDocumentData(with, with.getSource());      
+        return evaluatingCursor.finish();
     }
     
-    
+    protected DocumentState collectDocumentData() {
+        return (DocumentState)collectDocumentData(this);
+    }
+        
     private static class DocStateEvaluatingCursor implements EvaluatingDocInitializationCursor<IDocumentDataAssembler/*int[]*/> {
         
         private final IDocumentDataAssembler assembler;
