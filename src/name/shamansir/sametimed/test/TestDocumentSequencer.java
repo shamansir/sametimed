@@ -20,200 +20,200 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 public class TestDocumentSequencer {
     
     private static final String DEFAULT_TAG_NAME = "a"; 
-	
-	private DocumentHolder documentHolder = new DocumentHolder();
-	SimpleOperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new SimpleOperationsRecordingCursor();
-	
-	@Test
-	public void testSequencing() {
-		BufferedDocOp encodedDoc = createDocument("[abcd]");
-		
-		try {
-		    documentHolder.setCurrentDocument(encodedDoc);		
-		    documentHolder.startOperations();
-			documentHolder.finishOperations();
-			encodedDoc.apply(recordingCursor);
-			Assert.assertEquals("{abcd}", recordingCursor.finish());
-		} catch (DocumentProcessingException dpe) {
-			Assert.fail(dpe.getMessage());
-		}
-		
-		// finish, when already finished
-		try {
-			documentHolder.finishOperations();
-			Assert.fail("exception expected");
-		} catch (DocumentProcessingException dpe) { }
-		
-		// start
-		try {
-			documentHolder.startOperations();
-		} catch (DocumentProcessingException dpe) {
-			Assert.fail(dpe.getMessage());
-		}
-		
-		// try to start again
-		try {
-			documentHolder.startOperations();
-			Assert.fail("exception expected");
-		} catch (DocumentProcessingException dpe) { }
-		
-		// finish
-		try {
-			documentHolder.finishOperations();		
-		} catch (DocumentProcessingException dpe) {
-			Assert.fail(dpe.getMessage());
-		}
-		
-		// apply cursor while not started
-		try {
-			documentHolder.applyCursor(new EmptyCursor());
-			Assert.fail("exception expected");
-		} catch (DocumentProcessingException dpe) { }			
-		
-		// start
-		try {
-			documentHolder.startOperations();
-		} catch (DocumentProcessingException dpe) {
-			Assert.fail(dpe.getMessage());
-		}		
-		
-		// apply null cursor
-		try {
-			documentHolder.applyCursor((AbstractOperatingCursorWithResult<String>)null);
-			Assert.fail("exception expected");
-		} catch (DocumentProcessingException dpe) { }				
-		
-		// finish
-		try {
-			documentHolder.finishOperations();
-		} catch (DocumentProcessingException dpe) {
-			Assert.fail(dpe.getMessage());
-		}				
-	}	
-	
-	@Test
-	public void testScrolling() throws DocumentProcessingException {
-		
-		// FIXME: check when characters added not by sequence of 'characters(char)' call
-		//        but with characters(several-chars) calls
-		
-		BufferedDocOp opWasBuilt = null; 
-		
-		// test scrolling to 5 chars pos
-		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
-		BufferedDocOp encodedDoc = createDocument(docInitCode);
-		documentHolder.setCurrentDocument(encodedDoc);
-		
-		documentHolder.startOperations();
-		documentHolder.scrollToPos(5); // 5 chars, between 'e' and 'f'
-		
-		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor); //                     123456
-		
-		Assert.assertEquals("(*6)", recordingCursor.finish()); // [abcde
-		
-		// test scrolling to 11 chars pos while scrolled before
-		recordingCursor.erase();
-		documentHolder.startOperations();
-		
-		documentHolder.scrollToPos(5); //  to 5  chars, between 'e' and 'f'
-		documentHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l'
-		
-		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor); //                          123456 12345678
-		//Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk
-		Assert.assertEquals("(*14)", recordingCursor.finish());
-		
-		// test scrolling between tags
-		recordingCursor.erase();	
-		documentHolder.startOperations();
-		
-		documentHolder.scrollToPos(8); //  to 8  chars, between 'h' and 'i'
-		documentHolder.scrollToPos(12); // to 12 chars, between 'l' and 'm'
-		
-		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor); //                            1234567890 123456 
-		// Assert.assertEquals("(*10)(*6)", recordingCursor.finish());// [abcdefgh] [ijkl] [m
-		Assert.assertEquals("(*16)", recordingCursor.finish());
-		
-		// test scrolling to end manually
-		recordingCursor.erase();	
-		documentHolder.startOperations();
-		
-		documentHolder.scrollToPos(16); // to the end
-		
-		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor); 
-		Assert.assertEquals("(*22)", recordingCursor.finish());
-			
-	}
-	
-	@Test
-	public void testScrollingAndAdding() throws DocumentProcessingException {
-		
-		BufferedDocOp opWasBuilt = null; 
-		
-		// test scrolling to 14 chars and add tag there
-		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
-		BufferedDocOp encodedDoc = createDocument(docInitCode);
-		documentHolder.setCurrentDocument(encodedDoc);		
-		
-		documentHolder.startOperations();
-		documentHolder.scrollToPos(4); //  to 4  chars, between 'd' and 'e'
-		documentHolder.scrollToPos(14); // to 14 chars, between 'n' and 'o'
-		
-		DocOpBuilder doBuilder = documentHolder.unhideOp();
-		doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
-		doBuilder.characters("qrst");
-		doBuilder.elementEnd();
-		
-		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor);
-		
-		// 12345 12345678901234
-		// [abcd efgh][ijkl][mn
-		//Assert.assertEquals("(*5)(*14){qrst}", recordingCursor.finish());
-		Assert.assertEquals("(*19){qrst}", recordingCursor.finish());
-		// docCode now: [abcdefgh][ijkl][mn[qrst]op]"		
+    
+    private DocumentHolder documentHolder = new DocumentHolder();
+    SimpleOperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new SimpleOperationsRecordingCursor();
+    
+    @Test
+    public void testSequencing() {
+        BufferedDocOp encodedDoc = createDocument("[abcd]");
+        
+        try {
+            documentHolder.setCurrentDocument(encodedDoc);      
+            documentHolder.startOperations();
+            documentHolder.finishOperations();
+            encodedDoc.apply(recordingCursor);
+            Assert.assertEquals("{abcd}", recordingCursor.finish());
+        } catch (DocumentProcessingException dpe) {
+            Assert.fail(dpe.getMessage());
+        }
+        
+        // finish, when already finished
+        try {
+            documentHolder.finishOperations();
+            Assert.fail("exception expected");
+        } catch (DocumentProcessingException dpe) { }
+        
+        // start
+        try {
+            documentHolder.startOperations();
+        } catch (DocumentProcessingException dpe) {
+            Assert.fail(dpe.getMessage());
+        }
+        
+        // try to start again
+        try {
+            documentHolder.startOperations();
+            Assert.fail("exception expected");
+        } catch (DocumentProcessingException dpe) { }
+        
+        // finish
+        try {
+            documentHolder.finishOperations();      
+        } catch (DocumentProcessingException dpe) {
+            Assert.fail(dpe.getMessage());
+        }
+        
+        // apply cursor while not started
+        try {
+            documentHolder.applyCursor(new EmptyCursor());
+            Assert.fail("exception expected");
+        } catch (DocumentProcessingException dpe) { }           
+        
+        // start
+        try {
+            documentHolder.startOperations();
+        } catch (DocumentProcessingException dpe) {
+            Assert.fail(dpe.getMessage());
+        }       
+        
+        // apply null cursor
+        try {
+            documentHolder.applyCursor((AbstractOperatingCursorWithResult<String>)null);
+            Assert.fail("exception expected");
+        } catch (DocumentProcessingException dpe) { }               
+        
+        // finish
+        try {
+            documentHolder.finishOperations();
+        } catch (DocumentProcessingException dpe) {
+            Assert.fail(dpe.getMessage());
+        }               
+    }   
+    
+    @Test
+    public void testScrolling() throws DocumentProcessingException {
+        
+        // FIXME: check when characters added not by sequence of 'characters(char)' call
+        //        but with characters(several-chars) calls
+        
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test scrolling to 5 chars pos
+        final String docInitCode = "[abcdefgh][ijkl][mnop]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentHolder.setCurrentDocument(encodedDoc);
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(5); // 5 chars, between 'e' and 'f'
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor); //                     123456
+        
+        Assert.assertEquals("(*6)", recordingCursor.finish()); // [abcde
+        
+        // test scrolling to 11 chars pos while scrolled before
+        recordingCursor.erase();
+        documentHolder.startOperations();
+        
+        documentHolder.scrollToPos(5); //  to 5  chars, between 'e' and 'f'
+        documentHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l'
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor); //                          123456 12345678
+        //Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk
+        Assert.assertEquals("(*14)", recordingCursor.finish());
+        
+        // test scrolling between tags
+        recordingCursor.erase();    
+        documentHolder.startOperations();
+        
+        documentHolder.scrollToPos(8); //  to 8  chars, between 'h' and 'i'
+        documentHolder.scrollToPos(12); // to 12 chars, between 'l' and 'm'
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor); //                            1234567890 123456 
+        // Assert.assertEquals("(*10)(*6)", recordingCursor.finish());// [abcdefgh] [ijkl] [m
+        Assert.assertEquals("(*16)", recordingCursor.finish());
+        
+        // test scrolling to end manually
+        recordingCursor.erase();    
+        documentHolder.startOperations();
+        
+        documentHolder.scrollToPos(16); // to the end
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor); 
+        Assert.assertEquals("(*22)", recordingCursor.finish());
+            
+    }
+    
+    @Test
+    public void testScrollingAndAdding() throws DocumentProcessingException {
+        
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test scrolling to 14 chars and add tag there
+        final String docInitCode = "[abcdefgh][ijkl][mnop]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentHolder.setCurrentDocument(encodedDoc);      
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(4); //  to 4  chars, between 'd' and 'e'
+        documentHolder.scrollToPos(14); // to 14 chars, between 'n' and 'o'
+        
+        DocOpBuilder doBuilder = documentHolder.unhideOp();
+        doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.characters("qrst");
+        doBuilder.elementEnd();
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        
+        // 12345 12345678901234
+        // [abcd efgh][ijkl][mn
+        //Assert.assertEquals("(*5)(*14){qrst}", recordingCursor.finish());
+        Assert.assertEquals("(*19){qrst}", recordingCursor.finish());
+        // docCode now: [abcdefgh][ijkl][mn[qrst]op]"       
 
-	}
-	
-	@Test
-	public void testAddingAndScrolling() throws DocumentProcessingException {
-		BufferedDocOp opWasBuilt = null; 
-		
-		// test making tag and then scrolling to 12 chars
-		final String docInitCode = "[abcdefgh][ijkl][mnop]";  
-		BufferedDocOp encodedDoc = createDocument(docInitCode);
-		documentHolder.setCurrentDocument(encodedDoc);
-		
-		documentHolder.startOperations();		
-		
-		DocOpBuilder doBuilder = documentHolder.unhideOp();
-		doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
-		doBuilder.characters("qrst");
-		doBuilder.elementEnd();
-		// docCode now: [qrst][abcdefgh][ijkl][mnop]
-		
-		// test scrolling back (to 3 chars or less) is not possible, 4 chars
-		// must be positioned just before the 'a' char
-		documentHolder.scrollToPos(4); //  to 4  chars, between 't' and 'a'
-		documentHolder.scrollToPos(7); //  to 7  chars, between 'c' and 'd'
-		documentHolder.scrollToPos(12); // to 12 chars, between 'h' and 'i'
-		
-		opWasBuilt = documentHolder.finishOperations().getOperation();
-		opWasBuilt.apply(recordingCursor);
-		
-		// 0-step will be skipped
-		
-		//        1234 123456  
-		// [qrst].[abc defgh] [i
-		//Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());
-		Assert.assertEquals("{qrst}(*10)", recordingCursor.finish());
-	}
-		
-	@Test
-	public void testScrollingAddingAndScrollingAgain() throws DocumentProcessingException {
+    }
+    
+    @Test
+    public void testAddingAndScrolling() throws DocumentProcessingException {
+        BufferedDocOp opWasBuilt = null; 
+        
+        // test making tag and then scrolling to 12 chars
+        final String docInitCode = "[abcdefgh][ijkl][mnop]";  
+        BufferedDocOp encodedDoc = createDocument(docInitCode);
+        documentHolder.setCurrentDocument(encodedDoc);
+        
+        documentHolder.startOperations();       
+        
+        DocOpBuilder doBuilder = documentHolder.unhideOp();
+        doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.characters("qrst");
+        doBuilder.elementEnd();
+        // docCode now: [qrst][abcdefgh][ijkl][mnop]
+        
+        // test scrolling back (to 3 chars or less) is not possible, 4 chars
+        // must be positioned just before the 'a' char
+        documentHolder.scrollToPos(4); //  to 4  chars, between 't' and 'a'
+        documentHolder.scrollToPos(7); //  to 7  chars, between 'c' and 'd'
+        documentHolder.scrollToPos(12); // to 12 chars, between 'h' and 'i'
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        
+        // 0-step will be skipped
+        
+        //        1234 123456  
+        // [qrst].[abc defgh] [i
+        //Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());
+        Assert.assertEquals("{qrst}(*10)", recordingCursor.finish());
+    }
+        
+    @Test
+    public void testScrollingAddingAndScrollingAgain() throws DocumentProcessingException {
         BufferedDocOp opWasBuilt = null; 
         
         // test scrolling to 5 chars, making tag and then scrolling to 12 chars
@@ -250,10 +250,10 @@ public class TestDocumentSequencer {
         // [abcde [qrst] f gh][ij kl] [mnop]
         //Assert.assertEquals("(*6){qrst}(*1)(*6)(*3)(*6)", recordingCursor.finish());
         Assert.assertEquals("(*6){qrst}(*16)", recordingCursor.finish());
-	}
-	
-	@Test
-	public void testScrollingAndDeleting() throws DocumentProcessingException {
+    }
+    
+    @Test
+    public void testScrollingAndDeleting() throws DocumentProcessingException {
         BufferedDocOp opWasBuilt = null; 
         
         // test scrolling to 6 chars and delete tag there
@@ -278,10 +278,10 @@ public class TestDocumentSequencer {
         //Assert.assertEquals("(*7)(*3)(-{)(-ghijkl)(-})", recordingCursor.finish());
         Assert.assertEquals("(*10)(-{)(-ghijkl)(-})", recordingCursor.finish());
         // docCode now: [abc][def][mnop]
-	}
-	
-	@Test
-	public void testDeletingAndScrolling() throws DocumentProcessingException {
+    }
+    
+    @Test
+    public void testDeletingAndScrolling() throws DocumentProcessingException {
         BufferedDocOp opWasBuilt = null; 
         
         // test scrolling to 3 chars, delete tag there, and then scroll more
@@ -309,10 +309,10 @@ public class TestDocumentSequencer {
         //Assert.assertEquals("(*5)(-{)(-def)(-})(*5)(*3)", recordingCursor.finish());
         Assert.assertEquals("(*5)(-{)(-def)(-})(*8)", recordingCursor.finish());
         // docCode now: [abc][ghijkl][mnop]
-	}
-	
-	@Test
-	public void testAddingAndDeleting() throws DocumentProcessingException {
+    }
+    
+    @Test
+    public void testAddingAndDeleting() throws DocumentProcessingException {
         BufferedDocOp opWasBuilt = null; 
         
         // test scrolling to 5 chars, add tag there, then scroll more, and then 
@@ -351,12 +351,12 @@ public class TestDocumentSequencer {
         
         // 1234567 ++++++++ 123456 ------ 1234567
         // [abcde] [123456] [fghi] [jklm] [nopqr]
-        Assert.assertEquals("(*7){123456}(*6)(-{)(-jk)(-lm)(-})(*7)", recordingCursor.finish());
+        Assert.assertEquals("(*7){123456}(*6)(-{)(-jklm)(-})(*7)", recordingCursor.finish());
         // docCode now: [abcde][123456][fghi][nopqr]
-	}
-	
-	@Test
-	public void testDeletingAndAdding() throws DocumentProcessingException {
+    }
+    
+    @Test
+    public void testDeletingAndAdding() throws DocumentProcessingException {
         BufferedDocOp opWasBuilt = null; 
         
         // test scrolling to 5 chars, delete tag there, then scroll more, and then add tag and scroll to end
@@ -396,8 +396,8 @@ public class TestDocumentSequencer {
         // [abcde] [fghij] [klm] [1234567] [nopqrs]
         Assert.assertEquals("(*7)(-{)(-fghij)(-})(*5){1234567}(*8)", recordingCursor.finish());
         // docCode now: [abcde][123456][fghi][nopqr]
-	}
-	
+    }
+    
     @Test
     public void testScrollingBack() throws DocumentProcessingException {
         final String docInitCode = "[abcde][fghij][klm][nopqrs]";  
@@ -432,10 +432,10 @@ public class TestDocumentSequencer {
         documentHolder.finishOperations();
         
     }
-	
-	@Test
+    
+    @Test
     public void testScrollingFurtherEnd() throws DocumentProcessingException {
-	    final String docInitCode = "[abcde][fghij][klm][nopqrs]";  
+        final String docInitCode = "[abcde][fghij][klm][nopqrs]";  
         BufferedDocOp encodedDoc = createDocument(docInitCode);
         documentHolder.setCurrentDocument(encodedDoc);
         
@@ -449,8 +449,8 @@ public class TestDocumentSequencer {
         }
         
         documentHolder.finishOperations();
-	}
-	
+    }
+    
     @Test
     public void testAligningToEnd() throws DocumentProcessingException {
 
@@ -497,19 +497,19 @@ public class TestDocumentSequencer {
         //Assert.assertEquals("(*4)(*5)", recordingCursor.finish());
         Assert.assertEquals("(*9)", recordingCursor.finish());
     }
-	
-	@Test
-	public void testSequencingOverEmptyDoc() throws DocumentProcessingException {
-	    documentHolder.setCurrentDocument(createEmptyDocument());
-	    documentHolder.startOperations();
-	    documentHolder.finishOperations();
-	}
-	
-	// FIXME: add addTag tests
-	
-	@Test
-	public void testScrollingReturnsCorrectValues() throws DocumentProcessingException {
-	    String docInitCode = "[abcde][fghij][klm][nopqrs]";  
+    
+    @Test
+    public void testSequencingOverEmptyDoc() throws DocumentProcessingException {
+        documentHolder.setCurrentDocument(createEmptyDocument());
+        documentHolder.startOperations();
+        documentHolder.finishOperations();
+    }
+    
+    // FIXME: add addTag tests
+    
+    @Test
+    public void testScrollingReturnsCorrectValues() throws DocumentProcessingException {
+        String docInitCode = "[abcde][fghij][klm][nopqrs]";  
         BufferedDocOp encodedDoc = createDocument(docInitCode);
         documentHolder.setCurrentDocument(encodedDoc);
         documentHolder.startOperations();
@@ -518,11 +518,11 @@ public class TestDocumentSequencer {
         Assert.assertEquals(11, documentHolder.scrollToPos(11));
         Assert.assertEquals(15, documentHolder.scrollToPos(15));
         documentHolder.finishOperations();
-	}
-	
-	@Test
-	public void testApplyingCursorWithResult() throws DocumentProcessingException {
-	    
+    }
+    
+    @Test
+    public void testApplyingCursorWithResult() throws DocumentProcessingException {
+        
         String docInitCode = "[abcde][fghij][klm][nopqrs]";  
         BufferedDocOp encodedDoc = createDocument(docInitCode);
         documentHolder.setCurrentDocument(encodedDoc);
@@ -536,8 +536,8 @@ public class TestDocumentSequencer {
         documentHolder.startOperations();
         Assert.assertEquals(11, documentHolder.applyCursor(new CharsCountingCursor()).intValue());
         documentHolder.finishOperations();
-	}
-	
+    }
+    
     @Test
     public void testApplyingOperatingCursor() throws DocumentProcessingException {
         final String docInitCode = "[abcde][fghij][klm][nopqrs]";  
@@ -563,8 +563,8 @@ public class TestDocumentSequencer {
         // [abcde][f ghij] [klm] [no pqrs]
         // Assert.assertEquals("(*9)(*5)(-{)(-klm)(-})(*3)", recordingCursor.finish());
         Assert.assertEquals("(*14)(-{)(-klm)(-})(*3)", recordingCursor.finish());
-    }	
-	
+    }   
+    
     @Test
     public void testApplyingOperatingCursorWithResult() throws DocumentProcessingException {
         final String docInitCode = "[abcde][fghij][klm][nopqrs][tuvw]";  
@@ -592,146 +592,146 @@ public class TestDocumentSequencer {
         //Assert.assertEquals("(*4)(*15)(-{)(-nopqrs)(-})(*4)", recordingCursor.finish());
         Assert.assertEquals("(*9)(-{)(-nopqrs)(-})(*4)", recordingCursor.finish());
     }
-		
-	private BufferedDocOp createDocument(String documentCode) {
-		return (new EncodedDocumentBuilder(documentCode)).compile();
-	}
-	
-	private static BufferedDocOp createEmptyDocument() {
-	    return new DocOpBuffer().finish();
-	}
-	
-	private class DocumentHolder extends AbstractDocumentOperationsSequencer {
-		
-		private BufferedDocOp curDocument = null;
+        
+    private BufferedDocOp createDocument(String documentCode) {
+        return (new EncodedDocumentBuilder(documentCode)).compile();
+    }
+    
+    private static BufferedDocOp createEmptyDocument() {
+        return new DocOpBuffer().finish();
+    }
+    
+    private class DocumentHolder extends AbstractDocumentOperationsSequencer {
+        
+        private BufferedDocOp curDocument = null;
 
-		public void setCurrentDocument(BufferedDocOp curDocument) {
-			this.curDocument = curDocument;
-		}
+        public void setCurrentDocument(BufferedDocOp curDocument) {
+            this.curDocument = curDocument;
+        }
 
-		@Override
-		public String getDocumentID() {
-			return "test";
-		}
+        @Override
+        public String getDocumentID() {
+            return "test";
+        }
 
-		@Override
-		protected BufferedDocOp getSource() {
-			return curDocument;
-		}
-		
-		public DocOpBuilder unhideOp() {
-			return getDocBuilder();
-		}
-		
-	}	
-	
-	private class EncodedDocumentBuilder {
+        @Override
+        protected BufferedDocOp getSource() {
+            return curDocument;
+        }
+        
+        public DocOpBuilder unhideOp() {
+            return getDocBuilder();
+        }
+        
+    }   
+    
+    private class EncodedDocumentBuilder {
 
-		private DocOpBuffer document = new DocOpBuffer();
-		
-		private final String code; 
+        private DocOpBuffer document = new DocOpBuffer();
+        
+        private final String code; 
 
-		public EncodedDocumentBuilder(String code) {
-			this.code = code;
-		}
-		
-		public BufferedDocOp compile() {
-			for (byte b: code.getBytes()) {
-				if (b == (byte)'[') {
-					document.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
-				} else if (b == (byte)']') {
-					document.elementEnd();
-				} else {
-					document.characters(String.valueOf((char)b));
-				}
-			}
-			return document.finish();
-		}
-		
-	}
-	
-	private class SimpleOperationsRecordingCursor implements EvaluatingDocOpCursor<String> {
-		
-		private final StringBuffer operationsRecorder = new StringBuffer();
-		
-		private String escape(String input) {
-			String output = input.replaceAll("\\}", "\\}");
-			output = output.replaceAll("\\{", "\\{");
-			output = output.replaceAll("\\)", "\\)");
-			return output.replaceAll("\\(", "\\(");
-		}
+        public EncodedDocumentBuilder(String code) {
+            this.code = code;
+        }
+        
+        public BufferedDocOp compile() {
+            for (byte b: code.getBytes()) {
+                if (b == (byte)'[') {
+                    document.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+                } else if (b == (byte)']') {
+                    document.elementEnd();
+                } else {
+                    document.characters(String.valueOf((char)b));
+                }
+            }
+            return document.finish();
+        }
+        
+    }
+    
+    private class SimpleOperationsRecordingCursor implements EvaluatingDocOpCursor<String> {
+        
+        private final StringBuffer operationsRecorder = new StringBuffer();
+        
+        private String escape(String input) {
+            String output = input.replaceAll("\\}", "\\}");
+            output = output.replaceAll("\\{", "\\{");
+            output = output.replaceAll("\\)", "\\)");
+            return output.replaceAll("\\(", "\\(");
+        }
 
-		@Override
-		public String finish() { 
-		    return operationsRecorder.toString(); 
-		}
-		
-		public void erase() { 
-		    operationsRecorder.delete(0, operationsRecorder.length()); 
-		}
+        @Override
+        public String finish() { 
+            return operationsRecorder.toString(); 
+        }
+        
+        public void erase() { 
+            operationsRecorder.delete(0, operationsRecorder.length()); 
+        }
 
-		@Override
-		public void deleteCharacters(String chars) {
-			operationsRecorder.append("(-" + escape(chars) + ")");
-		}
+        @Override
+        public void deleteCharacters(String chars) {
+            operationsRecorder.append("(-" + escape(chars) + ")");
+        }
 
-		@Override
-		public void deleteElementEnd() { 
-		    operationsRecorder.append("(-})"); 
-		}
+        @Override
+        public void deleteElementEnd() { 
+            operationsRecorder.append("(-})"); 
+        }
 
-		@Override
-		public void deleteElementStart(String type, Attributes attrs) {
-			operationsRecorder.append("(-{)");
-		}
+        @Override
+        public void deleteElementStart(String type, Attributes attrs) {
+            operationsRecorder.append("(-{)");
+        }
 
-		@Override
-		public void replaceAttributes(Attributes oldAttrs, Attributes newAttrs) { }
+        @Override
+        public void replaceAttributes(Attributes oldAttrs, Attributes newAttrs) { }
 
-		@Override
-		public void retain(int itemCount) {
-			operationsRecorder.append("(*" + itemCount + ")");			
-		}
+        @Override
+        public void retain(int itemCount) {
+            operationsRecorder.append("(*" + itemCount + ")");          
+        }
 
-		@Override
-		public void updateAttributes(AttributesUpdate attrUpdate) { }
+        @Override
+        public void updateAttributes(AttributesUpdate attrUpdate) { }
 
-		@Override
-		public void annotationBoundary(AnnotationBoundaryMap map) { }
+        @Override
+        public void annotationBoundary(AnnotationBoundaryMap map) { }
 
-		@Override
-		public void characters(String chars) {
-			operationsRecorder.append(escape(chars));
-		}
+        @Override
+        public void characters(String chars) {
+            operationsRecorder.append(escape(chars));
+        }
 
-		@Override
-		public void elementEnd() {
-			operationsRecorder.append("}");			
-		}
+        @Override
+        public void elementEnd() {
+            operationsRecorder.append("}");         
+        }
 
-		@Override
-		public void elementStart(String type, Attributes attrs) {
-			operationsRecorder.append("{");
-		}		
-		
-	}
-	
-	private class EmptyCursor extends AbstractOperatingCursorWithResult<String> {
+        @Override
+        public void elementStart(String type, Attributes attrs) {
+            operationsRecorder.append("{");
+        }       
+        
+    }
+    
+    private class EmptyCursor extends AbstractOperatingCursorWithResult<String> {
 
-		@Override
-		public String getResult() { return ""; }
+        @Override
+        public String getResult() { return ""; }
 
-		@Override
-		public void annotationBoundary(AnnotationBoundaryMap map) { }
-		@Override
-		public void characters(String chars) { }
-		@Override
-		public void elementEnd() { }
-		@Override
-		public void elementStart(String type, Attributes attrs) { }
-		
-	}
-	
+        @Override
+        public void annotationBoundary(AnnotationBoundaryMap map) { }
+        @Override
+        public void characters(String chars) { }
+        @Override
+        public void elementEnd() { }
+        @Override
+        public void elementStart(String type, Attributes attrs) { }
+        
+    }
+    
     private class CharsCountingCursor implements ICursorWithResult<Integer> {
         
         private int charCount = 0;
@@ -750,8 +750,8 @@ public class TestDocumentSequencer {
             return charCount;
         }
         
-    }	
-	
+    }   
+    
     private class TagDeletingCursor extends AbstractOperatingCursor {
         
         private final int numToDelete;
@@ -791,8 +791,8 @@ public class TestDocumentSequencer {
             }
         }
         
-    }	
-	
+    }   
+    
     private class TagCuttingCursor extends AbstractOperatingCursorWithResult<String> {
 
         private final int numToDelete;
@@ -838,6 +838,6 @@ public class TestDocumentSequencer {
             return charsCut;
         }
         
-    }	
-	
+    }   
+    
 }

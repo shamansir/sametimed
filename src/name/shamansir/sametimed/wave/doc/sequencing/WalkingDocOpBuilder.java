@@ -11,6 +11,8 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	private final DocumentWalker docWalker;
 	
 	private int savedRetain = 0;
+	private String savedDelChars = "";
+    private String savedAddChars = "";	
 	
 	public WalkingDocOpBuilder(DocumentWalker docWalker) {
 		super();
@@ -19,7 +21,7 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 
 	@Override
 	public DocOpBuilder elementStart(String type, Attributes attrs) {
-	    flushRetain();
+	    flushRetain(); flushChars();
 		docWalker.foundElmStart();
 		return super.elementStart(type, attrs);
 	}	
@@ -28,19 +30,19 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	public DocOpBuilder characters(String s) {
 	    flushRetain();
 		docWalker.foundChars(s.length());
-		return super.characters(s);
+		return manualAddChars(s);
 	}	
 
 	@Override
 	public DocOpBuilder elementEnd() {
-	    flushRetain();
+	    flushRetain(); flushChars();
 		docWalker.foundElmEnd();
 		return super.elementEnd();
 	}
 	
 	@Override
 	public DocOpBuilder deleteElementStart(String type, Attributes attrs) {
-	    flushRetain();
+	    flushRetain(); flushChars();
 		docWalker.deleteElmStart();
 		return super.deleteElementStart(type, attrs);
 	}
@@ -49,41 +51,44 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	public DocOpBuilder deleteCharacters(String s) {
 	    flushRetain();
 	    docWalker.deleteElmChars(s.length());
-		return super.deleteCharacters(s);
+		return manualDelChars(s);
 	}	
 
 	@Override
 	public DocOpBuilder deleteElementEnd() {
-	    flushRetain();
+	    flushRetain(); flushChars();
 	    docWalker.deleteElmEnd();
 		return super.deleteElementEnd();
 	}
 	
 	@Override
 	public DocOpBuilder replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {
-	    flushRetain();
+	    flushRetain(); flushChars();
 	    return super.replaceAttributes(oldAttrs, newAttrs);
 	}
 	
 	@Override 
 	public DocOpBuilder updateAttributes(AttributesUpdate update) {
-	    flushRetain();
+	    flushRetain(); flushChars();
         return super.updateAttributes(update);
 	}
 	
 	public DocOpBuilder retainElementStart() {
+	    flushChars();
 	    docWalker.stepElmFwd(false);
 	    return manualRetain(1);
 	}
 	
     public DocOpBuilder retainElementEnd() {
-         docWalker.stepElmFwd(true);
-         return manualRetain(1);
+        flushChars();
+        docWalker.stepElmFwd(true);
+        return manualRetain(1);
     }
     
     public DocOpBuilder retainCharacters(int chars) {
-         docWalker.stepCharsFwd(chars);
-         return manualRetain(chars);
+        flushChars();
+        docWalker.stepCharsFwd(chars);
+        return manualRetain(chars);
     }    
 	
     /**
@@ -102,18 +107,41 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	
 	protected DocOpBuilder manualRetain(int elmCount) {
 	    // return super.retain(elmCount);  
-	    // FIXME: be sure to flush retain in the end of operations with builder
 	    savedRetain += elmCount;
 	    return this;
 	}
 	
-	private DocOpBuilder flushRetain() {
+	protected DocOpBuilder manualAddChars(String chars) {
+	    // return super.characters(chars);
+	    savedAddChars += chars;
+	    return this;
+	}
+	
+    protected DocOpBuilder manualDelChars(String chars) {
+        // return super.deleteCharacters(chars);
+        savedDelChars += chars;
+        return this;
+    }
+	
+	protected DocOpBuilder flushRetain() {
 	    if (savedRetain > 0) {
 	        super.retain(savedRetain);
 	        savedRetain = 0;
 	    }
 	    return this;
 	}
+	
+    protected DocOpBuilder flushChars() {
+        if (savedAddChars.length() > 0) {
+            super.characters(savedAddChars);
+            savedAddChars = "";
+        }
+        if (savedDelChars.length() > 0) {
+            super.deleteCharacters(savedDelChars);
+            savedDelChars = "";
+        }
+        return this;
+    }	
 	
     protected void trackCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException {
         cursor.assignBuilder(this);

@@ -149,7 +149,7 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
                 cursor.characters(source.getCharactersString(curSrcPos)); 
             } else if (value == DocumentState.ELM_START_CODE) {
                 cursor.elementStart(source.getElementStartTag(curSrcPos), 
-                                   source.getElementStartAttributes(curSrcPos));
+                                    source.getElementStartAttributes(curSrcPos));
             } else cursor.elementEnd();
         }
     }
