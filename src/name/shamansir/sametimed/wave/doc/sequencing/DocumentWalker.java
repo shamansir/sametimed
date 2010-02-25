@@ -144,7 +144,7 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
         int size = data.size();
         BufferedDocOp source = getSource();
         while (cursor.doContinue() && (curPos < size)) {
-            int value = data.get(curPos);
+            int value = data.get(curPos); // FIXME: curPos is not in sync with curSrcPos
             if (value > 0) {
                 cursor.characters(source.getCharactersString(curSrcPos)); 
             } else if (value == DocumentState.ELM_START_CODE) {

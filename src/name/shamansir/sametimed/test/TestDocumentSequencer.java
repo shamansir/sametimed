@@ -559,10 +559,10 @@ public class TestDocumentSequencer {
         
         BufferedDocOp opWasBuilt = documentHolder.finishOperations().getOperation();
         opWasBuilt.apply(recordingCursor);
-        // 123456789 12346 ----- 123
+        // 123456789 12345 ----- 123
         // [abcde][f ghij] [klm] [no pqrs]
-        // Assert.assertEquals("(*9)(*6)(-{)(-klm)(-})(*3)", recordingCursor.finish());
-        Assert.assertEquals("(*15)(-{)(-klm)(-})(*3)", recordingCursor.finish());
+        // Assert.assertEquals("(*9)(*5)(-{)(-klm)(-})(*3)", recordingCursor.finish());
+        Assert.assertEquals("(*14)(-{)(-klm)(-})(*3)", recordingCursor.finish());
     }	
 	
     @Test

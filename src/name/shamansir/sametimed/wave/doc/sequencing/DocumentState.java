@@ -19,8 +19,9 @@ public class DocumentState implements IDocumentDataAssembler {
     static final int ELM_START_CODE = -1;
     static final int ELM_END_CODE = -2;
     
-    private final BufferedDocOp source; // FIXME: must be final
+    private final BufferedDocOp source;
     protected final List<Integer> data = new ArrayList<Integer>();
+    protected final List<String> checkData = new ArrayList<String>(); // FIXME: remove
     protected int sizeInElms = 0; // TODO: make atomic
     protected int sizeInChars = 0; // TODO: make atomic
     
@@ -30,18 +31,21 @@ public class DocumentState implements IDocumentDataAssembler {
           
     @Override
     public void addElmStart() {
+        checkData.add("{");
         data.add(ELM_START_CODE);
         sizeInElms++;
     }
     
     @Override
-    public void addElmEnd() {          
+    public void addElmEnd() {
+        checkData.add("}");
         data.add(ELM_END_CODE);
         sizeInElms++;
     }       
     
     @Override
     public void addElmChars(int howMany) {
+        checkData.add(source.getCharactersString(data.size()));
         data.add(howMany); // TODO: may be accumulate? 
         sizeInChars += howMany;
         sizeInElms += howMany;
@@ -78,7 +82,7 @@ public class DocumentState implements IDocumentDataAssembler {
     protected void deleteElmChars(int pos, int howMany) {
         int deleted = 0;
         if (howMany > 0) {
-            while (deleted <= howMany) {
+            while (deleted < howMany) {
                 int val = data.get(pos);
                 if (val > 0) {
                     deleted += val;
@@ -90,22 +94,6 @@ public class DocumentState implements IDocumentDataAssembler {
         }
     }
     
-    /*
-    protected DocumentState deleteElm(int pos) {
-        int val = data.get(pos);
-        // FIXME: get num of chars and delete while it is not reached,
-        //        because data can be -1, 1, 1, 1, -2, -1, 2, 3, -2 
-        if ((val == ELM_START_CODE) || (val == ELM_END_CODE)) {
-            data.remove(pos);            
-            sizeInElms--;
-        } else {
-            data.remove(pos);
-            sizeInChars -= val;
-            sizeInElms -= val;
-        }
-        return this;
-    } */
-        
     @Override
     public void clear() {
         data.clear();
