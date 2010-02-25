@@ -590,7 +590,7 @@ public class TestDocumentSequencer {
         // 1234 123456789012345 -------- 1234
         // [abc de][fghij][klm] [nopqrs] [tuv w]
         //Assert.assertEquals("(*4)(*15)(-{)(-nopqrs)(-})(*4)", recordingCursor.finish());
-        Assert.assertEquals("(*9)(-{)(-nopqrs)(-})(*4)", recordingCursor.finish());
+        Assert.assertEquals("(*19)(-{)(-nopqrs)(-})(*4)", recordingCursor.finish());
     }
         
     private BufferedDocOp createDocument(String documentCode) {
@@ -828,6 +828,7 @@ public class TestDocumentSequencer {
         public void elementEnd() { 
             if (docWalker.curPosTags() == numToDelete) {
                 docBuilder.deleteElementEnd();
+                detach();
             } else {
                 docBuilder.retainElementEnd();
             }
