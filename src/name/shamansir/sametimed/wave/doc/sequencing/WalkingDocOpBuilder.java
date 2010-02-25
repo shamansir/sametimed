@@ -11,8 +11,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	private final DocumentWalker docWalker;
 	
 	private int savedRetain = 0;
-	private String savedDelChars = "";
-	private String savedAddChars = "";
 	
 	public WalkingDocOpBuilder(DocumentWalker docWalker) {
 		super();
@@ -21,7 +19,7 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 
 	@Override
 	public DocOpBuilder elementStart(String type, Attributes attrs) {
-	    flushRetain(); flushChars();
+	    flushRetain();
 		docWalker.foundElmStart();
 		return super.elementStart(type, attrs);
 	}	
@@ -30,19 +28,19 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	public DocOpBuilder characters(String s) {
 	    flushRetain();
 		docWalker.foundChars(s.length());
-		return manualAddChars(s);
+		return super.characters(s);
 	}	
 
 	@Override
 	public DocOpBuilder elementEnd() {
-	    flushRetain(); flushChars();
+	    flushRetain();
 		docWalker.foundElmEnd();
 		return super.elementEnd();
 	}
 	
 	@Override
 	public DocOpBuilder deleteElementStart(String type, Attributes attrs) {
-	    flushRetain(); flushChars();
+	    flushRetain();
 		docWalker.deleteElmStart();
 		return super.deleteElementStart(type, attrs);
 	}
@@ -51,44 +49,41 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	public DocOpBuilder deleteCharacters(String s) {
 	    flushRetain();
 	    docWalker.deleteElmChars(s.length());
-		return manualDelChars(s);
+		return super.deleteCharacters(s);
 	}	
 
 	@Override
 	public DocOpBuilder deleteElementEnd() {
-	    flushRetain(); flushChars();
+	    flushRetain();
 	    docWalker.deleteElmEnd();
 		return super.deleteElementEnd();
 	}
 	
 	@Override
 	public DocOpBuilder replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {
-	    flushRetain(); flushChars();
+	    flushRetain();
 	    return super.replaceAttributes(oldAttrs, newAttrs);
 	}
 	
 	@Override 
 	public DocOpBuilder updateAttributes(AttributesUpdate update) {
-	    flushRetain(); flushChars();
+	    flushRetain();
         return super.updateAttributes(update);
 	}
 	
 	public DocOpBuilder retainElementStart() {
-	    flushChars();
 	    docWalker.stepElmFwd(false);
 	    return manualRetain(1);
 	}
 	
     public DocOpBuilder retainElementEnd() {
-        flushChars();
-        docWalker.stepElmFwd(true);
-        return manualRetain(1);
+         docWalker.stepElmFwd(true);
+         return manualRetain(1);
     }
     
     public DocOpBuilder retainCharacters(int chars) {
-        flushChars();
-        docWalker.stepCharsFwd(chars);
-        return manualRetain(chars);
+         docWalker.stepCharsFwd(chars);
+         return manualRetain(chars);
     }    
 	
     /**
@@ -106,42 +101,19 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	}
 	
 	protected DocOpBuilder manualRetain(int elmCount) {
-	    // return super.retain(elmCount); 
+	    // return super.retain(elmCount);  
+	    // FIXME: be sure to flush retain in the end of operations with builder
 	    savedRetain += elmCount;
 	    return this;
 	}
 	
-    protected DocOpBuilder manualAddChars(String chars) {
-        // return super.deleteCharacters(chars);  
-        savedAddChars += chars;
-        return this;
-    }	
-	
-    protected DocOpBuilder manualDelChars(String chars) {
-        // return super.deleteCharacters(chars);  
-        savedDelChars += chars;
-        return this;
-    }  
-	
-    protected DocOpBuilder flushRetain() {
+	private DocOpBuilder flushRetain() {
 	    if (savedRetain > 0) {
 	        super.retain(savedRetain);
 	        savedRetain = 0;
 	    }
 	    return this;
 	}
-	
-    protected DocOpBuilder flushChars() {
-        if (savedDelChars.length() > 0) {
-            super.deleteCharacters(savedDelChars);
-            savedDelChars = "";
-        }
-        if (savedAddChars.length() > 0) {
-            super.characters(savedAddChars);
-            savedAddChars = "";
-        }        
-        return this;
-    }	
 	
     protected void trackCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException {
         cursor.assignBuilder(this);

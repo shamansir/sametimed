@@ -351,7 +351,7 @@ public class TestDocumentSequencer {
         
         // 1234567 ++++++++ 123456 ------ 1234567
         // [abcde] [123456] [fghi] [jklm] [nopqr]
-        Assert.assertEquals("(*7){123456}(*6)(-{)(-jklm)(-})(*7)", recordingCursor.finish());
+        Assert.assertEquals("(*7){123456}(*6)(-{)(-jk)(-lm)(-})(*7)", recordingCursor.finish());
         // docCode now: [abcde][123456][fghi][nopqr]
 	}
 	
