@@ -17,13 +17,13 @@ import org.waveprotocol.wave.model.document.operation.EvaluatingDocOpCursor;
  */
 public class OperationsRecordingCursor implements EvaluatingDocOpCursor<String> {
     
-    private final StringBuffer operationsRecorder = new StringBuffer();
+    protected final StringBuffer operationsRecorder = new StringBuffer();
     
     private String escape(String input) {
-        String output = input.replaceAll("\\}", "\\}");
-        output = output.replaceAll("\\{", "\\{");
-        output = output.replaceAll("\\)", "\\)");
-        return output.replaceAll("\\(", "\\(");
+        String output = input.replaceAll("\\}", "\\\\}");
+        output = output.replaceAll("\\{", "\\\\{");
+        output = output.replaceAll("\\)", "\\\\)");
+        return output.replaceAll("\\(", "\\\\(");
     }
 
     @Override
@@ -36,6 +36,11 @@ public class OperationsRecordingCursor implements EvaluatingDocOpCursor<String> 
     }
 
     @Override
+    public void deleteElementStart(String type, Attributes attrs) {
+        operationsRecorder.append("(-{)");
+    }    
+    
+    @Override
     public void deleteCharacters(String chars) {
         operationsRecorder.append("(-" + escape(chars) + ")");
     }
@@ -43,11 +48,6 @@ public class OperationsRecordingCursor implements EvaluatingDocOpCursor<String> 
     @Override
     public void deleteElementEnd() { 
         operationsRecorder.append("(-})"); 
-    }
-
-    @Override
-    public void deleteElementStart(String type, Attributes attrs) {
-        operationsRecorder.append("(-{)");
     }
 
     @Override
@@ -65,6 +65,11 @@ public class OperationsRecordingCursor implements EvaluatingDocOpCursor<String> 
     public void annotationBoundary(AnnotationBoundaryMap map) { }
 
     @Override
+    public void elementStart(String type, Attributes attrs) {
+        operationsRecorder.append("{");
+    } 
+    
+    @Override
     public void characters(String chars) {
         operationsRecorder.append(escape(chars));
     }
@@ -72,12 +77,7 @@ public class OperationsRecordingCursor implements EvaluatingDocOpCursor<String> 
     @Override
     public void elementEnd() {
         operationsRecorder.append("}");         
-    }
-
-    @Override
-    public void elementStart(String type, Attributes attrs) {
-        operationsRecorder.append("{");
-    }       
+    } 
     
 }    
 
