@@ -120,9 +120,8 @@ public class TestDocumentSequencer {
         documentHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l'
         
         opWasBuilt = documentHolder.finishOperations().getOperation();
-        opWasBuilt.apply(recordingCursor); //                          123456 12345678
-        //Assert.assertEquals("(*6)(*8)", recordingCursor.finish());// [abcde fgh][ijk
-        Assert.assertEquals("(*14)", recordingCursor.finish());
+        opWasBuilt.apply(recordingCursor); //                     123456 12345678
+        Assert.assertEquals("(*14)", recordingCursor.finish());// [abcde fgh][ijk
         
         // test scrolling between tags
         recordingCursor.erase();    
@@ -132,9 +131,8 @@ public class TestDocumentSequencer {
         documentHolder.scrollToPos(12); // to 12 chars, between 'l' and 'm'
         
         opWasBuilt = documentHolder.finishOperations().getOperation();
-        opWasBuilt.apply(recordingCursor); //                            1234567890 123456 
-        // Assert.assertEquals("(*10)(*6)", recordingCursor.finish());// [abcdefgh] [ijkl] [m
-        Assert.assertEquals("(*16)", recordingCursor.finish());
+        opWasBuilt.apply(recordingCursor); //                      1234567890 123456 
+        Assert.assertEquals("(*16)", recordingCursor.finish()); // [abcdefgh] [ijkl] [m
         
         // test scrolling to end manually
         recordingCursor.erase();    
@@ -172,7 +170,6 @@ public class TestDocumentSequencer {
         
         // 12345 12345678901234
         // [abcd efgh][ijkl][mn
-        //Assert.assertEquals("(*5)(*14){qrst}", recordingCursor.finish());
         Assert.assertEquals("(*19){qrst}", recordingCursor.finish());
         // docCode now: [abcdefgh][ijkl][mn[qrst]op]"       
 
@@ -208,7 +205,6 @@ public class TestDocumentSequencer {
         
         //        1234 123456  
         // [qrst].[abc defgh] [i
-        //Assert.assertEquals("{qrst}(*4)(*6)", recordingCursor.finish());
         Assert.assertEquals("{qrst}(*10)", recordingCursor.finish());
     }
         
@@ -248,7 +244,6 @@ public class TestDocumentSequencer {
         
         // 123456        1 123456 123 123456 
         // [abcde [qrst] f gh][ij kl] [mnop]
-        //Assert.assertEquals("(*6){qrst}(*1)(*6)(*3)(*6)", recordingCursor.finish());
         Assert.assertEquals("(*6){qrst}(*16)", recordingCursor.finish());
     }
     
@@ -275,7 +270,6 @@ public class TestDocumentSequencer {
         
         // 1234567 123 -------- 
         // [abc][d ef] [ghijkl] [mnop]
-        //Assert.assertEquals("(*7)(*3)(-{)(-ghijkl)(-})", recordingCursor.finish());
         Assert.assertEquals("(*10)(-{)(-ghijkl)(-})", recordingCursor.finish());
         // docCode now: [abc][def][mnop]
     }
@@ -306,7 +300,6 @@ public class TestDocumentSequencer {
         
         // 12345 ----- 12345 123 
         // [abc] [def] [ghij kl] [mnop]
-        //Assert.assertEquals("(*5)(-{)(-def)(-})(*5)(*3)", recordingCursor.finish());
         Assert.assertEquals("(*5)(-{)(-def)(-})(*8)", recordingCursor.finish());
         // docCode now: [abc][ghijkl][mnop]
     }
@@ -488,13 +481,19 @@ public class TestDocumentSequencer {
         documentHolder.scrollToPos(0);        
         documentHolder.scrollToPos(3);
         documentHolder.scrollToPos(3);
-        documentHolder.scrollToPos(6);        
+        documentHolder.scrollToPos(6);  
+        
+        try {
+            documentHolder.scrollToPos(0);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass
+        }
         
         BufferedDocOp opWasBuilt = documentHolder.finishOperations().getOperation();
         opWasBuilt.apply(recordingCursor);
         // 1234 12345
         // [abc de][f ghij]
-        //Assert.assertEquals("(*4)(*5)", recordingCursor.finish());
         Assert.assertEquals("(*9)", recordingCursor.finish());
     }
     
@@ -505,7 +504,9 @@ public class TestDocumentSequencer {
         documentHolder.finishOperations();
     }
     
-    // FIXME: add addTag tests
+    // TODO: add modifying tags cursors tests,
+    //       tree-structured tags tests
+    //       cursors sequences tests 
     
     @Test
     public void testScrollingReturnsCorrectValues() throws DocumentProcessingException {
@@ -540,6 +541,9 @@ public class TestDocumentSequencer {
     
     @Test
     public void testApplyingOperatingCursor() throws DocumentProcessingException {
+        
+        // delete in the middle of document
+        
         final String docInitCode = "[abcde][fghij][klm][nopqrs]";  
         BufferedDocOp encodedDoc = createDocument(docInitCode);
         documentHolder.setCurrentDocument(encodedDoc);
@@ -555,18 +559,135 @@ public class TestDocumentSequencer {
         documentHolder.scrollToPos(6); // between 'f' and 'g'
         documentHolder.applyCursor(new TagDeletingCursor(3)); // deletes third tag
         // docCode now: [abcde][fghij][nopqrs]
-        documentHolder.scrollToPos(12);
+        documentHolder.scrollToPos(12); // between 'o' and 'p'
         
         BufferedDocOp opWasBuilt = documentHolder.finishOperations().getOperation();
         opWasBuilt.apply(recordingCursor);
         // 123456789 12345 ----- 123
         // [abcde][f ghij] [klm] [no pqrs]
-        // Assert.assertEquals("(*9)(*5)(-{)(-klm)(-})(*3)", recordingCursor.finish());
         Assert.assertEquals("(*14)(-{)(-klm)(-})(*3)", recordingCursor.finish());
+        
+        // delete in the end of document        
+        
+        recordingCursor.erase();
+        documentHolder.setCurrentDocument(createDocument("[abcde][fghij][klm][nopqrs]"));
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(8); // between 'g' and 'h'
+        documentHolder.applyCursor(new TagDeletingCursor(4)); // delete fourth tag
+        // docCode now: [abcde][fghij][klm]
+        documentHolder.scrollToPos(13); // end
+        
+        try {
+            documentHolder.scrollToPos(14);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass
+        }         
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        // 1234567890 123456789 --------
+        // [abcde][fg hij][klm] [nopqrs]
+        Assert.assertEquals("(*19)(-{)(-nopqrs)(-})", recordingCursor.finish());
+        
+        // delete in the beginning of document        
+        
+        recordingCursor.erase();
+        documentHolder.setCurrentDocument(createDocument("[abcde][fghij][klm][nopqrs]"));
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(0); // beginning
+        documentHolder.applyCursor(new TagDeletingCursor(1)); // delete first tag
+        // docCode now: [fghij][klm][nopqrs]
+        documentHolder.scrollToPos(14); // end
+        
+        try {
+            documentHolder.scrollToPos(15);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass
+        }        
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        // ------- 12345678901234567890
+        // [abcde] [fghij][klm][nopqrs]
+        Assert.assertEquals("(-{)(-abcde)(-})(*20)", recordingCursor.finish());        
+        
+        // add in the middle of document        
+        
+        recordingCursor.erase();
+        documentHolder.setCurrentDocument(createDocument("[abcde][fghij][nopqrs]"));        
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(4); // between 'd' and 'e'
+        documentHolder.applyCursor(new TagInsertCursor(2, "123")); // insert '123' after second tag
+        // docCode now: [abcde][fghij][123][nopqrs]
+        documentHolder.scrollToPos(19); // the end       
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        // 12345 123456789 +++++ 12345678
+        // [abcd e][fghij] [123] [nopqrs]
+        Assert.assertEquals("(*14){123}(*8)", recordingCursor.finish());
+        
+        // add in the end of document 
+        
+        recordingCursor.erase();
+        documentHolder.setCurrentDocument(createDocument("[abcde][fghij][nopqrs]"));        
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(7); // between 'f' and 'g'
+        documentHolder.applyCursor(new TagInsertCursor(3, "12345")); // insert '12345' after third tag
+        documentHolder.scrollToPos(21); // to the end (already there, though)
+        // docCode now: [abcde][fghij][nopqrs][12345]
+        
+        try {
+            documentHolder.scrollToPos(22);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass
+        }
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        // 123456789 1234567890123 +++++++
+        // [abcde][f ghij][nopqrs] [12345]
+        Assert.assertEquals("(*22){12345}", recordingCursor.finish());
+        
+        // add in the beginning of document 
+        
+        recordingCursor.erase();
+        documentHolder.setCurrentDocument(createDocument("[abc][defgh][ij]"));        
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(0); // beginning, just to test
+        documentHolder.applyCursor(new TagInsertCursor(0, "&%$!")); // insert '&%$!' before first tag
+        documentHolder.scrollToPos(10); // between 'f' and 'g'
+        documentHolder.scrollToPos(14); // to the end
+        // docCode now: [&%$!][abc][defgh][ij]
+        
+        try {
+            documentHolder.scrollToPos(15);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass
+        }
+        
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        // ++++++ 123456789 1234567
+        // [&%$!] [abc][def gh][ij]
+        Assert.assertEquals("{&%$!}(*16)", recordingCursor.finish());        
+        
     }   
     
     @Test
     public void testApplyingOperatingCursorWithResult() throws DocumentProcessingException {
+        
+        // deleting cursor, with result
+        
         final String docInitCode = "[abcde][fghij][klm][nopqrs][tuvw]";  
         BufferedDocOp encodedDoc = createDocument(docInitCode);
         documentHolder.setCurrentDocument(encodedDoc);
@@ -589,8 +710,25 @@ public class TestDocumentSequencer {
         opWasBuilt.apply(recordingCursor);
         // 1234 123456789012345 -------- 1234
         // [abc de][fghij][klm] [nopqrs] [tuv w]
-        //Assert.assertEquals("(*4)(*15)(-{)(-nopqrs)(-})(*4)", recordingCursor.finish());
         Assert.assertEquals("(*19)(-{)(-nopqrs)(-})(*4)", recordingCursor.finish());
+        
+        // adding cursor, with result
+        
+        recordingCursor.erase();
+        documentHolder.setCurrentDocument(createDocument("[abc][defgh][ij]"));        
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(1);
+        Assert.assertEquals("&%$!", 
+                documentHolder.applyCursor(new TagPastingCursor(1, "&%$!"))); // insert '&%$!' before first tag
+        // docCode now: [abc][&%$!][defgh][ij]
+        documentHolder.scrollToPos(14); // end
+                
+        opWasBuilt = documentHolder.finishOperations().getOperation();
+        opWasBuilt.apply(recordingCursor);
+        // 12 345 ++++++ 12345678901
+        // [a bc] [&%$!] [defgh][ij]
+        Assert.assertEquals("(*5){&%$!}(*11)", recordingCursor.finish());         
     }
         
     private BufferedDocOp createDocument(String documentCode) {
@@ -722,8 +860,6 @@ public class TestDocumentSequencer {
         public String getResult() { return ""; }
 
         @Override
-        public void annotationBoundary(AnnotationBoundaryMap map) { }
-        @Override
         public void characters(String chars) { }
         @Override
         public void elementEnd() { }
@@ -759,9 +895,6 @@ public class TestDocumentSequencer {
         public TagDeletingCursor(int number) {
             numToDelete = number;
         }
-
-        @Override
-        public void annotationBoundary(AnnotationBoundaryMap map) { }
         
         @Override
         public void elementStart(String type, Attributes attrs) { 
@@ -792,6 +925,52 @@ public class TestDocumentSequencer {
         }
         
     }   
+    
+    private class TagInsertCursor extends AbstractOperatingCursor {
+        
+        private final int insertPoint;
+        private final String charsToIns;
+        
+        public TagInsertCursor(int pos, String chars) {
+            insertPoint = pos + 1;
+            charsToIns = chars;
+        }
+        
+        @Override
+        protected void onAttached() {
+            if (docWalker.curPosTags() == insertPoint) { // if it is first tag
+                buildTag();
+                detach();                
+            }
+        }       
+        
+        @Override
+        public void elementStart(String type, Attributes attrs) { 
+            docBuilder.retainElementStart();                    
+        }        
+        
+        @Override
+        public void characters(String chars) { 
+            docBuilder.retainCharacters(chars.length());
+        }
+        
+        @Override
+        public void elementEnd() {
+            docBuilder.retainElementEnd(); // tags number incremented just after retain
+            if (docWalker.curPosTags() == insertPoint) {                
+                buildTag();
+                detach();
+            }
+        }
+        
+        private void buildTag() {
+            docBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+            docBuilder.characters(charsToIns);
+            docBuilder.elementEnd();    
+        }
+        
+    }   
+    
     
     private class TagCuttingCursor extends AbstractOperatingCursorWithResult<String> {
 
@@ -837,6 +1016,56 @@ public class TestDocumentSequencer {
         @Override
         public String getResult() {
             return charsCut;
+        }
+        
+    }
+    
+    private class TagPastingCursor extends AbstractOperatingCursorWithResult<String> {
+        
+        private final int insertPoint;
+        private final String charsToIns;
+        
+        public TagPastingCursor(int pos, String chars) {
+            insertPoint = pos + 1;
+            charsToIns = chars;
+        }
+        
+        @Override
+        protected void onAttached() {
+            if (docWalker.curPosTags() == insertPoint) { // if it is first tag
+                buildTag();
+                detach();                
+            }
+        }       
+        
+        @Override
+        public void elementStart(String type, Attributes attrs) { 
+            docBuilder.retainElementStart();                    
+        }        
+        
+        @Override
+        public void characters(String chars) { 
+            docBuilder.retainCharacters(chars.length());
+        }
+        
+        @Override
+        public void elementEnd() {
+            docBuilder.retainElementEnd(); // tags number incremented just after retain
+            if (docWalker.curPosTags() == insertPoint) {                
+                buildTag();
+                detach();
+            }
+        }
+        
+        private void buildTag() {
+            docBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+            docBuilder.characters(charsToIns);
+            docBuilder.elementEnd();    
+        }
+
+        @Override
+        public String getResult() {
+            return charsToIns;
         }
         
     }   

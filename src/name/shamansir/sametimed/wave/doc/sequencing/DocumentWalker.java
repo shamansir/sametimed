@@ -140,10 +140,8 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
      * @param cursor
      */
     public void walkWithCursor(AbstractOperatingCursor cursor) {
-        // FIXME: assert that source conforms with the state?
-        int size = data.size();
         BufferedDocOp source = getSource();
-        while (cursor.doContinue() && (curSrcPos < size)) {
+        while (cursor.doContinue() && (curPos < data.size())) {
             int value = data.get(curPos);
             if (value > 0) {
                 cursor.characters(source.getCharactersString(curSrcPos)); 

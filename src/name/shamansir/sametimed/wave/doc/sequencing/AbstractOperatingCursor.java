@@ -11,6 +11,8 @@ import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
  * @date Feb 22, 2010 3:10:07 PM
  *
  */
+
+// FIXME: may be make IOperatingCursor interface to allow inheritance in cursors
 public abstract class AbstractOperatingCursor implements DocInitializationCursor {
     
     protected WalkingDocOpBuilder docBuilder = null;
@@ -32,9 +34,12 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
         if (builder == null) throw new DocumentProcessingException("Builder must not be null");
         this.docBuilder = builder; 
         this.docWalker = builder.getWalker();
+        this.onAttached();
     }
 
     public void annotationBoundary(AnnotationBoundaryMap map) { }
+    
+    protected void onAttached() { }
     
     protected final void detach() {
         isAttached = false;
