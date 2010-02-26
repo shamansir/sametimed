@@ -1,7 +1,9 @@
 package name.shamansir.sametimed.test;
 
+import name.shamansir.sametimed.test.mock.DocumentHolder;
+import name.shamansir.sametimed.test.mock.EasyEncodedDocumentBuilder;
+import name.shamansir.sametimed.test.mock.OperationsRecordingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
-import name.shamansir.sametimed.wave.doc.sequencing.AbstractDocumentOperationsSequencer;
 import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursor;
 import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursorWithResult;
 import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
@@ -10,9 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.AttributesUpdate;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
-import org.waveprotocol.wave.model.document.operation.EvaluatingDocOpCursor;
 import org.waveprotocol.wave.model.document.operation.impl.AttributesImpl;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuffer;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
@@ -22,7 +22,7 @@ public class TestDocumentSequencer {
     private static final String DEFAULT_TAG_NAME = "a"; 
     
     private DocumentHolder documentHolder = new DocumentHolder();
-    SimpleOperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new SimpleOperationsRecordingCursor();
+    OperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new OperationsRecordingCursor();
     
     @Test
     public void testSequencing() {
@@ -730,128 +730,15 @@ public class TestDocumentSequencer {
         // [a bc] [&%$!] [defgh][ij]
         Assert.assertEquals("(*5){&%$!}(*11)", recordingCursor.finish());         
     }
+    
+    // ================== private methods ======================================
         
     private BufferedDocOp createDocument(String documentCode) {
-        return (new EncodedDocumentBuilder(documentCode)).compile();
+        return (new EasyEncodedDocumentBuilder(documentCode, DEFAULT_TAG_NAME)).compile();
     }
     
     private static BufferedDocOp createEmptyDocument() {
         return new DocOpBuffer().finish();
-    }
-    
-    private class DocumentHolder extends AbstractDocumentOperationsSequencer {
-        
-        private BufferedDocOp curDocument = null;
-
-        public void setCurrentDocument(BufferedDocOp curDocument) {
-            this.curDocument = curDocument;
-        }
-
-        @Override
-        public String getDocumentID() {
-            return "test";
-        }
-
-        @Override
-        protected BufferedDocOp getSource() {
-            return curDocument;
-        }
-        
-        public DocOpBuilder unhideOp() {
-            return getDocBuilder();
-        }
-        
-    }   
-    
-    private class EncodedDocumentBuilder {
-
-        private DocOpBuffer document = new DocOpBuffer();
-        
-        private final String code; 
-
-        public EncodedDocumentBuilder(String code) {
-            this.code = code;
-        }
-        
-        public BufferedDocOp compile() {
-            for (byte b: code.getBytes()) {
-                if (b == (byte)'[') {
-                    document.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
-                } else if (b == (byte)']') {
-                    document.elementEnd();
-                } else {
-                    document.characters(String.valueOf((char)b));
-                }
-            }
-            return document.finish();
-        }
-        
-    }
-    
-    private class SimpleOperationsRecordingCursor implements EvaluatingDocOpCursor<String> {
-        
-        private final StringBuffer operationsRecorder = new StringBuffer();
-        
-        private String escape(String input) {
-            String output = input.replaceAll("\\}", "\\}");
-            output = output.replaceAll("\\{", "\\{");
-            output = output.replaceAll("\\)", "\\)");
-            return output.replaceAll("\\(", "\\(");
-        }
-
-        @Override
-        public String finish() { 
-            return operationsRecorder.toString(); 
-        }
-        
-        public void erase() { 
-            operationsRecorder.delete(0, operationsRecorder.length()); 
-        }
-
-        @Override
-        public void deleteCharacters(String chars) {
-            operationsRecorder.append("(-" + escape(chars) + ")");
-        }
-
-        @Override
-        public void deleteElementEnd() { 
-            operationsRecorder.append("(-})"); 
-        }
-
-        @Override
-        public void deleteElementStart(String type, Attributes attrs) {
-            operationsRecorder.append("(-{)");
-        }
-
-        @Override
-        public void replaceAttributes(Attributes oldAttrs, Attributes newAttrs) { }
-
-        @Override
-        public void retain(int itemCount) {
-            operationsRecorder.append("(*" + itemCount + ")");          
-        }
-
-        @Override
-        public void updateAttributes(AttributesUpdate attrUpdate) { }
-
-        @Override
-        public void annotationBoundary(AnnotationBoundaryMap map) { }
-
-        @Override
-        public void characters(String chars) {
-            operationsRecorder.append(escape(chars));
-        }
-
-        @Override
-        public void elementEnd() {
-            operationsRecorder.append("}");         
-        }
-
-        @Override
-        public void elementStart(String type, Attributes attrs) {
-            operationsRecorder.append("{");
-        }       
-        
     }
     
     private class EmptyCursor extends AbstractOperatingCursorWithResult<String> {
@@ -969,8 +856,7 @@ public class TestDocumentSequencer {
             docBuilder.elementEnd();    
         }
         
-    }   
-    
+    }       
     
     private class TagCuttingCursor extends AbstractOperatingCursorWithResult<String> {
 
