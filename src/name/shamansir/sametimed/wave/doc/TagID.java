@@ -171,6 +171,19 @@ public final class TagID {
 		return value;
 	} */
 	
-	// FIXME: implement compareTo and equalsTo, intValue (fullIntValue?) and test them
-		
+	// FIXME: implement intValue (fullIntValue?) and test it (use it when comparing?)
+	
+	@Override
+    public boolean equals(Object other) {
+	    if (this == other) return true;
+	    if (!(other instanceof TagID)) return false;
+	    TagID otherTagID = (TagID) other;
+	    return otherTagID.value.equals(value);
+	}
+	
+	@Override
+    public int hashCode() {
+	    return value.hashCode();
+	}
+	
 }

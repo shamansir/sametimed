@@ -29,7 +29,7 @@ public class DocumentHolder extends AbstractDocumentOperationsSequencer {
     }
 
     @Override
-    protected BufferedDocOp getSource() {
+    public BufferedDocOp getSource() {
         return curDocument;
     }
     

@@ -82,14 +82,29 @@ public class TestDocumentSequencer {
         try {
             documentHolder.applyCursor((AbstractOperatingCursorWithResult<String>)null);
             Assert.fail("exception expected");
-        } catch (DocumentProcessingException dpe) { }               
+        } catch (DocumentProcessingException dpe) { }
         
         // finish
         try {
             documentHolder.finishOperations();
         } catch (DocumentProcessingException dpe) {
             Assert.fail(dpe.getMessage());
-        }               
+        }        
+        
+        try {
+            documentHolder.startOperations();
+            documentHolder.applyCursor(new NoDetachCursor());
+            Assert.fail("exception expected");            
+        } catch (DocumentProcessingException dpe) { 
+            // pass
+        } finally {
+            try {
+                documentHolder.finishOperations();                
+            } catch (DocumentProcessingException dpe) {
+                Assert.fail(dpe.getMessage());
+            }
+        }
+                     
     }   
     
     @Test
@@ -712,9 +727,24 @@ public class TestDocumentSequencer {
         @Override
         public void elementEnd() { }
         @Override
-        public void elementStart(String type, Attributes attrs) { }
+        public void elementStart(String type, Attributes attrs) { 
+            detach();
+        }
         
     }
+    
+    // ================== NoDetachCursor =======================================
+    
+    private class NoDetachCursor extends AbstractOperatingCursor {
+        
+        @Override
+        public void characters(String chars) { }
+        @Override
+        public void elementEnd() { }
+        @Override
+        public void elementStart(String type, Attributes attrs) { }
+        
+    }    
     
     // ================== CharsCountingCursor ==================================
     

@@ -20,6 +20,13 @@ public class TestTagIDGeneration {
 		Assert.assertFalse("X".equals(tagID.getValue()));
 	}
 	
+    @Test  
+    public void testIDsEquality() {
+        Assert.assertTrue(new TagID("c").equals(new TagID("c")));
+        Assert.assertTrue(new TagID("cd.de.av").equals(new TagID("cd.de.av")));
+        Assert.assertFalse(new TagID("cd.df.av").equals(new TagID("cd.de.av")));
+    }	
+	
 	@Test
 	public void testFirstTagOk() {
 		Assert.assertEquals("a", new TagID(null).makeNext().getValue());

@@ -11,7 +11,9 @@ import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 import name.shamansir.sametimed.test.mock.*;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.*;
+import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
 
 /**
  * TestCursors
@@ -22,8 +24,8 @@ import name.shamansir.sametimed.wave.doc.cursor.*;
  */
 public class TestCursors {
     
-    private static DocumentHolder documentHolder = new DocumentHolder();
-    private static OperationsRecordingCursor recordingCursor = new DetailedOperationsRecordingCursor();
+    private final DocumentHolder documentHolder = new DocumentHolder();
+    private final OperationsRecordingCursor recordingCursor = new DetailedOperationsRecordingCursor();
     
     private static final String ID_ATTR = AbstractDocumentTag.ID_ATTR_NAME;
     private static final String BY_ATTR = AbstractDocumentTag.AUTHOR_ATTR_NAME;
@@ -43,17 +45,18 @@ public class TestCursors {
         "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" +
         "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" +
         "[{word:" + ID_ATTR + "=h;" + BY_ATTR + "=" + UNKN_AUTHOR + "}" + "pqr" + "]" +
-        "[{test:" + ID_ATTR + "=i;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" +
-        "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" +
-        "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" +
-        "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]";     
-    private static BufferedDocOp encodedDoc;
+        "[{test:" + ID_ATTR + "=c;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" +
+        "[{word:" + ID_ATTR + "=i;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" +
+        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" +
+        "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]" +
+        "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=g@a.com" + "}" + "efg" + "]" +
+        "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=g@a.com" + "}" + "hij" + "]";
     
     // TODO: tests for tree-structured documents
     
-    @BeforeClass
-    public static void prepareTests() {
-        encodedDoc = createDocument(DOCUMENT_CODE);
+    @Before
+    public void setUp() {
+        final BufferedDocOp encodedDoc = createDocument(DOCUMENT_CODE);
         documentHolder.setCurrentDocument(encodedDoc);        
     }
         
@@ -79,11 +82,13 @@ public class TestCursors {
             "[{text:" + BY_ATTR + "=c@a.com;" + ID_ATTR + "=f;" + "}" + "lm"  + "]" +
             "[{word:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=g;" + "}" + "no"  + "]" +
             "[{word:" + BY_ATTR + "=" + UNKN_AUTHOR + ';' + ID_ATTR + "=h;" + "}" + "pqr" + "]" +
-            "[{test:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=i;" + "}" + "stu" + "]" +
-            "[{word:" + BY_ATTR + "=d@a.com;" + ID_ATTR + "=j;" + "}" + "vwx" + "]" +
-            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=k;" + "}" + "yza" + "]" +
-            "[{word:" + BY_ATTR + "=f@a.com;" + ID_ATTR + "=l;" + "}" + "bcd" + "]";
-        encodedDoc.apply(recordingCursor);
+            "[{test:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=c;" + "}" + "stu" + "]" +
+            "[{word:" + BY_ATTR + "=d@a.com;" + ID_ATTR + "=i;" + "}" + "vwx" + "]" +
+            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=c;" + "}" + "yza" + "]" +
+            "[{word:" + BY_ATTR + "=f@a.com;" + ID_ATTR + "=j;" + "}" + "bcd" + "]" +
+            "[{word:" + BY_ATTR + "=g@a.com;" + ID_ATTR + "=k;" + "}" + "efg" + "]" +
+            "[{word:" + BY_ATTR + "=g@a.com;" + ID_ATTR + "=l;" + "}" + "hij" + "]";
+        documentHolder.getSource().apply(recordingCursor);
         Assert.assertEquals(EXPECTED_RECORDED_DOC_CODE, recordingCursor.finish());        
     }
     
@@ -98,8 +103,15 @@ public class TestCursors {
     }
     
     @Test
-    public void testCuttingCursor() {
-        Assert.fail();        
+    public void testCuttingCursor() throws DocumentProcessingException {
+        documentHolder.startOperations();
+        Assert.assertEquals(
+                easyTag("c", "word", "a@a.com", "op"), 
+                documentHolder.applyCursor(new DocumentElementCuttingCursor(new TagID("c"))));
+        // 1234567890 ----
+        // [ijk][lmn] [op]
+        Assert.assertEquals("(*10)", 
+                          getRecord(documentHolder.finishOperations()));
     }
     
     @Test
@@ -143,6 +155,11 @@ public class TestCursors {
         
     } */   
     
+    @Test 
+    public void testCursorsSequence() {
+        Assert.fail();
+    }
+    
     private static BufferedDocOp createDocument(String documentCode) {
         return (new EncodedDocumentBuilder(documentCode)).compile();
     }
@@ -155,6 +172,9 @@ public class TestCursors {
     
     private void resetRecorder() {
         recordingCursor.erase();
-    }    
-        
+    }   
+    
+    private static AbstractDocumentTag easyTag(String tagID, String name, String author, String content) {
+        return AbstractDocumentTag.createNoAttrs(tagID, name, author, content);
+    }
 }

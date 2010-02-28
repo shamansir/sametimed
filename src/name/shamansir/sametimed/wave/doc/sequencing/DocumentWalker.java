@@ -135,10 +135,6 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 	}
 
 	@Override
-    /**
-     * @param source
-     * @param cursor
-     */
     public void walkWithCursor(AbstractOperatingCursor cursor) {
         BufferedDocOp source = getSource();
         while (cursor.doContinue() && (curPos < data.size())) {

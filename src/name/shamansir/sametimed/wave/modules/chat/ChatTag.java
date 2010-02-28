@@ -1,6 +1,6 @@
 package name.shamansir.sametimed.wave.modules.chat;
 
-import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.NoAttrsTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 
 import org.waveprotocol.wave.model.document.operation.Attributes;
@@ -8,7 +8,7 @@ import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import com.google.common.collect.ImmutableMap;
 
-public class ChatTag extends AbstractDocumentTag {
+public class ChatTag extends NoAttrsTag {
 	
 	public static final String TAG_NAME = "line";
 	

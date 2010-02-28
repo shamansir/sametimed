@@ -43,15 +43,24 @@ public abstract class AbstractDocumentTag {
 		this(id, name, null, loadAttributes(attrs), content);
 	}
 	
+    protected AbstractDocumentTag(TagID id, String tagName, String author, String content) {
+        this(id, tagName, parseAuthorAttr(author), new HashMap<String, String>(), content);
+    }
+    
+    public AbstractDocumentTag(TagID id, String tagName,
+            ParticipantId author, String content) {
+        this(id, tagName, author, new HashMap<String, String>(), content);
+    }    
+	
 	private AbstractDocumentTag(TagID id, String name, ParticipantId author, Map<String, String> attrs, String content) {
 		this.name = name;
 		this.attributes = attrs;
 		this.setID(id);
 		this.setAuthor(author);
 		this.setContent(content);
-	}		
-	
-	public void setContent(String content) {
+	}
+
+    public void setContent(String content) {
 		this.content = content;
 	}
 
@@ -118,7 +127,7 @@ public abstract class AbstractDocumentTag {
 		initFromElement(name, attrs, null);
 	}
 	
-	public void initFromElement(String name, Attributes attrs, String content) throws IllegalArgumentException {
+	protected void initFromElement(String name, Attributes attrs, String content) throws IllegalArgumentException {
 		if (checkTagName(name)) {
 			
 			if (!(attrs.containsKey(ID_ATTR_NAME) && attrs.containsKey(AUTHOR_ATTR_NAME) && checkAttributes(attrs))) {
@@ -175,6 +184,38 @@ public abstract class AbstractDocumentTag {
 		EmptyTag emptyTag = new EmptyTag(parseIDAttr(tagID));
 		emptyTag.initFromElement(name, attrs, content);
 		return emptyTag;
-	}	
+	}
+	
+    public static AbstractDocumentTag createNoAttrs(String tagID, String name, String author, String content) {
+        NoAttrsTag noAttrsTag = new NoAttrsTag(parseIDAttr(tagID), name, author, content);
+        return noAttrsTag;
+    }	
+    
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) return true;
+        if (!(other instanceof AbstractDocumentTag)) return false;
+        AbstractDocumentTag otherTag = (AbstractDocumentTag) other;
+        return 
+          ((id == null) ? (otherTag.id == null) : otherTag.id.equals(id)) && 
+          ((name == null) ? (otherTag.name == null) : otherTag.name.equals(name)) &&
+          ((author == null) ? (otherTag.author == null) : otherTag.author.equals(author)) &&
+          ((content == null) ? (otherTag.content == null) : otherTag.content.equals(content))/* &&
+          otherTag.attributes.equals(attributes) */;
+          // FIXME: is checking attributes for equality required? 
+        
+    }
+    
+    @Override
+    public int hashCode() { 
+        int hash = 1;
+        hash = hash * 31 + (id == null ? 0 : id.hashCode());
+        hash = hash * 31 + (name == null ? 0 : name.hashCode());
+        hash = hash * 31 + (author == null ? 0 : author.hashCode());
+        hash = hash * 31 + (content == null ? 0 : content.hashCode());
+        // hash = hash * 31 + (attributes == null ? 0 : attributes.hashCode());
+        // FIXME: is getting hash from attributes required?
+        return hash;
+    }
 		
 }
