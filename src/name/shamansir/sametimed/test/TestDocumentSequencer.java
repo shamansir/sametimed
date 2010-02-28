@@ -23,7 +23,7 @@ public class TestDocumentSequencer {
     private static final String DEFAULT_TAG_NAME = "a"; 
     
     private DocumentHolder documentHolder = new DocumentHolder();
-    OperationsRecordingCursor/*EvaluatingDocOpCursor<String>*/ recordingCursor = new OperationsRecordingCursor();
+    private OperationsRecordingCursor recordingCursor = new OperationsRecordingCursor();
     
     @Test
     public void testSequencing() {
@@ -676,7 +676,7 @@ public class TestDocumentSequencer {
     
     // ================== private methods ======================================
     
-    private BufferedDocOp createDocument(String documentCode) {  
+    private static BufferedDocOp createDocument(String documentCode) {  
         return (new EasyEncodedDocumentBuilder(documentCode, DEFAULT_TAG_NAME)).compile();
     }    
     

@@ -48,35 +48,25 @@ public class EncodedDocumentBuilder {
     public BufferedDocOp compile() {        
         Matcher elm_m = elmPattern.matcher(code);        
         
-        String tagName;
+        String tagName; String chars;
         Map<String, String> attrsMap = new HashMap<String, String>();
-        AttributesImpl attrs;
-        String chars;
+        String attrsText;
         
-        while (elm_m.matches()) {
-            tagName = defaultTagName;
-            attrs = AttributesImpl.EMPTY_MAP;
-            chars = "";
-            
-            if (elm_m.groupCount() == 1) {
-                chars = elm_m.group(1);
-            } else if (elm_m.groupCount() == 2) {
-                tagName = elm_m.group(1);
-                chars = elm_m.group(2);
-            } else if (elm_m.groupCount() == 3) {
-                tagName = elm_m.group(1);
-                chars = elm_m.group(2);                
-                                
-                final String attrsText = elm_m.group(2);
-                Matcher attrs_m = attrsPattern.matcher(attrsText);
-                attrsMap.clear();
+        while (elm_m.find()) {
+            attrsMap.clear();
+            tagName = (elm_m.group(1) != null) ? elm_m.group(1) : defaultTagName;
+            attrsText = (elm_m.group(2) != null) ? elm_m.group(2) : "";
+            chars = (elm_m.group(3) != null) ? elm_m.group(3) : "";            
+
+            if (attrsText.length() > 0) {
+                Matcher attrs_m = attrsPattern.matcher(attrsText);                
                 
                 while (attrs_m.matches()) {
                     attrsMap.put(attrs_m.group(1), attrs_m.group(2));
                 }
             }
             
-            document.elementStart(tagName, attrs);
+            document.elementStart(tagName, new AttributesImpl(attrsMap));
             document.characters(chars);
             document.elementEnd();
             
