@@ -10,6 +10,7 @@ import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
 import name.shamansir.sametimed.test.mock.*;
 
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.cursor.*;
 
 /**
@@ -24,8 +25,31 @@ public class TestCursors {
     private static DocumentHolder documentHolder = new DocumentHolder();
     private static OperationsRecordingCursor recordingCursor = new DetailedOperationsRecordingCursor();
     
-    private static final String DOCUMENT_CODE = "[abcd]";
+    private static final String ID_ATTR = AbstractDocumentTag.ID_ATTR_NAME;
+    private static final String BY_ATTR = AbstractDocumentTag.AUTHOR_ATTR_NAME;
+    private static final String UNKN_AUTHOR = AbstractDocumentTag.UNKNOWN_AUTHOR;    
+    
+    private static final String DOCUMENT_CODE =
+        "[{word:" + ID_ATTR + "=a;" + BY_ATTR + "=0@a.com" + "}" + "ijk" + "]" +
+        "[{word:" + ID_ATTR + "=b;" + BY_ATTR + "=a@a.com" + "}" + "lmn" + "]" +
+        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "op"  + "]" +
+        "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=a@a.com" + "}" + "qrs" + "]" +
+        "[{word:" +                   BY_ATTR + "=e@a.com" + "}" + "tuv" + "]" +
+        "[{word:" + ID_ATTR + "=d;" +                        "}" + "wxy" + "]" +
+        "[{word:" +                                          "}" + "zab" + "]" +
+        "[{text:" +                                          "}" + "cde" + "]" +
+        "[{word:" + ID_ATTR + "=mm;" +                        "}" + "fgh" + "]" +
+        "[{word:" + ID_ATTR + "=e;" + BY_ATTR + "=b@a.com" + "}" + "ijk" + "]" +
+        "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" +
+        "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" +
+        "[{word:" + ID_ATTR + "=h;" + BY_ATTR + "=" + UNKN_AUTHOR + "}" + "pqr" + "]" +
+        "[{test:" + ID_ATTR + "=i;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" +
+        "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" +
+        "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" +
+        "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]";     
     private static BufferedDocOp encodedDoc;
+    
+    // TODO: tests for tree-structured documents
     
     @BeforeClass
     public static void prepareTests() {
@@ -40,8 +64,27 @@ public class TestCursors {
     
     @Test
     public void testDocumentEncodedOk() {
+        final String EXPECTED_RECORDED_DOC_CODE =
+            // order of attributes is important here, AttributesImpl sorts them alphabetically
+            "[{word:" + BY_ATTR + "=0@a.com;" + ID_ATTR + "=a;" + "}" + "ijk" + "]" +
+            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=b;" + "}" + "lmn" + "]" +
+            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=c;" + "}" + "op"  + "]" +
+            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=d;" + "}" + "qrs" + "]" +
+            "[{word:" + BY_ATTR + "=e@a.com;" +                   "}" + "tuv" + "]" +
+            "[{word:" +                         ID_ATTR + "=d;" + "}" + "wxy" + "]" +
+            "[{word:" +                                           "}" + "zab" + "]" +
+            "[{text:" +                                           "}" + "cde" + "]" +
+            "[{word:" +                         ID_ATTR + "=mm;" + "}" + "fgh" + "]" +
+            "[{word:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=e;" + "}" + "ijk" + "]" +
+            "[{text:" + BY_ATTR + "=c@a.com;" + ID_ATTR + "=f;" + "}" + "lm"  + "]" +
+            "[{word:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=g;" + "}" + "no"  + "]" +
+            "[{word:" + BY_ATTR + "=" + UNKN_AUTHOR + ';' + ID_ATTR + "=h;" + "}" + "pqr" + "]" +
+            "[{test:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=i;" + "}" + "stu" + "]" +
+            "[{word:" + BY_ATTR + "=d@a.com;" + ID_ATTR + "=j;" + "}" + "vwx" + "]" +
+            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=k;" + "}" + "yza" + "]" +
+            "[{word:" + BY_ATTR + "=f@a.com;" + ID_ATTR + "=l;" + "}" + "bcd" + "]";
         encodedDoc.apply(recordingCursor);
-        Assert.assertEquals("[{a:}abcd]", recordingCursor.finish());        
+        Assert.assertEquals(EXPECTED_RECORDED_DOC_CODE, recordingCursor.finish());        
     }
     
     @Test

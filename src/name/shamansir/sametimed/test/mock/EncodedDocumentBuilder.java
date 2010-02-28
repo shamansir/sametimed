@@ -3,7 +3,7 @@
  */
 package name.shamansir.sametimed.test.mock;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,18 +22,18 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuffer;
 public class EncodedDocumentBuilder {
     
     // FORMAT: [{a:id=a;user=test} info][{b:id=b}fun][{c}like][test]
-    //         ELM RE: \[(?:\{(\w*)(?:\:([\w=;]*))?\})?\s*([^\s\]]*)\]  
-    //         ATTRS RE: (\w*)=(\w*)(?:;|$)
+    //         ELM RE: \[(?:\{(\w*)(?:\:([\w=;@\.\?]*))?\})?\s*([^\s\]]*)\]  
+    //         ATTRS RE: (\w*)=([\w@\.\?]*)(?:;|$)
     
     protected DocOpBuffer document = new DocOpBuffer();
     
     protected final String defaultTagName;    
     
     private final Pattern elmPattern = 
-        Pattern.compile("\\[(?:\\{(\\w*)(?:\\:([\\w=;]*))?\\})?" + 
+        Pattern.compile("\\[(?:\\{(\\w*)(?:\\:([\\w=;@\\.\\?]*))?\\})?" + 
                         "\\s*([^\\s\\]]*)\\]");
     private final Pattern attrsPattern = 
-        Pattern.compile("(\\w*)=(\\w*)(?:;|$)");    
+        Pattern.compile("(\\w*)=([\\w@\\.\\?]*)(?:;|$)");    
     protected final String code; 
 
     public EncodedDocumentBuilder(String code, String defaultTagName) {
@@ -49,7 +49,7 @@ public class EncodedDocumentBuilder {
         Matcher elm_m = elmPattern.matcher(code);        
         
         String tagName; String chars;
-        Map<String, String> attrsMap = new HashMap<String, String>();
+        Map<String, String> attrsMap = new LinkedHashMap<String, String>();
         String attrsText;
         
         while (elm_m.find()) {
@@ -61,7 +61,7 @@ public class EncodedDocumentBuilder {
             if (attrsText.length() > 0) {
                 Matcher attrs_m = attrsPattern.matcher(attrsText);                
                 
-                while (attrs_m.matches()) {
+                while (attrs_m.find()) {
                     attrsMap.put(attrs_m.group(1), attrs_m.group(2));
                 }
             }

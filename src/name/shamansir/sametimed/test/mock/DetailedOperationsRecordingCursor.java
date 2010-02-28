@@ -40,7 +40,7 @@ public class DetailedOperationsRecordingCursor extends
     private String compileAttrs(Attributes attrs) {
         String attrsStr = "";
         for (Map.Entry<String, String> attr: attrs.entrySet()) {
-            attrsStr += attr.getKey() + ":" + attr.getValue() + ";";
+            attrsStr += attr.getKey() + "=" + attr.getValue() + ";";
         }
         return attrsStr;
     }
