@@ -1,6 +1,8 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
@@ -14,6 +16,8 @@ import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
 // FIXME: may be make IOperatingCursor interface to allow inheritance in cursors
 public abstract class AbstractOperatingCursor implements DocInitializationCursor {
+    
+    private static final Log LOG = LogFactory.getLog(AbstractOperatingCursor.class);
     
     protected WalkingDocOpBuilder docBuilder = null;
     protected DocumentWalker docWalker = null;
@@ -43,6 +47,7 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
     protected void onAttached() { }
     
     protected final void detach() {
+        LOG.debug("cursor detached");
         isAttached = false;
     }
 

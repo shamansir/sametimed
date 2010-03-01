@@ -96,7 +96,6 @@ public class TestDocumentSequencer {
             documentHolder.applyCursor(new NoDetachCursor());
             Assert.fail("exception expected");            
         } catch (DocumentProcessingException dpe) { 
-            Assert.assertTrue(true);
             // pass
         } finally {
             try {
@@ -638,7 +637,43 @@ public class TestDocumentSequencer {
         // ++++++ 123456789 1234567
         // [&%$!] [abc][def gh][ij]
         Assert.assertEquals("{&%$!}(*16)", 
-                            getRecord(documentHolder.finishOperations()));        
+                            getRecord(documentHolder.finishOperations()));
+        
+        // add and delete in one sequence        
+        
+        resetRecorder();
+        useDocument("[abcde][fghij][klm][nopqrs][tuvw]");        
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(2); // between 'b' and 'c'
+        documentHolder.applyCursor(new TagInsertCursor(2, "123")); // insert '123' after second tag
+        // docCode now: [abcde][fghij][123][klm][nopqrs][tuvw]
+        documentHolder.scrollToPos(15); // between 'l' and 'm'
+        documentHolder.applyCursor(new TagDeletingCursor(5)); // delete fifth tag
+        // docCode now: [abcde][fghij][123][klm][tuvw]
+        documentHolder.scrollToPos(18); // between 'u' and 'v'
+        
+        // 123 12345678901 +++++ 123 12 -------- 123
+        // [ab cde][fghij] [123] [kl m] [nopqrs] [tu vw]
+        Assert.assertEquals("(*14){123}(*5)(-{)(-nopqrs)(-})(*3)", 
+                            getRecord(documentHolder.finishOperations()));
+        
+        resetRecorder();
+        useDocument("[abcde][fghij][klm][nopqrs][tuvw]");        
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(2); // between 'b' and 'c'
+        documentHolder.applyCursor(new TagDeletingCursor(2)); // delete second tag
+        // docCode now: [abcde][klm][nopqrs][tuvw]
+        documentHolder.scrollToPos(15); // between 't' and 'u'
+        documentHolder.applyCursor(new TagInsertCursor(4, "123")); // insert '123' after fourth tag
+        // docCode now: [abcde][klm][nopqrs][tuvw][123]
+        documentHolder.scrollToPos(21); // end
+        
+        // 123 1234 ------- 123456789012345 1234 +++++
+        // [ab cde] [fghij] [klm][nopqrs][t uvw] [123]
+        Assert.assertEquals("(*7)(-{)(-fghij)(-})(*19){123}", 
+                            getRecord(documentHolder.finishOperations()));         
         
     }   
     

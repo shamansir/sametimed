@@ -1,8 +1,13 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 
 public class DocumentWalker extends DocumentState implements IDocumentWalker {
+    
+    private static final Log LOG = LogFactory.getLog(DocumentWalker.class);
     
 	private int curPos = 0; // TODO: make atomic
 	private int curSrcPos = 0; // TODO: make atomic // pos in the unchanged source
@@ -21,19 +26,19 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 	
 	public boolean foundElmStart() {
 	    boolean result = super.addElmStart(curPos);
-		stepElmFwd(false);
+		stepElmFwd(false, false);
 		return result;
 	}
 	
 	public boolean foundElmEnd() {
 	    boolean result = super.addElmEnd(curPos);
-		stepElmFwd(true);
+		stepElmFwd(true, false);
         return result;		
 	}		
 	
 	public boolean foundChars(int howMany) {
 	    boolean result = super.addElmChars(curPos, howMany);
-		stepCharsFwd(howMany);
+		stepCharsFwd(howMany, false);
         return result;		
 	}
 	
@@ -129,28 +134,39 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 		return curPosElms - prevPos;
 	}
 
-	protected void stepElmFwd(boolean isEnd) {
-		curPos++; curSrcPos++; curPosElms++; 
+	protected void stepElmFwd(boolean isEnd, boolean withSrc) {
+		curPos++; curPosElms++; 
 		if (isEnd) curPosTags++;
+		if (withSrc) curSrcPos++;
 	}
+	
+    protected void stepElmFwd(boolean isEnd) {
+        stepElmFwd(isEnd, true);
+    }	
 
-	protected void stepCharsFwd(int chars) {
+	protected void stepCharsFwd(int chars, boolean withSrc) {
 	    if (chars > 0) {
-    		curPos++; curSrcPos++;
+    		curPos++; 
+    		if (withSrc) curSrcPos++;
     		curPosElms += chars;
     		curPosChars += chars;
 	    }
 	}
+	
+    protected void stepCharsFwd(int chars) {
+        stepCharsFwd(chars, true);
+    }   	
 
 	@Override
     public void walkWithCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException {
-        // FIXME: cursor with no detach - turns into infinite loop, because curPos
-        // is not changed.
-	    // FIXME: if no result found then detach may never be called
         BufferedDocOp source = getSource();
-        while (cursor.attached() && (curPos < data.size())) {
+        LOG.debug("walking with " + cursor);
+        while (cursor.attached() && (curPos < data.size())) {            
             cursor.beforeStep();
             int value = data.get(curPos);
+            LOG.debug("step: " + curPos + "/" + curSrcPos + " : " + value +
+                    "[" + ((value > 0) ? source.getCharactersString(curSrcPos) : "-") + ";"
+                        + ((value == DocumentState.ELM_START_CODE) ? source.getElementStartTag(curSrcPos) : "-") + "]");            
             if (value > 0) {
                 cursor.characters(source.getCharactersString(curSrcPos)); 
             } else if (value == DocumentState.ELM_START_CODE) {
