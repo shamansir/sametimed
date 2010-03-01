@@ -14,11 +14,11 @@ import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
  */
 public interface IDocumentDataAssembler {
     
-    public void addElmStart();
-    public void addElmEnd();
-    public void addElmChars(int howMany);
+    public boolean addElmStart();
+    public boolean addElmEnd();
+    public boolean addElmChars(int howMany);
 
-    public void clear();
+    public boolean clear();
     
     public int docSizeInChars();
     public int docSizeInElms();

@@ -18,7 +18,7 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
     protected WalkingDocOpBuilder docBuilder = null;
     protected DocumentWalker docWalker = null;
     
-    private boolean isAttached = true;
+    private boolean isAttached = false;
 
     protected final WalkingDocOpBuilder getBuilder() { 
         return docBuilder; 
@@ -34,6 +34,7 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
         if (builder == null) throw new DocumentProcessingException("Builder must not be null");
         this.docBuilder = builder; 
         this.docWalker = builder.getWalker();
+        this.isAttached = true;
         this.onAttached();
     }
 
@@ -44,9 +45,22 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
     protected final void detach() {
         isAttached = false;
     }
-    
-    final boolean doContinue() {
+
+    final boolean attached() {
         return isAttached;
+    }
+
+    public void beforeStep() {
+        docBuilder.nextStep();        
+    }
+
+    public void afterStep() throws DocumentProcessingException {
+        if (!docBuilder.actionPerformed()) {
+            throw new DocumentProcessingException("No action was performed " +
+            		"during the last step, please detach this cursor or do " +
+            		" some retain / elements manipulation" +
+            		" or check if some exceptions were fired");
+        }
     }
 
 }

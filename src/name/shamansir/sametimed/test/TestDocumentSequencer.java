@@ -96,6 +96,7 @@ public class TestDocumentSequencer {
             documentHolder.applyCursor(new NoDetachCursor());
             Assert.fail("exception expected");            
         } catch (DocumentProcessingException dpe) { 
+            Assert.assertTrue(true);
             // pass
         } finally {
             try {
@@ -744,7 +745,7 @@ public class TestDocumentSequencer {
         @Override
         public void elementStart(String type, Attributes attrs) { }
         
-    }    
+    }   
     
     // ================== CharsCountingCursor ==================================
     

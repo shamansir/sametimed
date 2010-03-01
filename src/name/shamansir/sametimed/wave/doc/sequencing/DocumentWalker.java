@@ -19,50 +19,58 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
         // resetPosition();
 	}
 	
-	public void foundElmStart() {
-	    super.addElmStart(curPos);
+	public boolean foundElmStart() {
+	    boolean result = super.addElmStart(curPos);
 		stepElmFwd(false);
+		return result;
 	}
 	
-	public void foundElmEnd() {
-	    super.addElmEnd(curPos);
+	public boolean foundElmEnd() {
+	    boolean result = super.addElmEnd(curPos);
 		stepElmFwd(true);
+        return result;		
 	}		
 	
-	public void foundChars(int howMany) {
-	    super.addElmChars(curPos, howMany);
+	public boolean foundChars(int howMany) {
+	    boolean result = super.addElmChars(curPos, howMany);
 		stepCharsFwd(howMany);
+        return result;		
 	}
 	
 	@Override
-	public void deleteElmStart() {
-	    super.deleteElmStart(curPos);
+	public boolean deleteElmStart() {
+	    boolean result = super.deleteElmStart(curPos);
 	    curSrcPos++;
+	    return result;
 	}
 	
 	@Override
-	public void deleteElmEnd() {
-	    super.deleteElmStart(curPos);
+	public boolean deleteElmEnd() {
+	    boolean result = super.deleteElmStart(curPos);
         curPosTags++; curSrcPos++;
+        return result;
     }	
 	
 	@Override
-	public void deleteElmChars(int howMany) {
-	    super.deleteElmChars(curPos, howMany);
+	public boolean deleteElmChars(int howMany) {
+	    boolean result = super.deleteElmChars(curPos, howMany);
 	    curSrcPos++;
+	    return result;
     }	
 	
 	@Override
-	public void resetPosition() {
+	public boolean resetPosition() {
 		curPos = curPosElms = curSrcPos = curPosChars = 0;
 		curPosTags = 1;
+		return true;
 	}
 	
 	@Override
-    public void clear() {
-	    super.clear();
+    public boolean clear() {
+	    boolean result = super.clear();
 		curPos = curPosElms = curSrcPos = curPosChars = 0;
 	    curPosTags = 1;
+	    return result;
 	}
 	
 	@Override
@@ -135,9 +143,13 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 	}
 
 	@Override
-    public void walkWithCursor(AbstractOperatingCursor cursor) {
+    public void walkWithCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException {
+        // FIXME: cursor with no detach - turns into infinite loop, because curPos
+        // is not changed.
+	    // FIXME: if no result found then detach may never be called
         BufferedDocOp source = getSource();
-        while (cursor.doContinue() && (curPos < data.size())) {
+        while (cursor.attached() && (curPos < data.size())) {
+            cursor.beforeStep();
             int value = data.get(curPos);
             if (value > 0) {
                 cursor.characters(source.getCharactersString(curSrcPos)); 
@@ -145,6 +157,7 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
                 cursor.elementStart(source.getElementStartTag(curSrcPos), 
                                     source.getElementStartAttributes(curSrcPos));
             } else cursor.elementEnd();
+            cursor.afterStep();
         }
     }
 		

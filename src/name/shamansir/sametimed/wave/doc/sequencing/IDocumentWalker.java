@@ -12,11 +12,11 @@ package name.shamansir.sametimed.wave.doc.sequencing;
  */
 public interface IDocumentWalker extends IDocumentDataAssembler {
     
-    public void deleteElmStart();
-    public void deleteElmEnd();
-    public void deleteElmChars(int howMany);
+    public boolean deleteElmStart();
+    public boolean deleteElmEnd();
+    public boolean deleteElmChars(int howMany);
     
-    public void resetPosition();
+    public boolean resetPosition();
     
     public int curPos();
     public int curPosElms();
@@ -25,6 +25,6 @@ public interface IDocumentWalker extends IDocumentDataAssembler {
     public int scrollTo(int chars);
     public int scrollToEnd();
     
-    public void walkWithCursor(AbstractOperatingCursor cursor);
+    public void walkWithCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException;
 
 }

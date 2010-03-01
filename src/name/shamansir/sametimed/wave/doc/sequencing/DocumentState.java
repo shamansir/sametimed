@@ -30,56 +30,64 @@ public class DocumentState implements IDocumentDataAssembler {
     }
           
     @Override
-    public void addElmStart() {
+    public boolean addElmStart() {
         // checkData.add("{");
         data.add(ELM_START_CODE);
         sizeInElms++;
+        return true;
     }
     
     @Override
-    public void addElmEnd() {
+    public boolean addElmEnd() {
         // checkData.add("}");
         data.add(ELM_END_CODE);
         sizeInElms++;
+        return true;        
     }       
     
     @Override
-    public void addElmChars(int howMany) {
+    public boolean addElmChars(int howMany) {
         // checkData.add(source.getCharactersString(data.size()));
         data.add(howMany); // TODO: may be accumulate? 
         sizeInChars += howMany;
         sizeInElms += howMany;
+        return true;        
     }
     
-    protected void addElmStart(int pos) {
+    protected boolean addElmStart(int pos) {
         data.add(pos, ELM_START_CODE);
         sizeInElms++;
+        return true;        
     }
     
-    protected void addElmEnd(int pos) {          
+    protected boolean addElmEnd(int pos) {          
         data.add(pos, ELM_END_CODE);
         sizeInElms++;
+        return true;        
     }       
     
-    protected void addElmChars(int pos, int howMany) {
+    protected boolean addElmChars(int pos, int howMany) {
         data.add(pos, howMany);
         sizeInChars += howMany;
         sizeInElms += howMany;
+        return true;
     }
     
-    protected void deleteElmStart(int pos) {
+    protected boolean deleteElmStart(int pos) {
         // TODO: is check == ELM_START_CODE required?
         data.remove(pos); 
         sizeInElms--;
+        return true;        
     }
     
-    protected void deleteElmEnd(int pos) {
+    protected boolean deleteElmEnd(int pos) {
         // TODO: is check == ELM_END_CODE required?
         data.remove(pos); 
         sizeInElms--;
+        return true;
     }    
     
-    protected void deleteElmChars(int pos, int howMany) {
+    protected boolean deleteElmChars(int pos, int howMany) {
         int deleted = 0;
         if (howMany > 0) {
             while (deleted < howMany) {
@@ -92,12 +100,14 @@ public class DocumentState implements IDocumentDataAssembler {
             sizeInElms -= deleted;
             sizeInChars -= deleted;
         }
+        return true;        
     }
     
     @Override
-    public void clear() {
+    public boolean clear() {
         data.clear();
         sizeInChars = sizeInElms = 0;
+        return true;
     }
     
     @Override

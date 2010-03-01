@@ -1,6 +1,5 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
-import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
@@ -10,95 +9,57 @@ import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursorWithR
 public class DocumentElementCuttingCursor extends
 	AbstractOperatingCursorWithResult<AbstractDocumentTag> {
 
+    private final TagID tagID;
+    
+    private String tagName; // FIXME: make atomic
+    private Attributes attrs; // FIXME: make atomic
+    private String content; // FIXME: make atomic
+    
+    private boolean insideElmToDelete = false; // FIXME: make atomic
+    private boolean deleted = false; // FIXME: make atomic
+
 	public DocumentElementCuttingCursor(TagID tagID) {
-		// TODO Auto-generated constructor stub
+		this.tagID = tagID;
 	}
-
-	@Override
-	public AbstractDocumentTag getResult() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void annotationBoundary(AnnotationBoundaryMap map) {
-		// TODO Auto-generated method stub
-		
-	}
+	
+    @Override
+    public void elementStart(String type, Attributes attrs) {
+        if (AbstractDocumentTag.extractTagID(attrs).equals(tagID)) {
+            insideElmToDelete = true;
+            docBuilder.deleteElementStart(type, attrs);
+            this.tagName = type; this.attrs = attrs;
+        } else {
+            insideElmToDelete = false;
+            docBuilder.retainElementStart();
+        }    
+    }	
 
 	@Override
 	public void characters(String chars) {
-		// TODO Auto-generated method stub
-		
+        if (insideElmToDelete) {
+            docBuilder.deleteCharacters(chars);
+            this.content = chars;
+        } else {
+            docBuilder.retainCharacters(chars.length());
+        }		
 	}
 
 	@Override
 	public void elementEnd() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void elementStart(String type, Attributes attrs) {
-		// TODO Auto-generated method stub
-		
+        if (insideElmToDelete) {
+            docBuilder.deleteElementEnd();
+            deleted = true;
+            detach();
+        } else {
+            docBuilder.retainElementEnd();
+        }		
 	}
 	
-	/* private final String tagID;
+    @Override
+    public AbstractDocumentTag getResult() {
+        return deleted ?
+               AbstractDocumentTag.createEmpty(tagID, tagName, attrs, content) :
+               null;
+    }	
 	
-	private String tagName;
-	private Attributes attrs;
-	private String content; 
-
-	private AtomicBoolean deleted = new AtomicBoolean(false);
-	private AtomicBoolean insideElmToDelete = new AtomicBoolean(false);
-	private final DocOpBuilder elmDeletion = new DocOpBuilder();
-	
-	public DocumentElementCuttingCursor(TagID tagID) {
-		this.tagID = tagID.getValue();
-	}
-
-	@Override
-	public AbstractDocumentTag getResult() {
-		// elmDeletion.finish(); // FIXME: where to pass?
-		return deleted.get() 
-				? AbstractDocumentTag.createEmpty(tagID, tagName, attrs, content) 
-				: null;		
-	}
-
-	@Override
-	public void annotationBoundary(AnnotationBoundaryMap map) { }
-
-	@Override
-	public void elementStart(String key, Attributes attrs) {
-		if (attrs.get(AbstractDocumentTag.ID_ATTR_NAME).equals(tagID)) {
-			insideElmToDelete.set(true);
-			elmDeletion.deleteElementStart(key, attrs);
-			this.tagName = key; this.attrs = attrs;
-		} else {
-			insideElmToDelete.set(false);
-			elmDeletion.retain(1);
-		}
-	}	
-
-	@Override
-	public void characters(String s) {
-		if (insideElmToDelete.get()) {
-			elmDeletion.deleteCharacters(s);
-			this.content = s;
-		} else {
-			elmDeletion.retain(s.length());
-		}
-	}
-
-	@Override
-	public void elementEnd() {
-		if (insideElmToDelete.get()) {
-			elmDeletion.deleteElementEnd();
-			deleted.set(true);
-		} else {
-			elmDeletion.retain(1);
-		}
-	} */
-
 }

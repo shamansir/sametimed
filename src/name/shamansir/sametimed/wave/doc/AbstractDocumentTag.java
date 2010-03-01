@@ -132,7 +132,7 @@ public abstract class AbstractDocumentTag {
 			
 			if (!(attrs.containsKey(ID_ATTR_NAME) && attrs.containsKey(AUTHOR_ATTR_NAME) && checkAttributes(attrs))) {
 				throw new IllegalArgumentException(
-						"There are not correct arguments in the tag " + name + " " + attrs);
+						"The argument in the tag " + name + " " + attrs + " are not conforming to this tag");
 			}
 			
 			setID(parseIDAttr(attrs.get(ID_ATTR_NAME)));
@@ -142,7 +142,7 @@ public abstract class AbstractDocumentTag {
 			setContent((content != null) ? content : "");
 		} else {
 			throw new IllegalArgumentException(
-					"Unsupported element type " + name);
+					"Can use only elements of the same type: Element type " + name + " is not conforms to this element type " + this.name);
 		}
 	}
 	
@@ -174,6 +174,9 @@ public abstract class AbstractDocumentTag {
 		return tagName.equals(name);
 	}	
 	
+	// FIXME: are all these methods are really required? (they used when
+	//        generating tags from string data), may be make them optional?
+	
 	protected abstract boolean checkAttributes(Attributes attrs);
 	
 	protected abstract ImmutableMap<String, String> compileAttributes();
@@ -181,15 +184,23 @@ public abstract class AbstractDocumentTag {
 	protected abstract void initAttributes(Attributes attrs);
 	
 	public static AbstractDocumentTag createEmpty(String tagID, String name, Attributes attrs, String content) {
-		EmptyTag emptyTag = new EmptyTag(parseIDAttr(tagID));
-		emptyTag.initFromElement(name, attrs, content);
-		return emptyTag;
+		return createEmpty(parseIDAttr(tagID), name, attrs, content);
 	}
 	
-    public static AbstractDocumentTag createNoAttrs(String tagID, String name, String author, String content) {
-        NoAttrsTag noAttrsTag = new NoAttrsTag(parseIDAttr(tagID), name, author, content);
-        return noAttrsTag;
+    public static AbstractDocumentTag createEmpty(TagID tagID, String name,
+            Attributes attrs, String content) {
+        EmptyTag emptyTag = new EmptyTag(tagID, name);
+        emptyTag.useData(attrs, content);
+        return emptyTag;
     }	
+	
+    public static AbstractDocumentTag createNoAttrs(String tagID, String name, String author, String content) {
+        return new NoAttrsTag(parseIDAttr(tagID), name, author, content);
+    }
+    
+    public static TagID extractTagID(Attributes attrs) {
+        return parseIDAttr(attrs.get(ID_ATTR_NAME));
+    }
     
     @Override
     public boolean equals(Object other) {

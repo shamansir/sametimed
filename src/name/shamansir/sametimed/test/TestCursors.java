@@ -105,12 +105,13 @@ public class TestCursors {
     @Test
     public void testCuttingCursor() throws DocumentProcessingException {
         documentHolder.startOperations();
-        Assert.assertEquals(
-                easyTag("c", "word", "a@a.com", "op"), 
-                documentHolder.applyCursor(new DocumentElementCuttingCursor(new TagID("c"))));
+        Assert.assertTrue(
+               easyTag("c", "word", "a@a.com", "op").equals( 
+               documentHolder.applyCursor(new DocumentElementCuttingCursor(new TagID("c")))
+            ));
         // 1234567890 ----
         // [ijk][lmn] [op]
-        Assert.assertEquals("(*10)", 
+        Assert.assertEquals("(*10)(-[)(-op)(-])", 
                           getRecord(documentHolder.finishOperations()));
     }
     

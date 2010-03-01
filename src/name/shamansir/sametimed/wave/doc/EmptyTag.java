@@ -5,10 +5,16 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 import com.google.common.collect.ImmutableMap;
 
 public class EmptyTag extends AbstractDocumentTag {
+    
+    private final static String NAME_STUB = "%";
 
 	public EmptyTag(TagID tagID) {
-		super(tagID, "%", UNKNOWN_AUTHOR);
+		super(tagID, NAME_STUB, UNKNOWN_AUTHOR);
 	}
+	
+    public EmptyTag(TagID tagID, String tagName) {
+        super(tagID, tagName, UNKNOWN_AUTHOR);
+    }  
 
 	@Override
 	protected void initAttributes(Attributes attrs) { }
@@ -23,9 +29,14 @@ public class EmptyTag extends AbstractDocumentTag {
 		return true;
 	}
 	
+    void useData(Attributes attrs, String content) throws IllegalArgumentException {
+        initFromElement(getName(), attrs, content);       
+    }	
+	
+	/*
 	@Override 
 	protected boolean checkTagName(String tagName) {
 		return true;
-	}
+	} */
 
 }
