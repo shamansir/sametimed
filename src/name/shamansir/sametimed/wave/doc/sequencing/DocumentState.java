@@ -21,7 +21,6 @@ public class DocumentState implements IDocumentDataAssembler {
     
     private final BufferedDocOp source;
     protected final List<Integer> data = new ArrayList<Integer>();
-    protected final List<String> checkData = new ArrayList<String>(); // FIXME: remove
     protected int sizeInElms = 0; // TODO: make atomic
     protected int sizeInChars = 0; // TODO: make atomic
     
@@ -31,7 +30,6 @@ public class DocumentState implements IDocumentDataAssembler {
           
     @Override
     public boolean addElmStart() {
-        checkData.add("{");
         data.add(ELM_START_CODE);
         sizeInElms++;
         return true;
@@ -39,7 +37,6 @@ public class DocumentState implements IDocumentDataAssembler {
     
     @Override
     public boolean addElmEnd() {
-        checkData.add("}");
         data.add(ELM_END_CODE);
         sizeInElms++;
         return true;        
@@ -47,7 +44,6 @@ public class DocumentState implements IDocumentDataAssembler {
     
     @Override
     public boolean addElmChars(int howMany) {
-        checkData.add(source.getCharactersString(data.size()));
         data.add(howMany); // TODO: may be accumulate? 
         sizeInChars += howMany;
         sizeInElms += howMany;

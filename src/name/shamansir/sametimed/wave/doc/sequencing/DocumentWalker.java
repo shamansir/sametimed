@@ -1,13 +1,8 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 
 public class DocumentWalker extends DocumentState implements IDocumentWalker {
-    
-    private static final Log LOG = LogFactory.getLog(DocumentWalker.class);
     
 	private int curPos = 0; // TODO: make atomic
 	private int curSrcPos = 0; // TODO: make atomic // pos in the unchanged source
@@ -52,7 +47,7 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 	@Override
 	public boolean deleteElmEnd() {
 	    boolean result = super.deleteElmStart(curPos);
-        curPosTags++; curSrcPos++;
+        curSrcPos++;
         return result;
     }	
 	
@@ -160,13 +155,9 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 	@Override
     public void walkWithCursor(AbstractOperatingCursor cursor) throws DocumentProcessingException {
         BufferedDocOp source = getSource();
-        LOG.debug("walking with " + cursor);
         while (cursor.attached() && (curPos < data.size())) {            
             cursor.beforeStep();
-            int value = data.get(curPos);
-            LOG.debug("step: " + curPos + "/" + curSrcPos + " : " + value +
-                    "[" + ((value > 0) ? source.getCharactersString(curSrcPos) : "-") + ";"
-                        + ((value == DocumentState.ELM_START_CODE) ? source.getElementStartTag(curSrcPos) : "-") + "]");            
+            int value = data.get(curPos);            
             if (value > 0) {
                 cursor.characters(source.getCharactersString(curSrcPos)); 
             } else if (value == DocumentState.ELM_START_CODE) {

@@ -1,16 +1,13 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
 import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.AttributesUpdate;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 public class WalkingDocOpBuilder extends DocOpBuilder {
-    
-    private static final Log LOG = LogFactory.getLog(WalkingDocOpBuilder.class);
     
 	private final DocumentWalker docWalker;
 	
@@ -27,7 +24,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 
 	@Override
 	public DocOpBuilder elementStart(String type, Attributes attrs) {
-	    LOG.debug("   element start: " + type);
 	    flushRetain(); flushChars();
 	    actionDone = docWalker.foundElmStart();
 		return super.elementStart(type, attrs);
@@ -35,7 +31,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	
 	@Override
 	public DocOpBuilder characters(String s) {
-	    LOG.debug("   characters: " + s);
 	    flushRetain();
 	    actionDone = docWalker.foundChars(s.length());	
 		return manualAddChars(s);
@@ -43,7 +38,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 
 	@Override
 	public DocOpBuilder elementEnd() {
-	    LOG.debug("   element end");
 	    flushRetain(); flushChars();
 	    actionDone = docWalker.foundElmEnd();	
 		return super.elementEnd();
@@ -51,7 +45,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	
 	@Override
 	public DocOpBuilder deleteElementStart(String type, Attributes attrs) {
-	    LOG.debug("   delete element start: " + type);
 	    flushRetain(); flushChars();
 	    actionDone = docWalker.deleteElmStart();		
 		return super.deleteElementStart(type, attrs);
@@ -59,7 +52,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	
 	@Override
 	public DocOpBuilder deleteCharacters(String s) {
-	    LOG.debug("   delete characters: " + s);
 	    flushRetain();
 	    actionDone = docWalker.deleteElmChars(s.length());
 		return manualDelChars(s);
@@ -67,7 +59,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 
 	@Override
 	public DocOpBuilder deleteElementEnd() {
-	    LOG.debug("   delete element end");
 	    flushRetain(); flushChars();
 	    actionDone = docWalker.deleteElmEnd();
 		return super.deleteElementEnd();
@@ -75,7 +66,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	
 	@Override
 	public DocOpBuilder replaceAttributes(Attributes oldAttrs, Attributes newAttrs) {
-	    LOG.debug("   replace attributes");
 	    flushRetain(); flushChars();
 	    actionDone = true;
 	    return super.replaceAttributes(oldAttrs, newAttrs);
@@ -83,14 +73,12 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	
 	@Override 
 	public DocOpBuilder updateAttributes(AttributesUpdate update) {
-	    LOG.debug("   update attributes");
 	    flushRetain(); flushChars();
 	    actionDone = true;
         return super.updateAttributes(update);
 	}
 	
 	public DocOpBuilder retainElementStart() {
-	    LOG.debug("   reptain element start");
 	    flushChars();
 	    docWalker.stepElmFwd(false);
 	    actionDone = true;
@@ -98,7 +86,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
 	}
 	
     public DocOpBuilder retainElementEnd() {
-        LOG.debug("   retain element end");
         flushChars();
         docWalker.stepElmFwd(true);
         actionDone = true;
@@ -106,7 +93,6 @@ public class WalkingDocOpBuilder extends DocOpBuilder {
     }
     
     public DocOpBuilder retainCharacters(int chars) {
-        LOG.debug("   retain characters " + chars);
         flushChars();
         docWalker.stepCharsFwd(chars);
         actionDone = true;
