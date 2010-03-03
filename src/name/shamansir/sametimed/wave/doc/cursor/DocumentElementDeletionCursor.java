@@ -10,7 +10,7 @@ public class DocumentElementDeletionCursor extends AbstractOperatingCursor {
     
     private final TagID tagID; // TODO: may be faster (but not correct) to compare by string?
     
-    private boolean insideElmToDelete = false; // FIXME: make atomic    
+    private boolean deleteCurrentTag = false; // FIXME: make atomic    
 	
 	public DocumentElementDeletionCursor(TagID tagID) {
         this.tagID = tagID;
@@ -19,17 +19,17 @@ public class DocumentElementDeletionCursor extends AbstractOperatingCursor {
     @Override
     public void elementStart(String type, Attributes attrs) {
         if (AbstractDocumentTag.extractTagID(attrs).equals(tagID)) {
-            insideElmToDelete = true;
+            deleteCurrentTag = true;
             docBuilder.deleteElementStart(type, attrs);
         } else {
-            insideElmToDelete = false;
+            deleteCurrentTag = false;
             docBuilder.retainElementStart();
         }       
     }	
 
 	@Override
 	public void characters(String chars) {
-        if (insideElmToDelete) {
+        if (deleteCurrentTag) {
             docBuilder.deleteCharacters(chars);
         } else {
             docBuilder.retainCharacters(chars.length());
@@ -38,51 +38,12 @@ public class DocumentElementDeletionCursor extends AbstractOperatingCursor {
 
 	@Override
 	public void elementEnd() {
-        if (insideElmToDelete) {
+        if (deleteCurrentTag) {
             docBuilder.deleteElementEnd();
             detach();
         } else {
             docBuilder.retainElementEnd();
         }		
 	}
-
-	/*
-	
-	@Override
-	public void elementStart(String key, Attributes attrs) {
-		if (attrs.get(AbstractDocumentTag.ID_ATTR_NAME).equals(elmToDeleteID)) {
-			insideElmToDelete.set(true);
-			elmDeletion.deleteElementStart(key, attrs);			
-		} else {
-			insideElmToDelete.set(false);
-			elmDeletion.retain(1);
-		}
-	}	
-
-	@Override
-	public void characters(String s) {
-		if (insideElmToDelete.get()) {
-			elmDeletion.deleteCharacters(s);
-		} else {
-			elmDeletion.retain(s.length());
-		}
-	}
-
-	@Override
-	public void elementEnd() {
-		if (insideElmToDelete.get()) {
-			elmDeletion.deleteElementEnd();
-		} else {
-			elmDeletion.retain(1);
-		}
-	}
-
-	@Override
-	public void annotationBoundary(AnnotationBoundaryMap map) {
-	}
-	
-	public BufferedDocOp getResult() {
-		return elmDeletion.build();
-	} */
 
 }

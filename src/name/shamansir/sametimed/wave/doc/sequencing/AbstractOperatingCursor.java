@@ -78,6 +78,13 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
         //        or may be it is ok if empty cursor returned?
         return AbstractDocumentTag.createEmpty(tagID, tagName, attrs, content);        
     }
+    
+    protected AbstractDocumentTag makeResultTag(String tagName, Attributes attrs, String content) {
+        // FIXME: in future (on xml-configuration implementation stage), it must use some TagFactory, 
+        //        that receives module ID (passed from constructor) and ask module to create the tag
+        //        or may be it is ok if empty cursor returned?
+        return AbstractDocumentTag.createEmpty(tagName, attrs, content);        
+    }    
 
     /* public void onDocEndReached() { } */
 

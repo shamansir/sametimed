@@ -183,26 +183,31 @@ public abstract class AbstractDocumentTag {
 
 	protected abstract void initAttributes(Attributes attrs);
 	
-	public static AbstractDocumentTag createEmpty(String tagID, String name, 
+	public static AbstractDocumentTag createEmpty(String tagID, String tagName, 
 	        Attributes attrs, String content) {
-		return createEmpty(parseIDAttr(tagID), name, attrs, content);
+		return createEmpty(parseIDAttr(tagID), tagName, attrs, content);
 	}
 	
-    public static AbstractDocumentTag createEmpty(TagID tagID, String name,
+    public static AbstractDocumentTag createEmpty(TagID tagID, String tagName,
             Attributes attrs, String content) {
-        EmptyTag emptyTag = new EmptyTag(tagID, name);
+        EmptyTag emptyTag = new EmptyTag(tagID, tagName);
         emptyTag.useData(attrs, content);
         return emptyTag;
     }	
+    
+    public static AbstractDocumentTag createEmpty(String tagName,
+            Attributes attrs, String content) {
+        return createEmpty(extractTagID(attrs), tagName, attrs, content);
+    }    
 	
-    public static AbstractDocumentTag createNoAttrs(String tagID, String name, 
+    public static AbstractDocumentTag createNoAttrs(String tagID, String tagName, 
             String author, String content) {
-        return new NoAttrsTag(parseIDAttr(tagID), name, author, content);
+        return new NoAttrsTag(parseIDAttr(tagID), tagName, author, content);
     }
     
-    public static AbstractDocumentTag createDirty(TagID tagID, String name, 
+    public static AbstractDocumentTag createDirty(TagID tagID, String tagName, 
             Attributes attrs, String content) {    
-        return new DirtyTag(tagID, name, attrs, content);
+        return new DirtyTag(tagID, tagName, attrs, content);
     }    
     
     public static TagID extractTagID(Attributes attrs) {

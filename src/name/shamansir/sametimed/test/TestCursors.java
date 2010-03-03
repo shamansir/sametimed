@@ -124,6 +124,100 @@ public class TestCursors {
     }
     
     @Test
+    public void testDeletionCursor() throws DocumentProcessingException {
+        // at the beginning
+        
+        reinitDocument();
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("a")));
+        Assert.assertEquals("(-[)(-ijk)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // in the middle
+        
+        reinitDocument();
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("g")));
+        // 40        50       
+        // 901234567890123 ----
+        // ][fgh][ijk][lm] [no]
+        Assert.assertEquals("(*53)(-[)(-no)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // in the end
+        
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("l")));
+        // ...      80
+        // ...345678901234567 ----
+        // ...[yza][bcd][efg] [hij]
+        Assert.assertEquals("(*87)(-[)(-hij)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // tag without author
+                
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("mm")));
+        // ...30         40   
+        // ...90123456789 -----
+        // ...][zab][cde] [fgh]                
+        Assert.assertEquals("(*39)(-[)(-fgh)(-])", 
+                          getRecord(documentHolder.finishOperations()));  
+    }    
+    
+    @Test
+    public void testDeletionByPosCursor() throws DocumentProcessingException {
+        // at the beginning
+        
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionByPosCursor(0));
+        Assert.assertEquals("(-[)(-ijk)(-])", 
+                getRecord(documentHolder.finishOperations()));        
+        
+        // in the middle
+        
+        // ...20        30    
+        // ...90123456789 -----
+        // ...][tuv][wxy] [zab]
+        // 901  234  567   890 
+        // 10               20
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionByPosCursor(17));
+        Assert.assertEquals("(*29)(-[)(-zab)(-])", 
+                getRecord(documentHolder.finishOperations()));
+        
+        // in the end
+            
+        // ...      80
+        // ...345678901234567 -----
+        // ...[yza][bcd][efg] [hij]
+        // ... 345  678  901  -----
+        //               50         
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionByPosCursor(51));
+        Assert.assertEquals("(*87)(-[)(-hij)(-])", 
+                           getRecord(documentHolder.finishOperations()));   
+         
+         // next after specified pos
+         
+        // ... 60         70
+        // ...8901234567 -----
+        // ...[pqr][stu] [vwx]
+        // ... 456  789  -----
+        //              40            
+         reinitDocument();        
+         documentHolder.startOperations();
+         documentHolder.applyCursor(new DocumentElementDeletionByPosCursor(38));
+          Assert.assertEquals("(*67)(-[)(-vwx)(-])", 
+                            getRecord(documentHolder.finishOperations()));   
+    }    
+    
+    @Test
     public void testCuttingCursor() throws DocumentProcessingException {
         
         // at the beginning
@@ -243,62 +337,13 @@ public class TestCursors {
          documentHolder.startOperations();
          Assert.assertTrue(
                  easyTag("f", "text", "c@a.com", "lm").equals( 
-                 documentHolder.applyCursor(new DocumentElementCuttingByPosCursor(29))
+                 documentHolder.applyCursor(new DocumentElementCuttingByPosCursor(27))
               ));
           Assert.assertEquals("(*49)(-[)(-lm)(-])", 
                             getRecord(documentHolder.finishOperations()));          
         
     }
-    
-    @Test
-    public void testDeletionCursor() throws DocumentProcessingException {
-        // at the beginning
         
-        reinitDocument();
-        documentHolder.startOperations();
-        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("a")));
-        Assert.assertEquals("(-[)(-ijk)(-])", 
-                          getRecord(documentHolder.finishOperations()));
-        
-        // in the middle
-        
-        reinitDocument();
-        documentHolder.startOperations();
-        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("g")));
-        // 40        50       
-        // 901234567890123 ----
-        // ][fgh][ijk][lm] [no]
-        Assert.assertEquals("(*53)(-[)(-no)(-])", 
-                          getRecord(documentHolder.finishOperations()));
-        
-        // in the end
-        
-        reinitDocument();        
-        documentHolder.startOperations();
-        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("l")));
-        // ...      80
-        // ...345678901234567 ----
-        // ...[yza][bcd][efg] [hij]
-        Assert.assertEquals("(*87)(-[)(-hij)(-])", 
-                          getRecord(documentHolder.finishOperations()));
-        
-        // tag without author
-                
-        reinitDocument();        
-        documentHolder.startOperations();
-        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("mm")));
-        // ...30         40   
-        // ...90123456789 -----
-        // ...][zab][cde] [fgh]                
-        Assert.assertEquals("(*39)(-[)(-fgh)(-])", 
-                          getRecord(documentHolder.finishOperations()));  
-    }    
-    
-    @Test
-    public void testDeletionByPosCursor() {
-        Assert.fail();
-    }
-    
     @Test
     public void testCounterCursor() {
         Assert.fail();

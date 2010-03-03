@@ -15,7 +15,7 @@ public class DocumentElementCuttingCursor extends
     private Attributes attrs; // FIXME: make atomic
     private String content; // FIXME: make atomic
     
-    private boolean insideElmToDelete = false; // FIXME: make atomic
+    private boolean deleteCurrentTag = false; // FIXME: make atomic
     private boolean deleted = false; // FIXME: make atomic
 
 	public DocumentElementCuttingCursor(TagID tagID) {
@@ -25,18 +25,18 @@ public class DocumentElementCuttingCursor extends
     @Override
     public void elementStart(String type, Attributes attrs) {
         if (AbstractDocumentTag.extractTagID(attrs).equals(tagID)) {
-            insideElmToDelete = true;
+            deleteCurrentTag = true;
             docBuilder.deleteElementStart(type, attrs);
             this.tagName = type; this.attrs = attrs;
         } else {
-            insideElmToDelete = false;
+            deleteCurrentTag = false;
             docBuilder.retainElementStart();
         }    
     }	
 
 	@Override
 	public void characters(String chars) {
-        if (insideElmToDelete) {
+        if (deleteCurrentTag) {
             docBuilder.deleteCharacters(chars);
             this.content = chars;
         } else {
@@ -46,13 +46,13 @@ public class DocumentElementCuttingCursor extends
 
 	@Override
 	public void elementEnd() {
-        if (insideElmToDelete) {
+        if (deleteCurrentTag) {
             docBuilder.deleteElementEnd();
             deleted = true;
             detach();
         } else {
             docBuilder.retainElementEnd();
-        }		
+        }
 	}
 	
     @Override
