@@ -178,7 +178,8 @@ public final class TagID {
 	    if (this == other) return true;
 	    if (!(other instanceof TagID)) return false;
 	    TagID otherTagID = (TagID) other;
-	    return otherTagID.value.equals(value);
+	    return (otherTagID.value == null) ? (value == null) 
+	                                      : otherTagID.value.equals(value);
 	}
 	
 	@Override

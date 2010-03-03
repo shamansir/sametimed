@@ -58,8 +58,8 @@ public class DocumentElementCuttingCursor extends
     @Override
     public AbstractDocumentTag getResult() {
         return deleted ?
-               AbstractDocumentTag.createEmpty(tagID, tagName, attrs, content) :
+               makeResultTag(tagID, tagName, attrs, content) :
                null;
-    }	
+    }    
 	
 }

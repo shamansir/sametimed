@@ -81,7 +81,7 @@ public abstract class AbstractDocumentTag {
 		return id.getValue();
 	}
 	
-	private static TagID parseIDAttr(String idString) {
+	protected static TagID parseIDAttr(String idString) {
 		return TagID.valueOf(idString);
 	}
 	
@@ -146,7 +146,7 @@ public abstract class AbstractDocumentTag {
 		}
 	}
 	
-	private static Map<String, String> loadAttributes(Attributes attrs) {
+	protected static Map<String, String> loadAttributes(Attributes attrs) {
 		if (attrs == null) return null;
 		Map<String, String> attrsMap = new HashMap<String, String>();
 		// FIXME: possibly, there really is an easier way
@@ -183,7 +183,8 @@ public abstract class AbstractDocumentTag {
 
 	protected abstract void initAttributes(Attributes attrs);
 	
-	public static AbstractDocumentTag createEmpty(String tagID, String name, Attributes attrs, String content) {
+	public static AbstractDocumentTag createEmpty(String tagID, String name, 
+	        Attributes attrs, String content) {
 		return createEmpty(parseIDAttr(tagID), name, attrs, content);
 	}
 	
@@ -194,9 +195,15 @@ public abstract class AbstractDocumentTag {
         return emptyTag;
     }	
 	
-    public static AbstractDocumentTag createNoAttrs(String tagID, String name, String author, String content) {
+    public static AbstractDocumentTag createNoAttrs(String tagID, String name, 
+            String author, String content) {
         return new NoAttrsTag(parseIDAttr(tagID), name, author, content);
     }
+    
+    public static AbstractDocumentTag createDirty(TagID tagID, String name, 
+            Attributes attrs, String content) {    
+        return new DirtyTag(tagID, name, attrs, content);
+    }    
     
     public static TagID extractTagID(Attributes attrs) {
         return parseIDAttr(attrs.get(ID_ATTR_NAME));
@@ -208,10 +215,10 @@ public abstract class AbstractDocumentTag {
         if (!(other instanceof AbstractDocumentTag)) return false;
         AbstractDocumentTag otherTag = (AbstractDocumentTag) other;
         return 
-          ((id == null) ? (otherTag.id == null) : otherTag.id.equals(id)) && 
-          ((name == null) ? (otherTag.name == null) : otherTag.name.equals(name)) &&
-          ((author == null) ? (otherTag.author == null) : otherTag.author.equals(author)) &&
-          ((content == null) ? (otherTag.content == null) : otherTag.content.equals(content))/* &&
+          ((otherTag.id == null) ? (id == null) : otherTag.id.equals(id)) && 
+          ((otherTag.name == null) ? (name == null) : otherTag.name.equals(name)) &&
+          ((otherTag.author == null) ? (author == null) : otherTag.author.equals(author)) &&
+          ((otherTag.content == null) ? (content == null) : otherTag.content.equals(content))/* &&
           otherTag.attributes.equals(attributes) */;
           // FIXME: is checking attributes for equality required? 
         

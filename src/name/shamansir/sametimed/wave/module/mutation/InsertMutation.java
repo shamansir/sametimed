@@ -17,22 +17,23 @@ public class InsertMutation implements IModuleDocumentMutation {
 	
 	private final ParticipantId author;
 	private final String text;
-	private final Integer insPos;
+	private final Integer insPos; // in characters
 
 	public InsertMutation(ParticipantId author, String text,
 			Integer pos) {
 		this.author = author;
-		this.text = StringEscapeUtils.unescapeXml(text);
+		this.text = StringEscapeUtils.unescapeXml(text); // FIXME: unescape must be done somewhere outside
 		this.insPos = pos;
 	}
 
 	@Override
 	public WaveletDocumentOperation applyTo(AbstractModuleWithDocument<?> module)
 			throws MutationCompilationException, DocumentProcessingException {
-		module.startOperations();		
+		module.startOperations();
+		// all positions are values representing characters number
 		int foundPos = module.scrollToPos(module.findTagStart(insPos));
-		int cutPos = insPos - foundPos;
 		if (foundPos < insPos) {
+	        int cutPos = insPos - foundPos;		    
 			AbstractDocumentTag removedTag = module.deleteTagAndGet(foundPos);
 			module.addTag(module.makeTag(author, removedTag.getContent().substring(foundPos, cutPos)));
 			module.addTag(module.makeTag(author, text));

@@ -1,9 +1,13 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
 
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.TagID;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
+import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.DocInitializationCursor;
 
 /**
@@ -66,6 +70,11 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
             		" some retain / elements manipulation" +
             		" or check if some exceptions were fired");
         }
+    }
+    
+    protected AbstractDocumentTag makeResultTag(TagID tagID, String tagName, Attributes attrs, String content) {
+        // FIXME: must to create instance of the document tag (ChatTag/EditorTag...)?
+        return AbstractDocumentTag.createEmpty(tagID, tagName, attrs, content);        
     }
 
 }

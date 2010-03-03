@@ -28,6 +28,7 @@ public abstract class AbstractDocumentOperationsSequencer {
 		
 		LOG.debug("Started operations sequence over document "/* + sourceDoc*/);
 				
+		// TODO: cache documentWalker (do not collect state at each operation)?
 		docWalker = new DocumentWalker(getSource());
 		walkingBuilder = new WalkingDocOpBuilder(docWalker);        
 	}	

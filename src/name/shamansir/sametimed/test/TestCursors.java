@@ -5,6 +5,7 @@ package name.shamansir.sametimed.test;
 
 import org.junit.*;
 
+import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
@@ -40,7 +41,7 @@ public class TestCursors {
         "[{word:" + ID_ATTR + "=d;" +                        "}" + "wxy" + "]" +
         "[{word:" +                                          "}" + "zab" + "]" +
         "[{text:" +                                          "}" + "cde" + "]" +
-        "[{word:" + ID_ATTR + "=mm;" +                        "}" + "fgh" + "]" +
+        "[{text:" + ID_ATTR + "=mm;" +                        "}" + "fgh" + "]" +
         "[{word:" + ID_ATTR + "=e;" + BY_ATTR + "=b@a.com" + "}" + "ijk" + "]" +
         "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" +
         "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" +
@@ -52,9 +53,21 @@ public class TestCursors {
         "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=g@a.com" + "}" + "efg" + "]" +
         "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=g@a.com" + "}" + "hij" + "]";
     
+    //         10        20        30        40        50        60        70
+    // 123456789012345678901234567890123456789012345678901234567890123456789012
+    // [ijk][lmn][op][qrs][tuv][wxy][zab][cde][fgh][ijk][lm][no][pqr][stu][vwx]
+    //  123  456  78  901  234  567  890  123  456  789  01  23  456  789  012
+    //                10              20                30                40     
+    
+    //       80        90
+    // 34567890123456789012
+    // [yza][bcd][efg][hij]
+    //  345  678  901  234
+    //            50
+    
     // TODO: tests for tree-structured documents
     
-    @Before
+    /* @Before
     public void setUp() {
         final BufferedDocOp encodedDoc = createDocument(DOCUMENT_CODE);
         documentHolder.setCurrentDocument(encodedDoc);        
@@ -63,10 +76,18 @@ public class TestCursors {
     @After
     public void tearDown() {
         resetRecorder();
+    } */
+    
+    private void reinitDocument() {
+        resetRecorder();
+        final BufferedDocOp encodedDoc = createDocument(DOCUMENT_CODE);
+        documentHolder.setCurrentDocument(encodedDoc);        
     }
     
     @Test
     public void testDocumentEncodedOk() {
+        reinitDocument();
+        
         final String EXPECTED_RECORDED_DOC_CODE =
             // order of attributes is important here, AttributesImpl sorts them alphabetically
             "[{word:" + BY_ATTR + "=0@a.com;" + ID_ATTR + "=a;" + "}" + "ijk" + "]" +
@@ -77,7 +98,7 @@ public class TestCursors {
             "[{word:" +                         ID_ATTR + "=d;" + "}" + "wxy" + "]" +
             "[{word:" +                                           "}" + "zab" + "]" +
             "[{text:" +                                           "}" + "cde" + "]" +
-            "[{word:" +                         ID_ATTR + "=mm;" + "}" + "fgh" + "]" +
+            "[{text:" +                         ID_ATTR + "=mm;" + "}" + "fgh" + "]" +
             "[{word:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=e;" + "}" + "ijk" + "]" +
             "[{text:" + BY_ATTR + "=c@a.com;" + ID_ATTR + "=f;" + "}" + "lm"  + "]" +
             "[{word:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=g;" + "}" + "no"  + "]" +
@@ -104,6 +125,21 @@ public class TestCursors {
     
     @Test
     public void testCuttingCursor() throws DocumentProcessingException {
+        
+        // at the beginning
+        
+        reinitDocument();
+        documentHolder.startOperations();
+        Assert.assertTrue(
+               easyTag("a", "word", "0@a.com", "ijk").equals( 
+               documentHolder.applyCursor(new DocumentElementCuttingCursor(new TagID("a")))
+            ));
+        Assert.assertEquals("(-[)(-ijk)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // in the middle
+        
+        reinitDocument();
         documentHolder.startOperations();
         Assert.assertTrue(
                easyTag("c", "word", "a@a.com", "op").equals( 
@@ -113,11 +149,105 @@ public class TestCursors {
         // [ijk][lmn] [op]
         Assert.assertEquals("(*10)(-[)(-op)(-])", 
                           getRecord(documentHolder.finishOperations()));
+        
+        // in the end
+        
+        reinitDocument();        
+        documentHolder.startOperations();
+        Assert.assertTrue(
+               easyTag("l", "word", "g@a.com", "hij").equals( 
+               documentHolder.applyCursor(new DocumentElementCuttingCursor(new TagID("l")))
+            ));
+        // ...      80
+        // ...345678901234567 ----
+        // ...[yza][bcd][efg] [hij]
+        Assert.assertEquals("(*87)(-[)(-hij)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // tag without author
+                
+        reinitDocument();        
+        documentHolder.startOperations();
+        Assert.assertTrue(
+               easyTag("mm", "text", "?", "fgh").equals( 
+               documentHolder.applyCursor(new DocumentElementCuttingCursor(new TagID("mm")) {
+                   
+                   // to pass checking required author attribute 
+                   
+                   @Override
+                   protected AbstractDocumentTag makeResultTag(TagID tagID, String tagName, Attributes attrs, String content) {
+                       return AbstractDocumentTag.createDirty(tagID, tagName, attrs, content);
+                   }
+                   
+               })
+            ));
+        // ...30         40   
+        // ...90123456789 -----
+        // ...][zab][cde] [fgh]                
+        Assert.assertEquals("(*39)(-[)(-fgh)(-])", 
+                          getRecord(documentHolder.finishOperations()));         
     }
     
     @Test
-    public void testCuttingByPosCursor() {
-        Assert.fail();
+    public void testCuttingByPosCursor() throws DocumentProcessingException {
+        
+        // at the beginning
+        
+        reinitDocument();        
+        documentHolder.startOperations();
+        Assert.assertTrue(
+                easyTag("a", "word", "0@a.com", "ijk").equals(
+                documentHolder.applyCursor(new DocumentElementCuttingByPosCursor(0))
+            ));
+        Assert.assertEquals("(-[)(-ijk)(-])", 
+                getRecord(documentHolder.finishOperations()));        
+        
+        // in the middle
+        
+        // 12345678901234 -----
+        // [ijk][lmn][op] [qrs]
+        //  123  456  78  -----     
+        reinitDocument();        
+        documentHolder.startOperations();
+        Assert.assertTrue(
+                easyTag("d", "word", "a@a.com", "qrs").equals(
+                documentHolder.applyCursor(new DocumentElementCuttingByPosCursor(8))
+            ));
+        Assert.assertEquals("(*14)(-[)(-qrs)(-])", 
+                getRecord(documentHolder.finishOperations()));
+        
+        // in the end
+            
+        // ...      80
+        // ...345678901234567 -----
+        // ...[yza][bcd][efg] [hij]
+        // ... 345  678  901  -----
+        //               50         
+        reinitDocument();        
+        documentHolder.startOperations();
+        Assert.assertTrue(
+                easyTag("l", "word", "g@a.com", "hij").equals( 
+                documentHolder.applyCursor(new DocumentElementCuttingByPosCursor(51))
+             ));
+         Assert.assertEquals("(*87)(-[)(-hij)(-])", 
+                           getRecord(documentHolder.finishOperations()));   
+         
+         // next after specified pos
+         
+         // ...40         50   
+         // ...90123456789 ----
+         // ...][fgh][ijk] [lm]
+         // ...  456  789  ----
+         //                30             
+         reinitDocument();        
+         documentHolder.startOperations();
+         Assert.assertTrue(
+                 easyTag("f", "text", "c@a.com", "lm").equals( 
+                 documentHolder.applyCursor(new DocumentElementCuttingByPosCursor(29))
+              ));
+          Assert.assertEquals("(*49)(-[)(-lm)(-])", 
+                            getRecord(documentHolder.finishOperations()));          
+        
     }
     
     @Test
