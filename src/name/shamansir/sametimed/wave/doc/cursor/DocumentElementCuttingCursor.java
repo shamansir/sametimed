@@ -9,7 +9,7 @@ import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursorWithR
 public class DocumentElementCuttingCursor extends
 	AbstractOperatingCursorWithResult<AbstractDocumentTag> {
 
-    private final TagID tagID;
+    private final TagID tagID; // TODO: may be faster (but not correct) to compare by string?
     
     private String tagName; // FIXME: make atomic
     private Attributes attrs; // FIXME: make atomic

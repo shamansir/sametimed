@@ -100,6 +100,9 @@ public abstract class AbstractModulatedWavelet extends AbstractUpdatingWavelet {
 		
 	/* ====== MODULES OPERATIONS ====== */
 	
+	// FIXME: all these things can be done automatically using xml-configuration
+	//        and factories, so no abstraction here and no children will be required 
+	
 	protected abstract Map<String, IModuleWithDocument<?>> registerModules(Map<String, IModuleWithDocument<?>> curModules);
 	
 	protected abstract List<ModelID> registerModulesModels(List<ModelID> currentTypes);	

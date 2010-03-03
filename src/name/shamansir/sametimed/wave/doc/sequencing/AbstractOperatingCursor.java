@@ -73,8 +73,12 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
     }
     
     protected AbstractDocumentTag makeResultTag(TagID tagID, String tagName, Attributes attrs, String content) {
-        // FIXME: must to create instance of the document tag (ChatTag/EditorTag...)?
+        // FIXME: in future (on xml-configuration implementation stage), it must use some TagFactory, 
+        //        that receives module ID (passed from constructor) and ask module to create the tag
+        //        or may be it is ok if empty cursor returned?
         return AbstractDocumentTag.createEmpty(tagID, tagName, attrs, content);        
     }
+
+    /* public void onDocEndReached() { } */
 
 }

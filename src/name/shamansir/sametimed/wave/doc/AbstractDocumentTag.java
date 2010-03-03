@@ -207,7 +207,7 @@ public abstract class AbstractDocumentTag {
     
     public static TagID extractTagID(Attributes attrs) {
         return parseIDAttr(attrs.get(ID_ATTR_NAME));
-    }
+    }  
     
     @Override
     public boolean equals(Object other) {

@@ -251,8 +251,47 @@ public class TestCursors {
     }
     
     @Test
-    public void testDeletionCursor() {
-        Assert.fail();
+    public void testDeletionCursor() throws DocumentProcessingException {
+        // at the beginning
+        
+        reinitDocument();
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("a")));
+        Assert.assertEquals("(-[)(-ijk)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // in the middle
+        
+        reinitDocument();
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("g")));
+        // 40        50       
+        // 901234567890123 ----
+        // ][fgh][ijk][lm] [no]
+        Assert.assertEquals("(*53)(-[)(-no)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // in the end
+        
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("l")));
+        // ...      80
+        // ...345678901234567 ----
+        // ...[yza][bcd][efg] [hij]
+        Assert.assertEquals("(*87)(-[)(-hij)(-])", 
+                          getRecord(documentHolder.finishOperations()));
+        
+        // tag without author
+                
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionCursor(new TagID("mm")));
+        // ...30         40   
+        // ...90123456789 -----
+        // ...][zab][cde] [fgh]                
+        Assert.assertEquals("(*39)(-[)(-fgh)(-])", 
+                          getRecord(documentHolder.finishOperations()));  
     }    
     
     @Test

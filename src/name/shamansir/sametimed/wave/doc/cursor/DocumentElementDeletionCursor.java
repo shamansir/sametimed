@@ -1,47 +1,49 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.sequencing.AbstractOperatingCursor;
 
-import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
-import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 
 public class DocumentElementDeletionCursor extends AbstractOperatingCursor {
-
-	private final DocOpBuilder elmDeletion = new DocOpBuilder();
-	private final String elmToDeleteID;
-	
-	private AtomicBoolean insideElmToDelete = new AtomicBoolean(false);
+    
+    private final TagID tagID; // TODO: may be faster (but not correct) to compare by string?
+    
+    private boolean insideElmToDelete = false; // FIXME: make atomic    
 	
 	public DocumentElementDeletionCursor(TagID tagID) {
-		this.elmToDeleteID = tagID.getValue();
+        this.tagID = tagID;
 	}
-
-	@Override
-	public void annotationBoundary(AnnotationBoundaryMap map) {
-		// TODO Auto-generated method stub
-		
-	}
+	
+    @Override
+    public void elementStart(String type, Attributes attrs) {
+        if (AbstractDocumentTag.extractTagID(attrs).equals(tagID)) {
+            insideElmToDelete = true;
+            docBuilder.deleteElementStart(type, attrs);
+        } else {
+            insideElmToDelete = false;
+            docBuilder.retainElementStart();
+        }       
+    }	
 
 	@Override
 	public void characters(String chars) {
-		// TODO Auto-generated method stub
-		
+        if (insideElmToDelete) {
+            docBuilder.deleteCharacters(chars);
+        } else {
+            docBuilder.retainCharacters(chars.length());
+        }
 	}
 
 	@Override
 	public void elementEnd() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void elementStart(String type, Attributes attrs) {
-		// TODO Auto-generated method stub
-		
+        if (insideElmToDelete) {
+            docBuilder.deleteElementEnd();
+            detach();
+        } else {
+            docBuilder.retainElementEnd();
+        }		
 	}
 
 	/*

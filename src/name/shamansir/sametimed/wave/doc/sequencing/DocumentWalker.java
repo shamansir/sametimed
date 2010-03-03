@@ -165,6 +165,7 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
                                     source.getElementStartAttributes(curSrcPos));
             } else cursor.elementEnd();
             cursor.afterStep();
+            // if (curPos == data.size()) cursor.onDocEndReached();
         }
     }
 		
