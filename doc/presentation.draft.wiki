@@ -1,0 +1,51 @@
+#summary This text will be used to create presentation when the main kernel will be finished
+
+== Sametimed 2010 Presentation Draft ==
+
+_I will possibly use Synfig to create it_
+
+=== Intro ===
+
+1. Hello, I'll tell you a little bit about what _sametimed_ is. It required a short introduction.
+
+2. You know, there are a lot of projects in the web space which allow you to create personal web pages, sometimes called "portals", built with modules.
+
+3. As you also may know, these _modules_ are called widgets, portlets, apps, even gadgets and different other ...jets.
+
+4. These modules can contain any dynamic application, such as chat, calendar, events information, your personal tasks, news and so on.
+
+=== Description ===
+
+5. But what if you have a company and you want to have a page like this for all of your colleagues?
+
+6. And also you want to see each change that other people make immediately on this page, and make changes by yourself even in the _same time_. Make it _collaborative_.
+
+7. *This* is _sametimed_.
+
+8. If you have a firm, you may want to monitor tasks your people or colleagues do in real time at the home page of your browser (and let them watch their progress also). (You may want to make notification about conference using mail or SMS or even twitter and be sure that they'll see it immediately at their page)
+
+9. _Sametimed_ allows to do it. _Totally free_. (`*`but with a little bit of programming skills, for the moment)
+
+10. If you have a lot of friends, you may want to setup a home page where you can chat with them or watch their social networks status in real-time.
+
+11. _Sametimed_ allows to do it. _Totally free_. (`*`but with a little bit of programming skills, for the moment)
+
+=== From Inside ===
+
+12. What _sametimed_ is from the inside?
+
+13. _Sametimed_ uses _Google Wave Protocol_ to provide you with immediate changes, so everything you, your friends or colleagues will do, will be collaborative and updated in _same time_.
+
+14. _Sametimed_ is written with Java, !JavaScript and XML and provides a plugin architecture.
+
+15. This allows any Java developer to provide their own modules and to write them easy...
+
+16. So you may do it yourself or ask your friend or colleague to make the module you want (but he may ask for a price, shame on him).
+
+17. You may event want to create an UI for _sametimed_ by yourself, not a Web page, but an executable application. _Sametimed_ will allow it, in near future.
+
+=== Outro ===
+
+18. _Sametimed_ is provided as open-source, so any participation is welcome.
+
+19. But the kernel is already finished (for this current moment, while it is not already developed - I lie, shame on me) and works ok (here I am also lying because it is not true for the moment), so you can easily use it at your server (`*`But it will require to install XMPP/Wave server pair).
