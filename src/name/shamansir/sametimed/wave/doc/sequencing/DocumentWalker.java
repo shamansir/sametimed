@@ -104,30 +104,34 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 		return curPosElms - prevPos;
 	}
 	
-    @Override	
-	// returns required step in elements
-	public int scrollTo(int chars) {
-	    if (chars > sizeInChars) return (sizeInChars - chars);
-	    if (chars < curPosChars) return (chars - curPosChars);
-	    
-		int prevPos = curPosElms;
-		int size = data.size();		
-		
-		while ((curPosChars < chars) && (curPos < size)) {
-			int value = data.get(curPos); 
+    @Override   
+    // returns required step in elements
+    // FIXME: make all of these methods synchronized?
+    public int scrollTo(int chars) {
+        if (chars > sizeInChars) return (sizeInChars - chars);
+        if (chars < curPosChars) return (chars - curPosChars);
+        
+        int prevPos = curPosElms;
+        int size = data.size();     
+        
+        int charsLeft = chars - curPosChars;
+        
+        while ((charsLeft > 0) && (curPos < size)) {
+            int value = data.get(curPos); 
             if (value >= 0) {
-                stepCharsFwd(value);
+                stepCharsFwd((charsLeft < value) ? charsLeft : value);
+                charsLeft -= value;
             } else {
                 stepElmFwd(value == DocumentState.ELM_END_CODE);
-            }		
-		}
-		if ((curPosChars == chars) && (curPos < size) 
-			&& (data.get(curPos) == DocumentState.ELM_END_CODE)) {
-			stepElmFwd(true);
-		}
-		
-		return curPosElms - prevPos;
-	}
+            }       
+        }
+        if ((charsLeft == 0) && (curPosChars == chars) && (curPos < size) 
+            && (data.get(curPos) == DocumentState.ELM_END_CODE)) {
+            stepElmFwd(true);
+        }
+        
+        return curPosElms - prevPos;
+    }
 
 	protected void stepElmFwd(boolean isEnd, boolean withSrc) {
 		curPos++; curPosElms++; 

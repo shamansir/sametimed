@@ -8,7 +8,7 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 
 public class DocumentElementsCounterCursor implements ICursorWithResult<Integer> {
 
-	private final AtomicInteger elementsCount = new AtomicInteger(-1);
+	private final AtomicInteger elementsCount = new AtomicInteger(0);
 
 	private final AtomicBoolean filterElements;
 	private final String filterName;

@@ -33,25 +33,25 @@ public class TestCursors {
     private static final String UNKN_AUTHOR = AbstractDocumentTag.UNKNOWN_AUTHOR;    
     
     private static final String DOCUMENT_CODE =
-        "[{word:" + ID_ATTR + "=a;" + BY_ATTR + "=0@a.com" + "}" + "ijk" + "]" +
-        "[{word:" + ID_ATTR + "=b;" + BY_ATTR + "=a@a.com" + "}" + "lmn" + "]" +
-        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "op"  + "]" +
-        "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=a@a.com" + "}" + "qrs" + "]" +
-        "[{word:" +                   BY_ATTR + "=e@a.com" + "}" + "tuv" + "]" +
-        "[{word:" + ID_ATTR + "=d;" +                        "}" + "wxy" + "]" +
-        "[{word:" +                                          "}" + "zab" + "]" +
-        "[{text:" +                                          "}" + "cde" + "]" +
-        "[{text:" + ID_ATTR + "=mm;" +                        "}" + "fgh" + "]" +
-        "[{word:" + ID_ATTR + "=e;" + BY_ATTR + "=b@a.com" + "}" + "ijk" + "]" +
-        "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" +
-        "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" +
-        "[{word:" + ID_ATTR + "=h;" + BY_ATTR + "=" + UNKN_AUTHOR + "}" + "pqr" + "]" +
-        "[{test:" + ID_ATTR + "=c;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" +
-        "[{word:" + ID_ATTR + "=i;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" +
-        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" +
-        "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]" +
-        "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=g@a.com" + "}" + "efg" + "]" +
-        "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=g@a.com" + "}" + "hij" + "]";
+        "[{word:" + ID_ATTR + "=a;" + BY_ATTR + "=0@a.com" + "}" + "ijk" + "]" + // 1
+        "[{word:" + ID_ATTR + "=b;" + BY_ATTR + "=a@a.com" + "}" + "lmn" + "]" + // 2
+        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "op"  + "]" + // 3
+        "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=a@a.com" + "}" + "qrs" + "]" + // 4
+        "[{word:" +                   BY_ATTR + "=e@a.com" + "}" + "tuv" + "]" + // 5
+        "[{word:" + ID_ATTR + "=d;" +                        "}" + "wxy" + "]" + // 6
+        "[{word:" +                                          "}" + "zab" + "]" + // 7
+        "[{text:" +                                          "}" + "cde" + "]" + // 8
+        "[{text:" + ID_ATTR + "=mm;" +                        "}" + "fgh" + "]" + // 9
+        "[{word:" + ID_ATTR + "=e;" + BY_ATTR + "=b@a.com" + "}" + "ijk" + "]" + // 10
+        "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" + // 11
+        "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" + // 12
+        "[{word:" + ID_ATTR + "=h;" + BY_ATTR + "=" + UNKN_AUTHOR + "}" + "pqr" + "]" + // 13
+        "[{test:" + ID_ATTR + "=c;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" + // 14
+        "[{word:" + ID_ATTR + "=i;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" + // 15
+        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" + // 16
+        "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]" + // 17
+        "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=g@a.com" + "}" + "efg" + "]" + // 18
+        "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=g@a.com" + "}" + "hij" + "]"; // 19
     
     //         10        20        30        40        50        60        70
     // 123456789012345678901234567890123456789012345678901234567890123456789012
@@ -345,8 +345,22 @@ public class TestCursors {
     }
         
     @Test
-    public void testCounterCursor() {
-        Assert.fail();
+    public void testCounterCursor() throws DocumentProcessingException {
+        reinitDocument();
+        
+        Assert.assertTrue(new Integer(19).equals(
+                 documentHolder.applyCursor(new DocumentElementsCounterCursor())
+               ));
+        
+        reinitDocument();
+        
+        documentHolder.startOperations();
+        Assert.assertTrue(new Integer(19).equals(
+                 documentHolder.applyCursor(new DocumentElementsCounterCursor())
+              ));
+        documentHolder.scrollToPos(5);
+        Assert.assertEquals("(*8)", 
+                getRecord(documentHolder.finishOperations()));
     }
     
     @Test
