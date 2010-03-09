@@ -67,17 +67,6 @@ public class TestCursors {
     
     // TODO: tests for tree-structured documents
     
-    /* @Before
-    public void setUp() {
-        final BufferedDocOp encodedDoc = createDocument(DOCUMENT_CODE);
-        documentHolder.setCurrentDocument(encodedDoc);        
-    }
-        
-    @After
-    public void tearDown() {
-        resetRecorder();
-    } */
-    
     private void reinitDocument() {
         resetRecorder();
         final BufferedDocOp encodedDoc = createDocument(DOCUMENT_CODE);
@@ -210,10 +199,10 @@ public class TestCursors {
         // ...[pqr][stu] [vwx]
         // ... 456  789  -----
         //              40            
-         reinitDocument();        
-         documentHolder.startOperations();
-         documentHolder.applyCursor(new DocumentElementDeletionByPosCursor(38));
-          Assert.assertEquals("(*67)(-[)(-vwx)(-])", 
+        reinitDocument();        
+        documentHolder.startOperations();
+        documentHolder.applyCursor(new DocumentElementDeletionByPosCursor(38));
+        Assert.assertEquals("(*67)(-[)(-vwx)(-])", 
                             getRecord(documentHolder.finishOperations()));   
     }    
     
@@ -355,17 +344,52 @@ public class TestCursors {
         reinitDocument();
         
         documentHolder.startOperations();
-        Assert.assertTrue(new Integer(19).equals(
+        Assert.assertEquals(new Integer(19),
                  documentHolder.applyCursor(new DocumentElementsCounterCursor())
-              ));
+              );
         documentHolder.scrollToPos(5);
         Assert.assertEquals("(*8)", 
                 getRecord(documentHolder.finishOperations()));
+        
+        reinitDocument();
+        
+        Assert.assertEquals(new Integer(15),
+                documentHolder.applyCursor(new DocumentElementsCounterCursor("word"))
+              );
+        Assert.assertEquals(new Integer(3),
+                documentHolder.applyCursor(new DocumentElementsCounterCursor("text"))
+              );
+        Assert.assertEquals(new Integer(1),
+                documentHolder.applyCursor(new DocumentElementsCounterCursor("test"))
+              );        
+       
     }
     
     @Test
-    public void testStartPosSearchingCursor() {
-        Assert.fail();
+    @SuppressWarnings("deprecation")    
+    public void testStartPosSearchingCursor() throws DocumentProcessingException {
+        reinitDocument();
+        
+        Assert.assertEquals(new Integer(19),
+                documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(13))
+              );
+        Assert.assertEquals(new Integer(44),
+                documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(29))
+              );
+        Assert.assertEquals(new Integer(57),
+                documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(34))
+              );         
+       
+       reinitDocument();
+       
+       documentHolder.startOperations();
+       Assert.assertEquals(new Integer(34),
+                documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(23))
+             );
+       documentHolder.scrollToPos(11);
+       Assert.assertEquals("(*19)", 
+               getRecord(documentHolder.finishOperations()));
+        
     }
     
     @Test

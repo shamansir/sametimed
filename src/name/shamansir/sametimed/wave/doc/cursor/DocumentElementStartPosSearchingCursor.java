@@ -1,43 +1,59 @@
 package name.shamansir.sametimed.wave.doc.cursor;
 
+
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
+// FIXME: create appropriate method in docWalker
+
+@Deprecated
 public class DocumentElementStartPosSearchingCursor implements
-		ICursorWithResult<Integer> {
+    ICursorWithResult<Integer> {
+    
+    private final int searchPos;  
+    
+    private int elmsPassed = 0;
+    private int charsPassed = 0;
+    private int lastTagStart = 0;
+    private int foundPos = -1; // TODO: make atomic
+    
+    private boolean found = false;
 
 	public DocumentElementStartPosSearchingCursor(int pos) {
-		// TODO Auto-generated constructor stub
+		this.searchPos = pos;
 	}
 
 	@Override
 	public Integer getResult() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void annotationBoundary(AnnotationBoundaryMap map) {
-		// TODO Auto-generated method stub
-		
+		return foundPos;
 	}
 
 	@Override
 	public void characters(String chars) {
-		// TODO Auto-generated method stub
-		
+	    if (!found) {
+	        charsPassed += chars.length();
+	        elmsPassed += chars.length();	        
+	    }
 	}
 
 	@Override
-	public void elementEnd() {
-		// TODO Auto-generated method stub
-		
+	public void elementEnd() { 
+	    if (!found) elmsPassed++;
 	}
 
 	@Override
 	public void elementStart(String type, Attributes attrs) {
-		// TODO Auto-generated method stub
-		
+	    if (!found) {
+    		if (charsPassed >= searchPos) {
+    		    foundPos = lastTagStart;
+    		    found = true;
+    		}
+    		lastTagStart = elmsPassed;
+    		elmsPassed++;
+	    }
 	}
+
+    @Override
+    public void annotationBoundary(AnnotationBoundaryMap map) { }
 
 }
