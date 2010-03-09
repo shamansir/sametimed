@@ -721,6 +721,67 @@ public class TestDocumentSequencer {
                             getRecord(documentHolder.finishOperations()));         
     }
     
+    @Test
+    public void testSearchingElmStart() throws DocumentProcessingException {
+        
+        useDocument("[abc][def][ghijkl][mnop]");
+
+        Assert.assertEquals(0, documentHolder.searchElmStart(0));
+        Assert.assertEquals(0, documentHolder.searchElmStart(1));
+        Assert.assertEquals(3, documentHolder.searchElmStart(3));
+        Assert.assertEquals(3, documentHolder.searchElmStart(4));
+        Assert.assertEquals(6, documentHolder.searchElmStart(6));        
+        Assert.assertEquals(6, documentHolder.searchElmStart(9));
+        Assert.assertEquals(6, documentHolder.searchElmStart(11));
+        Assert.assertEquals(12, documentHolder.searchElmStart(12));
+        Assert.assertEquals(12, documentHolder.searchElmStart(13));
+        Assert.assertEquals(15, documentHolder.searchElmStart(15));
+        
+        resetRecorder();
+        useDocument("[abc][def][ghijkl][mnop]");
+        
+        try {
+            documentHolder.findElmStart(10);
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass
+        }
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(0);
+        Assert.assertEquals(0, documentHolder.findElmStart(0));
+        Assert.assertEquals(0, documentHolder.findElmStart(1));
+        Assert.assertEquals(3, documentHolder.findElmStart(3));
+        Assert.assertEquals(3, documentHolder.findElmStart(3));
+        Assert.assertEquals(6, documentHolder.findElmStart(7));
+        
+        Assert.assertEquals("(*10)", 
+                getRecord(documentHolder.finishOperations()));          
+        
+        resetRecorder();
+        useDocument("[abc][def][ghijkl][mnop]");
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(4);
+        try {
+            documentHolder.findElmStart(4); 
+            Assert.fail();
+        } catch (DocumentProcessingException dpe) {
+            // pass
+        }
+        Assert.assertEquals(6, documentHolder.findElmStart(6));
+        Assert.assertEquals(6, documentHolder.findElmStart(9));
+        Assert.assertEquals(6, documentHolder.findElmStart(4));
+        Assert.assertEquals(6, documentHolder.findElmStart(11));
+        Assert.assertEquals(12, documentHolder.findElmStart(12));
+        Assert.assertEquals(12, documentHolder.findElmStart(13));
+        Assert.assertEquals(15, documentHolder.findElmStart(15));        
+        
+        Assert.assertEquals("(*24)", 
+                getRecord(documentHolder.finishOperations()));        
+        
+    }
+        
     // TODO: add modifying tags cursors tests,
     //       tree-structured tags tests
     //       cursors sequences tests 

@@ -93,8 +93,9 @@ public abstract class AbstractModuleWithDocument<InnerType> extends AbstractDocu
 		return applyCursor(new DocumentLastUserElementCursor(userName));
 	}
 	
-	public int findTagStart(int pos) {
-		return applyCursor(new DocumentElementStartPosSearchingCursor(pos));
+	public int findTagStart(int pos) throws DocumentProcessingException {
+		// return applyCursor(new DocumentElementStartPosSearchingCursor(pos));
+	    return findElmStart(pos);
 	}
 	
 

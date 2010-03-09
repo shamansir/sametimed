@@ -113,6 +113,28 @@ public abstract class AbstractDocumentOperationsSequencer {
 		return docWalker.curPos();
 	}
 	
+	public int searchElmStart(int chars) {
+	    return -1; // docWalker.searchElmStart(chars); // docWalker do not exists here
+	}
+	
+	public int findElmStart(int chars) throws DocumentProcessingException {
+	    if (!started) throw new DocumentProcessingException("Operations sequence must be started before scrolling over document");
+	    if (chars > docWalker.docSizeInChars()) throw new DocumentProcessingException("Can not search further the document end");
+	    
+	    LOG.debug("searching for element start before " + chars + " chars");
+	    
+	    int elmsStep = docWalker.findElmStart(chars);
+	    if (elmsStep > 0) {
+            walkingBuilder.manualRetain(elmsStep);
+        } else if (elmsStep < 0) {
+            throw new DocumentProcessingException("Can't scroll back");
+        }
+	    
+        LOG.debug("found element start at " + elmsStep  );	    
+	    
+	    return docWalker.curPos(); // docWalker.alignToElmStart(shars)	    
+	}
+	
 	protected DocOpBuilder getDocBuilder() {		
 		return walkingBuilder;
 	}	
