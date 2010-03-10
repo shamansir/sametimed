@@ -133,6 +133,7 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
         return curPosElms - prevPos;
     }
     
+    /*
     // scrolls through the data array and returns position in chars
     public int searchElmStart(int chars) {
         if (chars > sizeInChars) return (sizeInChars - chars);
@@ -160,7 +161,7 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
         }        
         
         return charsResult;
-    }
+    } */
 
     // performs 'a look further', like regular expressions do
     // returns required step in elements

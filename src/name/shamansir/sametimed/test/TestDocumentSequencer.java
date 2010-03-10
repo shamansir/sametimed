@@ -735,7 +735,14 @@ public class TestDocumentSequencer {
         Assert.assertEquals(6, documentHolder.searchElmStart(11));
         Assert.assertEquals(12, documentHolder.searchElmStart(12));
         Assert.assertEquals(12, documentHolder.searchElmStart(13));
-        Assert.assertEquals(15, documentHolder.searchElmStart(15));
+        Assert.assertEquals(16, documentHolder.searchElmStart(16));
+        
+        useDocument("[abcd]");
+        
+        Assert.assertEquals(0, documentHolder.searchElmStart(0));
+        Assert.assertEquals(0, documentHolder.searchElmStart(1));
+        Assert.assertEquals(0, documentHolder.searchElmStart(3));
+        Assert.assertEquals(4, documentHolder.searchElmStart(4));        
         
         resetRecorder();
         useDocument("[abc][def][ghijkl][mnop]");

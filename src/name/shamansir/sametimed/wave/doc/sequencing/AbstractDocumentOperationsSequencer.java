@@ -1,5 +1,6 @@
 package name.shamansir.sametimed.wave.doc.sequencing;
 
+import name.shamansir.sametimed.wave.doc.cursor.DocumentElementStartPosSearchingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.ICursorWithResult;
 
 import org.apache.commons.logging.Log;
@@ -114,7 +115,8 @@ public abstract class AbstractDocumentOperationsSequencer {
 	}
 	
 	public int searchElmStart(int chars) {
-	    return -1; // docWalker.searchElmStart(chars); // docWalker do not exists here
+	    // return -1; // docWalker.searchElmStart(chars); // docWalker do not exists here
+	    return applyCursor(new DocumentElementStartPosSearchingCursor(chars, true));
 	}
 	
 	public int findElmStart(int chars) throws DocumentProcessingException {

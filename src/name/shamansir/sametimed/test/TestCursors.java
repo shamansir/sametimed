@@ -366,8 +366,7 @@ public class TestCursors {
     }
     
     @Test
-    @SuppressWarnings("deprecation")    
-    public void testStartPosSearchingCursor() throws DocumentProcessingException {
+    public void testStartPosSearchingCursors() throws DocumentProcessingException {
         reinitDocument();
         
         Assert.assertEquals(new Integer(19),
@@ -389,6 +388,28 @@ public class TestCursors {
        documentHolder.scrollToPos(11);
        Assert.assertEquals("(*19)", 
                getRecord(documentHolder.finishOperations()));
+       
+       reinitDocument();
+       
+       Assert.assertEquals(new Integer(11),
+               documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(13, true))
+             );
+       Assert.assertEquals(new Integer(29),
+               documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(29, true))
+             );
+       Assert.assertEquals(new Integer(33),
+               documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(34, true))
+             );         
+      
+      reinitDocument();
+      
+      documentHolder.startOperations();
+      Assert.assertEquals(new Integer(23),
+               documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(23, true))
+            );
+      documentHolder.scrollToPos(11);
+      Assert.assertEquals("(*19)", 
+              getRecord(documentHolder.finishOperations()));       
         
     }
     

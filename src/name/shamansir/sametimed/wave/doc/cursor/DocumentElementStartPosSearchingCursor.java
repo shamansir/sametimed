@@ -4,23 +4,26 @@ package name.shamansir.sametimed.wave.doc.cursor;
 import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
-// FIXME: create appropriate method in docWalker
-
-@Deprecated
 public class DocumentElementStartPosSearchingCursor implements
     ICursorWithResult<Integer> {
     
     private final int searchPos;  
+    private final boolean returnChars;
     
-    private int elmsPassed = 0;
-    private int charsPassed = 0;
-    private int lastTagStart = 0;
-    private int foundPos = -1; // TODO: make atomic
+    private int elmsPassed = 0; // TODO: make atomic
+    private int charsPassed = 0; // TODO: make atomic
+    private int lastTagStart = 0; // TODO: make atomic
+    private int foundPos = -1; // TODO: make atomic // in chars!
     
     private boolean found = false;
 
-	public DocumentElementStartPosSearchingCursor(int pos) {
+	public DocumentElementStartPosSearchingCursor(int pos, boolean returnChars) {
 		this.searchPos = pos;
+		this.returnChars = returnChars;
+	}
+	
+	public DocumentElementStartPosSearchingCursor(int pos) {
+	    this(pos, false);
 	}
 
 	@Override
@@ -32,24 +35,35 @@ public class DocumentElementStartPosSearchingCursor implements
 	public void characters(String chars) {
 	    if (!found) {
 	        charsPassed += chars.length();
-	        elmsPassed += chars.length();	        
+	        elmsPassed += chars.length();
 	    }
 	}
 
 	@Override
 	public void elementEnd() { 
-	    if (!found) elmsPassed++;
+	    if (!found) {
+	        elmsPassed++;
+	        if (returnChars) {
+                if (charsPassed > searchPos) {
+                    foundPos = lastTagStart;
+                    found = true;
+                } else if (charsPassed == searchPos) {
+                    foundPos = charsPassed;
+                    found = true;
+                }
+	        }
+	    }
 	}
 
 	@Override
 	public void elementStart(String type, Attributes attrs) {
 	    if (!found) {
-    		if (charsPassed >= searchPos) {
-    		    foundPos = lastTagStart;
-    		    found = true;
+    		if ((!returnChars) && (charsPassed >= searchPos)) {
+                foundPos = lastTagStart;
+                found = true;    		    
     		}
-    		lastTagStart = elmsPassed;
-    		elmsPassed++;
+            lastTagStart = returnChars ? charsPassed : elmsPassed;
+            elmsPassed++;    		
 	    }
 	}
 
