@@ -69,9 +69,7 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 	}
 	
 	@Override
-	public void annotationBoundary(AnnotationBoundaryMap map) {
-		
-	} 
+	public void annotationBoundary(AnnotationBoundaryMap map) { } 
 	
 
 }

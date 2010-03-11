@@ -89,7 +89,7 @@ public abstract class AbstractModuleWithDocument<InnerType> extends AbstractDocu
 	
 	// TODO: make all these things able to make chains	
 
-	public TagID getLastUserTagID(String userName) {
+	public TagID getLastUserTagID(String userName) throws DocumentProcessingException {
 		return applyCursor(new DocumentLastUserElementCursor(userName));
 	}
 	

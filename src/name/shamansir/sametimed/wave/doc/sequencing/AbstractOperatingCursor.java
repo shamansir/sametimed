@@ -64,7 +64,7 @@ public abstract class AbstractOperatingCursor implements DocInitializationCursor
     }
 
     public void afterStep() throws DocumentProcessingException {
-        if (!docBuilder.actionPerformed()) {
+        if (isAttached && !docBuilder.actionPerformed()) {
             throw new DocumentProcessingException("No action was performed " +
             		"during the last step, please detach this cursor or do " +
             		" some retain / elements manipulation" +

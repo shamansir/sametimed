@@ -3,8 +3,9 @@ package name.shamansir.sametimed.wave.doc.cursor;
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 
-import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
+
+// this cursor can't predict what element is last in fact and detach there, so it is not operating
 
 public abstract class AbstractLastElementSearchingCursor implements ICursorWithResult<TagID> {
 
@@ -23,9 +24,6 @@ public abstract class AbstractLastElementSearchingCursor implements ICursorWithR
 
 	@Override
 	public void characters(String s) { }
-
-	@Override
-	public void annotationBoundary(AnnotationBoundaryMap map) { }
 
 	@Override
 	public void elementEnd() { }

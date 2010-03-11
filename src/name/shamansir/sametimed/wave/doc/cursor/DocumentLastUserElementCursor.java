@@ -2,6 +2,7 @@ package name.shamansir.sametimed.wave.doc.cursor;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
 
+import org.waveprotocol.wave.model.document.operation.AnnotationBoundaryMap;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 
 //Find the last chunk created by the participant with given userID (by
@@ -26,5 +27,8 @@ public class DocumentLastUserElementCursor extends AbstractLastElementSearchingC
 	protected boolean isElementApproved(String elementName)  {
 		return true;
 	}
+
+    @Override
+    public void annotationBoundary(AnnotationBoundaryMap map) { }
 
 }

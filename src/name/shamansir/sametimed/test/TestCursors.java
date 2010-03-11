@@ -415,12 +415,32 @@ public class TestCursors {
     
     @Test
     public void testLastTagIDCursor() {
-        Assert.fail();
+        reinitDocument();
+        
+        Assert.assertEquals(new TagID("l"), 
+                documentHolder.applyCursor(new DocumentLastTagIDCursor()));
     }
     
     @Test
-    public void testLastUserElementCursor() {
-        Assert.fail();
+    public void testLastUserElementCursor() throws DocumentProcessingException {
+        reinitDocument();     
+        
+        Assert.assertEquals(new TagID("a"), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("0@a.com")));
+        Assert.assertEquals(new TagID(null), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("e@a.com")));       
+        Assert.assertEquals(new TagID("f"), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("c@a.com")));        
+        Assert.assertEquals(new TagID("c"), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("b@a.com")));
+        Assert.assertEquals(new TagID("i"), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("d@a.com")));
+        Assert.assertEquals(new TagID("c"), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("a@a.com")));
+        Assert.assertEquals(new TagID("j"), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("f@a.com")));
+        Assert.assertEquals(new TagID("l"), 
+                documentHolder.applyCursor(new DocumentLastUserElementCursor("g@a.com")));      
     }
     
     /*
@@ -431,7 +451,7 @@ public class TestCursors {
     
     @Test 
     public void testCursorsSequence() {
-        Assert.fail();
+        Assert.fail(); // cursors sequences are mutations, may be test them?
     }
     
     private static BufferedDocOp createDocument(String documentCode) {
