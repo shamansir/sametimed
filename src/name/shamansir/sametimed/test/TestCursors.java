@@ -65,7 +65,7 @@ public class TestCursors {
     //  345  678  901  234
     //            50
     
-    // TODO: tests for tree-structured documents
+    // FIXME: tests for tree-structured documents
     
     private void reinitDocument() {
         resetRecorder();

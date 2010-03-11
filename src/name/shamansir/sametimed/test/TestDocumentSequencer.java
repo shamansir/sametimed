@@ -25,6 +25,10 @@ public class TestDocumentSequencer {
     private DocumentHolder documentHolder = new DocumentHolder();
     private OperationsRecordingCursor recordingCursor = new OperationsRecordingCursor();
     
+    // TODO: add modifying tags cursors tests,
+    //       tree-structured documents sequencing tests
+    //       cursors sequences tests     
+    
     @Test
     public void testSequencing() {
         BufferedDocOp encodedDoc = createDocument("[abcd]");
@@ -759,9 +763,17 @@ public class TestDocumentSequencer {
         Assert.assertEquals(0, documentHolder.findElmStart(0));
         Assert.assertEquals(0, documentHolder.findElmStart(1));
         Assert.assertEquals(3, documentHolder.findElmStart(3));
-        Assert.assertEquals(3, documentHolder.findElmStart(3));
-        Assert.assertEquals(6, documentHolder.findElmStart(7));
+        Assert.assertEquals(3, documentHolder.findElmStart(3)); 
         
+        Assert.assertEquals("(*5)", 
+                getRecord(documentHolder.finishOperations()));   
+        
+        resetRecorder();
+        useDocument("[abc][def][ghijkl][mnop]");        
+        
+        documentHolder.startOperations();
+        Assert.assertEquals(6, documentHolder.findElmStart(7));
+        Assert.assertEquals(6, documentHolder.findElmStart(6));
         Assert.assertEquals("(*10)", 
                 getRecord(documentHolder.finishOperations()));          
         
@@ -778,20 +790,19 @@ public class TestDocumentSequencer {
         }
         Assert.assertEquals(6, documentHolder.findElmStart(6));
         Assert.assertEquals(6, documentHolder.findElmStart(9));
-        Assert.assertEquals(6, documentHolder.findElmStart(4));
+        Assert.assertEquals(6, documentHolder.findElmStart(6));
         Assert.assertEquals(6, documentHolder.findElmStart(11));
         Assert.assertEquals(12, documentHolder.findElmStart(12));
         Assert.assertEquals(12, documentHolder.findElmStart(13));
-        Assert.assertEquals(15, documentHolder.findElmStart(15));        
+        Assert.assertEquals(12, documentHolder.findElmStart(15));
+        Assert.assertEquals(16, documentHolder.findElmStart(16));        
         
         Assert.assertEquals("(*24)", 
-                getRecord(documentHolder.finishOperations()));        
+                getRecord(documentHolder.finishOperations()));
+        
+        // FIXME: test for tree-structured documents also
         
     }
-        
-    // TODO: add modifying tags cursors tests,
-    //       tree-structured tags tests
-    //       cursors sequences tests 
     
     // ================== private methods ======================================
     

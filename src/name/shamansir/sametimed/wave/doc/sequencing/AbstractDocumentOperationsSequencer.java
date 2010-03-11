@@ -127,12 +127,12 @@ public abstract class AbstractDocumentOperationsSequencer {
 	    
 	    int elmsStep = docWalker.findElmStart(chars);
 	    if (elmsStep > 0) {
-            walkingBuilder.manualRetain(elmsStep);
-        } else if (elmsStep < 0) {
+	        walkingBuilder.manualRetain(elmsStep);
+	    } else if (elmsStep < 0) {
             throw new DocumentProcessingException("Can't scroll back");
         }
 	    
-        LOG.debug("found element start at " + elmsStep  );	    
+        LOG.debug("found element start at " + docWalker.curPosElms());	    
 	    
 	    return docWalker.curPos(); // docWalker.alignToElmStart(shars)	    
 	}

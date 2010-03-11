@@ -133,69 +133,75 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
         return curPosElms - prevPos;
     }
     
-    /*
-    // scrolls through the data array and returns position in chars
-    public int searchElmStart(int chars) {
-        if (chars > sizeInChars) return (sizeInChars - chars);
-        int size = data.size();     
-        
-        int charsLeft = chars;
-        int charsResult = 0;        
-        int searchPos = 0;
-        int lastStart = 0; // in chars
-        
-        while ((charsLeft > 0) && (searchPos < size)) {
-            int value = data.get(searchPos++); 
+    private void scrollDataTo(int arrPos) {
+        if ((arrPos - curPos) <= 0) return;
+        while (curPos <= arrPos) {
+            int value = data.get(curPos);
             if (value >= 0) {
-                if ((charsLeft - value) <= 0) {
-                    return lastStart;
-                } else {
-                    charsLeft -= value;
-                    charsResult += value;
-                }
+                stepCharsFwd(value);
             } else {
-                if (value == DocumentState.ELM_START_CODE) {
-                    lastStart = charsResult;
-                }
-            }       
+                stepElmFwd(value == DocumentState.ELM_END_CODE);
+            }
         }        
-        
-        return charsResult;
-    } */
+    }
 
     // performs 'a look further', like regular expressions do
-    // returns required step in elements
-    public int findElmStart(int chars) {
+    // returns required step to reach element start, in elements
+    public int findElmStart(int chars) {               
         if (chars > sizeInChars) return (sizeInChars - chars);
         if (chars < curPosChars) return (chars - curPosChars);
         
-        int prevPos = curPosElms;
+        int prevPos = curPosElms;        
+        int size = data.size();
+        
         int lookPos = curPos;
-        int size = data.size();     
+        int prevElmStart = 0;
         
-        int charsLeft = chars - curPosChars;
-        int lastStart = 0; // in chars
+        int charsLeft = chars - curPosChars;              
         
-        while ((charsLeft > 0) && (curPos < size)) {
-            int value = data.get(lookPos); 
-            if (value >= 0) {
-                if ((charsLeft - value) <= 0) {
-                    return lastStart - prevPos;
-                } else {
-                    stepCharsFwd(value); // FIXME: not correct
-                    charsLeft -= value;
-                    lookPos++;
-                }
-            } else {
-                if (value == DocumentState.ELM_START_CODE) {
-                    lastStart = curPosElms;
-                    stepElmFwd(false);
-                } else stepElmFwd(true);
-                lookPos++;                
-            }       
+        // aligns to the end:
+        
+        // FIXME: ensure it works it tree-structured documents 
+        
+        // acts like a snake: stays at the end of the current element, 
+        // looks at the next element, if chars count is reached inside it -
+        // then it just returns current position, if not - moves to the end
+        // of the next element and repeats procedure
+        
+        if ((charsLeft == 0) && (lookPos == curPos) && 
+            data.get(lookPos) != DocumentState.ELM_START_CODE) {
+            return -1;
         }        
         
-        return lastStart - prevPos;
+        while ((charsLeft > 0) && (lookPos < size)) {
+            int value = data.get(lookPos);
+            if (value > 0) {
+                charsLeft -= value;
+                if (charsLeft == 0) { 
+                    int elmNext = data.get(lookPos + 1); 
+                    if (elmNext == DocumentState.ELM_END_CODE) {
+                        scrollDataTo(lookPos + 1);
+                        return curPosElms - prevPos;
+                    } else if (elmNext == DocumentState.ELM_START_CODE) { // for tree-structured documents
+                        scrollDataTo(lookPos);
+                        return curPosElms - prevPos;
+                    } else return prevElmStart - prevPos;
+                }
+            } else if (value == DocumentState.ELM_START_CODE) {
+                if (charsLeft < 0) {
+                    return prevElmStart - prevPos;
+                } else if (charsLeft == 0) {
+                    scrollDataTo(lookPos - 1);
+                    return curPosElms - prevPos;
+                } else if (charsLeft > 0) {
+                    scrollDataTo(lookPos - 1);
+                    prevElmStart = curPosElms;                    
+                }
+            }
+            lookPos++;
+        }
+        
+        return curPosElms - prevPos;
     }    
     
 	protected void stepElmFwd(boolean isEnd, boolean withSrc) {
