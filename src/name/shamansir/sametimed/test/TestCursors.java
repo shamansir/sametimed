@@ -31,28 +31,28 @@ public class TestCursors {
     
     private static final String ID_ATTR = AbstractDocumentTag.ID_ATTR_NAME;
     private static final String BY_ATTR = AbstractDocumentTag.AUTHOR_ATTR_NAME;
-    private static final String UNKN_AUTHOR = AbstractDocumentTag.UNKNOWN_AUTHOR;    
+    private static final String UKN_ATHR = AbstractDocumentTag.UNKNOWN_AUTHOR;    
     
     private static final String DOCUMENT_CODE =
-        "[{word:" + ID_ATTR + "=a;" + BY_ATTR + "=0@a.com" + "}" + "ijk" + "]" + // 1
-        "[{word:" + ID_ATTR + "=b;" + BY_ATTR + "=a@a.com" + "}" + "lmn" + "]" + // 2
-        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "op"  + "]" + // 3
-        "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=a@a.com" + "}" + "qrs" + "]" + // 4
-        "[{word:" +                   BY_ATTR + "=e@a.com" + "}" + "tuv" + "]" + // 5
-        "[{word:" + ID_ATTR + "=d;" +                        "}" + "wxy" + "]" + // 6
-        "[{word:" +                                          "}" + "zab" + "]" + // 7
-        "[{text:" +                                          "}" + "cde" + "]" + // 8
-        "[{text:" + ID_ATTR + "=mm;" +                        "}" + "fgh" + "]" + // 9
-        "[{word:" + ID_ATTR + "=e;" + BY_ATTR + "=b@a.com" + "}" + "ijk" + "]" + // 10
-        "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" + // 11
-        "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" + // 12
-        "[{word:" + ID_ATTR + "=h;" + BY_ATTR + "=" + UNKN_AUTHOR + "}" + "pqr" + "]" + // 13
-        "[{test:" + ID_ATTR + "=c;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" + // 14
-        "[{word:" + ID_ATTR + "=i;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" + // 15
-        "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" + // 16
-        "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]" + // 17
-        "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=g@a.com" + "}" + "efg" + "]" + // 18
-        "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=g@a.com" + "}" + "hij" + "]"; // 19
+        tagStr("word", "a",  "0@a.com", "ijk") + // 1
+        tagStr("word", "b",  "a@a.com", "lmn") + // 2
+        tagStr("word", "c",  "a@a.com", "op" ) + // 3
+        tagStr("word", "d",  "a@a.com", "qrs") + // 4
+        tagStr("word", null, "e@a.com", "tuv") + // 5
+        tagStr("word", "d",       null, "wxy") + // 6
+        tagStr("word", null,      null, "zab") + // 7
+        tagStr("text", null,      null, "cde") + // 8
+        tagStr("text", "mm",      null, "fgh") + // 9
+        tagStr("word", "e",  "b@a.com", "ijk") + // 10
+        tagStr("text", "f",  "c@a.com", "lm" ) + // 11
+        tagStr("word", "g",  "b@a.com", "no" ) + // 12
+        tagStr("word", "h",   UKN_ATHR, "pqr") + // 13
+        tagStr("test", "c",  "b@a.com", "stu") + // 14
+        tagStr("word", "i",  "d@a.com", "vwx") + // 15
+        tagStr("word", "c",  "a@a.com", "yza") + // 16
+        tagStr("word", "j",  "f@a.com", "bcd") + // 17
+        tagStr("word", "k",  "g@a.com", "efg") + // 18
+        tagStr("word", "l",  "g@a.com", "hij");  // 19 
     
     //         10        20        30        40        50        60        70
     // 123456789012345678901234567890123456789012345678901234567890123456789012
@@ -66,55 +66,52 @@ public class TestCursors {
     //  345  678  901  234
     //            50
     
-    // FIXME: tests for tree-structured documents    
-
-    
     private static String getEncodedDocument() {
         return             
             // order of attributes is important here, AttributesImpl sorts them alphabetically
-            "[{word:" + BY_ATTR + "=0@a.com;" + ID_ATTR + "=a;" + "}" + "ijk" + "]" +
-            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=b;" + "}" + "lmn" + "]" +
-            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=c;" + "}" + "op"  + "]" +
-            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=d;" + "}" + "qrs" + "]" +
-            "[{word:" + BY_ATTR + "=e@a.com;" +                   "}" + "tuv" + "]" +
-            "[{word:" +                         ID_ATTR + "=d;" + "}" + "wxy" + "]" +
-            "[{word:" +                                           "}" + "zab" + "]" +
-            "[{text:" +                                           "}" + "cde" + "]" +
-            "[{text:" +                         ID_ATTR + "=mm;" + "}" + "fgh" + "]" +
-            "[{word:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=e;" + "}" + "ijk" + "]" +
-            "[{text:" + BY_ATTR + "=c@a.com;" + ID_ATTR + "=f;" + "}" + "lm"  + "]" +
-            "[{word:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=g;" + "}" + "no"  + "]" +
-            "[{word:" + BY_ATTR + "=" + UNKN_AUTHOR + ';' + ID_ATTR + "=h;" + "}" + "pqr" + "]" +
-            "[{test:" + BY_ATTR + "=b@a.com;" + ID_ATTR + "=c;" + "}" + "stu" + "]" +
-            "[{word:" + BY_ATTR + "=d@a.com;" + ID_ATTR + "=i;" + "}" + "vwx" + "]" +
-            "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=c;" + "}" + "yza" + "]" +
-            "[{word:" + BY_ATTR + "=f@a.com;" + ID_ATTR + "=j;" + "}" + "bcd" + "]" +
-            "[{word:" + BY_ATTR + "=g@a.com;" + ID_ATTR + "=k;" + "}" + "efg" + "]" +
-            "[{word:" + BY_ATTR + "=g@a.com;" + ID_ATTR + "=l;" + "}" + "hij" + "]";
+            tagStrEnc("word", "a",  "0@a.com", "ijk") + // 1
+            tagStrEnc("word", "b",  "a@a.com", "lmn") + // 2
+            tagStrEnc("word", "c",  "a@a.com", "op" ) + // 3
+            tagStrEnc("word", "d",  "a@a.com", "qrs") + // 4
+            tagStrEnc("word", null, "e@a.com", "tuv") + // 5
+            tagStrEnc("word", "d",       null, "wxy") + // 6
+            tagStrEnc("word", null,      null, "zab") + // 7
+            tagStrEnc("text", null,      null, "cde") + // 8
+            tagStrEnc("text", "mm",      null, "fgh") + // 9
+            tagStrEnc("word", "e",  "b@a.com", "ijk") + // 10
+            tagStrEnc("text", "f",  "c@a.com", "lm" ) + // 11
+            tagStrEnc("word", "g",  "b@a.com", "no" ) + // 12
+            tagStrEnc("word", "h",   UKN_ATHR, "pqr") + // 13
+            tagStrEnc("test", "c",  "b@a.com", "stu") + // 14
+            tagStrEnc("word", "i",  "d@a.com", "vwx") + // 15
+            tagStrEnc("word", "c",  "a@a.com", "yza") + // 16
+            tagStrEnc("word", "j",  "f@a.com", "bcd") + // 17
+            tagStrEnc("word", "k",  "g@a.com", "efg") + // 18
+            tagStrEnc("word", "l",  "g@a.com", "hij");  // 19 
     }
     
     private static String getEncodedDocumentOrdered() {
-        return             
-            "[{word:" + ID_ATTR + "=a;" + BY_ATTR + "=0@a.com" + "}" + "ijk" + "]" + // 1
-            "[{word:" + ID_ATTR + "=b;" + BY_ATTR + "=a@a.com" + "}" + "lmn" + "]" + // 2
-            "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "op"  + "]" + // 3
-            "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=a@a.com" + "}" + "qrs" + "]" + // 4 
-            /*  these tags are not valid so they are skipped 
-            "[{word:" + ID_ATTR + "=-;" + BY_ATTR + "=e@a.com" + "}" + "tuv" + "]" + // 5
-            "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=?"       + "}" + "wxy" + "]" + // 6
-            "[{word:" + ID_ATTR + "=-;" + BY_ATTR + "=?"       + "}" + "zab" + "]" + // 7
-            "[{text:" + ID_ATTR + "=-;" + BY_ATTR + "=?"       + "}" + "cde" + "]" + // 8
-            "[{text:" + ID_ATTR + "=mm;" + BY_ATTR + "=?"      + "}" + "fgh" + "]" + // 9 */
-            "[{word:" + ID_ATTR + "=e;" + BY_ATTR + "=b@a.com" + "}" + "ijk" + "]" + // 10
-            "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" + // 11
-            "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" + // 12
-            "[{word:" + ID_ATTR + "=h;" + BY_ATTR + "=-"       + "}" + "pqr" + "]" + // 13
-            "[{test:" + ID_ATTR + "=c;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" + // 14
-            "[{word:" + ID_ATTR + "=i;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" + // 15
-            "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" + // 16
-            "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]" + // 17
-            "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=g@a.com" + "}" + "efg" + "]" + // 18
-            "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=g@a.com" + "}" + "hij" + "]"; // 19        
+        return
+            tagStr("word", "a",  "0@a.com", "ijk") + // 1
+            tagStr("word", "b",  "a@a.com", "lmn") + // 2
+            tagStr("word", "c",  "a@a.com", "op" ) + // 3
+            tagStr("word", "d",  "a@a.com", "qrs") + // 4
+            //these tags are not valid so they are skipped
+            /* tagStr("word", null, "e@a.com", "tuv") + // 5
+            tagStr("word", "d",       null, "wxy") + // 6
+            tagStr("word", null,      null, "zab") + // 7
+            tagStr("text", null,      null, "cde") + // 8
+            tagStr("text", "mm",      null, "fgh") + // 9 */ 
+            tagStr("word", "e",  "b@a.com", "ijk") + // 10
+            tagStr("text", "f",  "c@a.com", "lm" ) + // 11
+            tagStr("word", "g",  "b@a.com", "no" ) + // 12
+            tagStr("word", "h",        "-", "pqr") + // 13
+            tagStr("test", "c",  "b@a.com", "stu") + // 14
+            tagStr("word", "i",  "d@a.com", "vwx") + // 15
+            tagStr("word", "c",  "a@a.com", "yza") + // 16
+            tagStr("word", "j",  "f@a.com", "bcd") + // 17
+            tagStr("word", "k",  "g@a.com", "efg") + // 18
+            tagStr("word", "l",  "g@a.com", "hij");  // 19       
     }    
     
     private void reinitDocument() {
@@ -530,9 +527,23 @@ public class TestCursors {
         recordingCursor.erase();
     }   
     
-    private static AbstractDocumentTag easyTag(String tagID, String name, String author, String content) {
-        return AbstractDocumentTag.createNoAttrs(tagID, name, author, content);
+    private static AbstractDocumentTag easyTag(String tagID, String tagName, String author, String content) {
+        return AbstractDocumentTag.createNoAttrs(tagID, tagName, author, content);
     }
+    
+    private static String tagStr(String tagName, String tagID, String author, String content) {
+        return "[{" + tagName + ":" +
+                    ((tagID != null) ? (ID_ATTR + "=" + tagID + ";") : "") +
+                    ((author != null) ? (BY_ATTR + "=" + author) : "") +
+                "}" + content + "]";        
+    }
+    
+    private static String tagStrEnc(String tagName, String tagID, String author, String content) {
+        return "[{" + tagName + ":" +
+                    ((author != null) ? (BY_ATTR + "=" + author + ";") : "") +
+                    ((tagID != null)  ? (ID_ATTR + "=" + tagID + ";") : "") +
+                "}" + content + "]";        
+    }    
     
     private final class TestLastElementSearchingCursor extends AbstractLastElementSearchingCursor {
         
@@ -598,6 +609,6 @@ public class TestCursors {
         protected boolean checkTagName(String tagName) {
             return true;
         }
-    }
+    }    
     
 }

@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package name.shamansir.sametimed.test;
 
 import name.shamansir.sametimed.test.mock.DocumentHolder;
@@ -18,96 +21,19 @@ import org.waveprotocol.wave.model.document.operation.impl.DocOpBuffer;
 import org.waveprotocol.wave.model.document.operation.impl.DocOpBuilder;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
 
-public class TestDocumentSequencer {
+/**
+ * TestDocumentSequencerWithTreeDocument
+ *
+ * @author shamansir
+ * @date Mar 12, 2010 3:26:01 PM
+ *
+ */
+public class TestDocumentSequencerWithTreeDocument {
     
     private static final String DEFAULT_TAG_NAME = "a"; 
     
     private DocumentHolder documentHolder = new DocumentHolder();
-    private OperationsRecordingCursor recordingCursor = new OperationsRecordingCursor();
-    
-    // TODO: add modifying tags cursors tests    
-    
-    @Test
-    public void testSequencing() {
-        BufferedDocOp encodedDoc = createDocument("[abcd]");
-        
-        try {
-            documentHolder.setCurrentDocument(encodedDoc);      
-            documentHolder.startOperations();
-            documentHolder.finishOperations();
-            encodedDoc.apply(recordingCursor);
-            Assert.assertEquals("{abcd}", recordingCursor.finish());
-        } catch (DocumentProcessingException dpe) {
-            Assert.fail(dpe.getMessage());
-        }
-        
-        // finish, when already finished
-        try {
-            documentHolder.finishOperations();
-            Assert.fail("exception expected");
-        } catch (DocumentProcessingException dpe) { }
-        
-        // start
-        try {
-            documentHolder.startOperations();
-        } catch (DocumentProcessingException dpe) {
-            Assert.fail(dpe.getMessage());
-        }
-        
-        // try to start again
-        try {
-            documentHolder.startOperations();
-            Assert.fail("exception expected");
-        } catch (DocumentProcessingException dpe) { }
-        
-        // finish
-        try {
-            documentHolder.finishOperations();      
-        } catch (DocumentProcessingException dpe) {
-            Assert.fail(dpe.getMessage());
-        }
-        
-        // apply cursor while not started
-        try {
-            documentHolder.applyCursor(new EmptyCursor());
-            Assert.fail("exception expected");
-        } catch (DocumentProcessingException dpe) { }           
-        
-        // start
-        try {
-            documentHolder.startOperations();
-        } catch (DocumentProcessingException dpe) {
-            Assert.fail(dpe.getMessage());
-        }       
-        
-        // apply null cursor
-        try {
-            documentHolder.applyCursor((AbstractOperatingCursorWithResult<String>)null);
-            Assert.fail("exception expected");
-        } catch (DocumentProcessingException dpe) { }
-        
-        // finish
-        try {
-            documentHolder.finishOperations();
-        } catch (DocumentProcessingException dpe) {
-            Assert.fail(dpe.getMessage());
-        }        
-        
-        try {
-            documentHolder.startOperations();
-            documentHolder.applyCursor(new NoDetachCursor());
-            Assert.fail("exception expected");            
-        } catch (DocumentProcessingException dpe) { 
-            // pass
-        } finally {
-            try {
-                documentHolder.finishOperations();                
-            } catch (DocumentProcessingException dpe) {
-                Assert.fail(dpe.getMessage());
-            }
-        }
-                     
-    }   
+    private OperationsRecordingCursor recordingCursor = new OperationsRecordingCursor();    
     
     @Test
     public void testScrolling() throws DocumentProcessingException {
@@ -827,38 +753,7 @@ public class TestDocumentSequencer {
     private static BufferedDocOp createEmptyDocument() {
         return new DocOpBuffer().finish();
     }
-    
-    // ================== EmptyCursor ==========================================
-    
-    private class EmptyCursor extends AbstractOperatingCursorWithResult<String> {
-
-        @Override
-        public String getResult() { return ""; }
-
-        @Override
-        public void characters(String chars) { }
-        @Override
-        public void elementEnd() { }
-        @Override
-        public void elementStart(String type, Attributes attrs) { 
-            detach();
-        }
-        
-    }
-    
-    // ================== NoDetachCursor =======================================
-    
-    private class NoDetachCursor extends AbstractOperatingCursor {
-        
-        @Override
-        public void characters(String chars) { }
-        @Override
-        public void elementEnd() { }
-        @Override
-        public void elementStart(String type, Attributes attrs) { }
-        
-    }   
-    
+            
     // ================== CharsCountingCursor ==================================
     
     private class CharsCountingCursor implements ICursorWithResult<Integer> {
@@ -1070,4 +965,5 @@ public class TestDocumentSequencer {
         
     }   
     
+
 }
