@@ -41,45 +41,49 @@ public class TestDocumentSequencerWithTreeDocument {
         // FIXME: check when characters added not by sequence of 'characters(char)' call
         //        but with characters(several-chars) calls
         
-        useDocument("[abcdefgh][ijkl][mnop]");
+        useDocument("[abcd[ef[i]g]][[hjk][lmno[p[rst]q]]]");
         
-        // test scrolling to 5 chars pos         
+        // test scrolling to 7 chars pos         
         
         documentHolder.startOperations();
-        documentHolder.scrollToPos(5); // 5 chars, between 'e' and 'f'        
-        // 123456
-        // [abcde        
-        Assert.assertEquals("(*6)", 
+        documentHolder.scrollToPos(7); // 7 chars, after 'i'        
+        // 12345678901
+        // [abcd[ef[i]        
+        Assert.assertEquals("(*11)", 
                             getRecord(documentHolder.finishOperations()));
                 
-        // test scrolling to 11 chars pos while scrolled before
+        // test scrolling to 10 chars pos while scrolled before
         
         resetRecorder();        
         documentHolder.startOperations();        
-        documentHolder.scrollToPos(5); //  to 5  chars, between 'e' and 'f'
-        documentHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l'        
-        // 123456 12345678
-        // [abcde fgh][ijk
-        Assert.assertEquals("(*14)", 
+        documentHolder.scrollToPos(8); //  to 8  chars, after 'g'
+        documentHolder.scrollToPos(10); // to 10 chars, between 'j' and 'k'        
+        // 12345678901234 1234
+        // [abcd[ef[i]g]] [[hj k][lmno[
+        Assert.assertEquals("(*18)", 
                             getRecord(documentHolder.finishOperations()));
         
         // test scrolling between tags
         
         resetRecorder();    
         documentHolder.startOperations();
-        documentHolder.scrollToPos(8); //  to 8  chars, between 'h' and 'i'
-        documentHolder.scrollToPos(12); // to 12 chars, between 'l' and 'm'
-        // 1234567890 123456 
-        // [abcdefgh] [ijkl] [m
-        Assert.assertEquals("(*16)", 
+        documentHolder.scrollToPos(11); // to 11 chars, between 'k' and 'l'
+        documentHolder.scrollToPos(16); // to 16 chars, between 'p' and 'r'
+        // 12345678901234567890 1234567
+        // [abcd[ef[i]g]][[hjk] [lmno[p [rst]q]]]
+        //  1234 56 7 8    901   2345 6  789 0        
+        Assert.assertEquals("(*27)", 
                             getRecord(documentHolder.finishOperations())); 
         
         // test scrolling to end manually
         
         resetRecorder();    
         documentHolder.startOperations();        
-        documentHolder.scrollToPos(16); // to the end
-        Assert.assertEquals("(*22)", 
+        documentHolder.scrollToPos(20); // to the end
+        // 123456789012345678901234567890123456
+        // [abcd[ef[i]g]][[hjk][lmno[p[rst]q]]]
+        //  1234 56 7 8    901  2345 6 789 0        
+        Assert.assertEquals("(*36)", 
                             getRecord(documentHolder.finishOperations()));
             
     }
@@ -89,7 +93,7 @@ public class TestDocumentSequencerWithTreeDocument {
         
         // test scrolling to 14 chars and add tag there
         
-        useDocument("[abcdefgh][ijkl][mnop]");  
+        useDocument("[abcd[ef[i]g]][[hjk][lmno[p[rst]q]]]");  
         
         documentHolder.startOperations();
         documentHolder.scrollToPos(4); //  to 4  chars, between 'd' and 'e'
@@ -100,73 +104,47 @@ public class TestDocumentSequencerWithTreeDocument {
         doBuilder.characters("qrst");
         doBuilder.elementEnd();
                 
-        // 12345 12345678901234
-        // [abcd efgh][ijkl][mn
-        Assert.assertEquals("(*19){qrst}", 
+        // 12345 1234567890123456789
+        // [abcd [ef[i]g]][[hjk][lmn o[p[rst]q]]]
+        //  1234  56 7 8    901  234
+        Assert.assertEquals("(*24){qrst}", 
                             getRecord(documentHolder.finishOperations()));
-        // docCode now: [abcdefgh][ijkl][mn[qrst]op]"       
+        // docCode now: [abcd[ef[i]g]][[hjk][lmn[qrst]o[p[rst]q]]]    
 
     }
-    
-    @Test
-    public void testAddingAndScrolling() throws DocumentProcessingException {
-        // test making tag and then scrolling to 12 chars
-        
-        useDocument("[abcdefgh][ijkl][mnop]");
-        
-        documentHolder.startOperations();       
-        
-        DocOpBuilder doBuilder = documentHolder.unhideOp();
-        doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
-        doBuilder.characters("qrst");
-        doBuilder.elementEnd();
-        // docCode now: [qrst][abcdefgh][ijkl][mnop]
-        
-        // test scrolling back (to 3 chars or less) is not possible, 4 chars
-        // must be positioned just before the 'a' char
-        documentHolder.scrollToPos(4); //  to 4  chars, between 't' and 'a'
-        documentHolder.scrollToPos(7); //  to 7  chars, between 'c' and 'd'
-        documentHolder.scrollToPos(12); // to 12 chars, between 'h' and 'i'
-        
-        // 0-step will be skipped
-        
-        //        1234 123456  
-        // [qrst].[abc defgh] [i
-        Assert.assertEquals("{qrst}(*10)", 
-                            getRecord(documentHolder.finishOperations()));
-    }
-        
+            
     @Test
     public void testScrollingAddingAndScrollingAgain() throws DocumentProcessingException {
         
-        // test scrolling to 5 chars, making tag and then scrolling to 12 chars
+        // test scrolling to 6 chars, making tag and then scrolling to 24 chars
         
-        useDocument("[abcdefgh][ijkl][mnop]");  
+        useDocument("[abcd[ef[i]g]][[hjk][lmno[p[rst]q]]]");  
         
         documentHolder.startOperations();        
-        documentHolder.scrollToPos(5); //  to 5 chars, between 'e' and 'f'
+        documentHolder.scrollToPos(6); //  to 6 chars, between 'f' and 'i'
         
         DocOpBuilder doBuilder = documentHolder.unhideOp();
         doBuilder.elementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
         doBuilder.characters("qrst");
         doBuilder.elementEnd();
-        // docCode now: [abcde[qrst]fgh][ijkl][mnop]
+        // docCode now: [abcd[ef[qrst][i]g]][[hjk][lmno[p[rst]q]]]
+        //               1234 56 7890  1 2    345  6789 0 123 4
         
-        documentHolder.scrollToPos(10); //  to 10 chars, between 'f' and 'g'
-        documentHolder.scrollToPos(14); //  to 14  chars, between 'j' and 'k'
-        documentHolder.scrollToPos(16); // to 16 chars, between 'l' and 'm'
-        documentHolder.scrollToPos(20); // to 20 chars, after 'p'
+        documentHolder.scrollToPos(11); // to 11 chars, between 'i' and 'g'
+        documentHolder.scrollToPos(14); // to 14 chars, between 'j' and 'k'
+        documentHolder.scrollToPos(16); // to 16 chars, between 'o' and 'p'
+        documentHolder.scrollToPos(24); // to 24 chars, after 'q'
         
         try {
-            documentHolder.scrollToPos(21);
+            documentHolder.scrollToPos(25);
             Assert.fail();
         } catch (DocumentProcessingException dpe) {
             // pass            
         }        
         
-        // 123456        1 123456 123 123456 
-        // [abcde [qrst] f gh][ij kl] [mnop]
-        Assert.assertEquals("(*6){qrst}(*16)", 
+        // 12345678        123 1234567 1234567 12345678901
+        // [abcd[ef [qrst] [i] g]][[hj k][lmno [p[rst]q]]]
+        Assert.assertEquals("(*8){qrst}(*28)", 
                             getRecord(documentHolder.finishOperations()));
     }
     
@@ -175,26 +153,37 @@ public class TestDocumentSequencerWithTreeDocument {
 
         // test scrolling to 6 chars and delete tag there
         
-        useDocument("[abc][def][ghijkl][mnop]");     
+        useDocument("[abcd[ef[test][i]g]][[hjk][lmno[p[rst]q]]]");
+        //            1234 56       7 8    901
         
         documentHolder.startOperations();
-        documentHolder.scrollToPos(4); //  to 4 chars, between 'd' and 'e'
-        documentHolder.scrollToPos(6); //  to 6 chars, between 'f' and 'g'
+        documentHolder.scrollToPos(6); //  to 6 chars, between 'f' and 't'
         
         DocOpBuilder doBuilder = documentHolder.unhideOp();
         doBuilder.deleteElementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
-        doBuilder.deleteCharacters("ghijkl");
+        doBuilder.deleteCharacters("test");
         doBuilder.deleteElementEnd();
         
-        // 1234567 123 -------- 
-        // [abc][d ef] [ghijkl] [mnop]
-        Assert.assertEquals("(*10)(-{)(-ghijkl)(-})", 
+        documentHolder.scrollToPos(8); //  to 8 chars, between 'g' and 'h'
+        // FIXME: how to specify what element to delete here, wrapping or hjk?,
+        //        or even not allow to delete wrapping tags?
+        
+        doBuilder = documentHolder.unhideOp();
+        doBuilder.deleteElementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
+        doBuilder.deleteCharacters("hjk");
+        doBuilder.deleteElementEnd();
+        
+        // 12345678 ------ 1234567 -----
+        // [abcd[ef [test] [i]g]][ [hjk] [lmno
+        Assert.assertEquals("(*8)(-{)(-test)(-})(*7)(-{)(-hjk)(-})", 
                             getRecord(documentHolder.finishOperations()));
-        // docCode now: [abc][def][mnop]
+        // docCode now: [abcd[ef[i]g]][[lmno[p[rst]q]]]
     }
     
     @Test
     public void testDeletingAndScrolling() throws DocumentProcessingException {
+        
+        Assert.fail();
         
         // test scrolling to 3 chars, delete tag there, and then scroll more
         
@@ -221,6 +210,8 @@ public class TestDocumentSequencerWithTreeDocument {
     
     @Test
     public void testAddingAndDeleting() throws DocumentProcessingException {
+        
+        Assert.fail();        
         
         // test scrolling to 5 chars, add tag there, then scroll more, and then 
         // delete tag and scroll to end
@@ -262,6 +253,8 @@ public class TestDocumentSequencerWithTreeDocument {
     @Test
     public void testDeletingAndAdding() throws DocumentProcessingException {
         
+        Assert.fail();        
+        
         // test scrolling to 5 chars, delete tag there, then scroll more, and then add tag and scroll to end
         
         useDocument("[abcde][fghij][klm][nopqrs]");  
@@ -299,57 +292,9 @@ public class TestDocumentSequencerWithTreeDocument {
     }
     
     @Test
-    public void testScrollingBack() throws DocumentProcessingException {
-        
-        useDocument("[abcde][fghij][klm][nopqrs]");  
-        
-        documentHolder.startOperations();        
-        documentHolder.scrollToPos(6);
-        
-        try {
-            documentHolder.scrollToPos(5);
-            Assert.fail();
-        } catch (DocumentProcessingException dpe) {
-            // pass
-        }
-        
-        try {
-            documentHolder.scrollToPos(3);
-            Assert.fail();
-        } catch (DocumentProcessingException dpe) {
-            // pass
-        }
-        
-        try {
-            documentHolder.scrollToPos(0);
-            Assert.fail();
-        } catch (DocumentProcessingException dpe) {
-            // pass
-        }        
-        
-        documentHolder.finishOperations();
-        
-    }
-    
-    @Test
-    public void testScrollingFurtherEnd() throws DocumentProcessingException {
-        
-        useDocument("[abcde][fghij][klm][nopqrs]");
-        
-        documentHolder.startOperations();
-        
-        try {
-            documentHolder.scrollToPos(45);
-            Assert.fail();
-        } catch (DocumentProcessingException dpe) {
-            // pass
-        }
-        
-        documentHolder.finishOperations();
-    }
-    
-    @Test
     public void testAligningToEnd() throws DocumentProcessingException {
+        
+        Assert.fail();        
 
         documentHolder.setCurrentDocument(createEmptyDocument());
         
@@ -377,6 +322,8 @@ public class TestDocumentSequencerWithTreeDocument {
     @Test
     public void testScrollBy0AndTo0Passes() throws DocumentProcessingException {
         
+        Assert.fail();        
+        
         useDocument("[abcde][fghij][klm][nopqrs]");  
         
         documentHolder.startOperations();
@@ -397,16 +344,12 @@ public class TestDocumentSequencerWithTreeDocument {
         Assert.assertEquals("(*9)", 
                             getRecord(documentHolder.finishOperations()));
     }
-    
-    @Test
-    public void testSequencingOverEmptyDoc() throws DocumentProcessingException {
-        documentHolder.setCurrentDocument(createEmptyDocument());
-        documentHolder.startOperations();
-        documentHolder.finishOperations();
-    }
-    
+        
     @Test
     public void testScrollingReturnsCorrectValues() throws DocumentProcessingException {
+        
+        Assert.fail();        
+        
         useDocument("[abcde][fghij][klm][nopqrs]");  
         documentHolder.startOperations();
         Assert.assertEquals(4, documentHolder.scrollToPos(4));
@@ -418,6 +361,8 @@ public class TestDocumentSequencerWithTreeDocument {
     
     @Test
     public void testApplyingCursorWithResult() throws DocumentProcessingException {
+        
+        Assert.fail();        
         
         useDocument("[abcde][fghij][klm][nopqrs]");  
         
@@ -432,6 +377,8 @@ public class TestDocumentSequencerWithTreeDocument {
     
     @Test
     public void testApplyingOperatingCursor() throws DocumentProcessingException {
+        
+        Assert.fail();        
         
         // delete in the middle of document
         
@@ -608,6 +555,8 @@ public class TestDocumentSequencerWithTreeDocument {
     @Test
     public void testApplyingOperatingCursorWithResult() throws DocumentProcessingException {
         
+        Assert.fail();        
+        
         // deleting cursor, with result
         
         useDocument("[abcde][fghij][klm][nopqrs][tuvw]");
@@ -651,6 +600,8 @@ public class TestDocumentSequencerWithTreeDocument {
     
     @Test
     public void testSearchingElmStart() throws DocumentProcessingException {
+        
+        Assert.fail();        
         
         useDocument("[abc][def][ghijkl][mnop]");
 
@@ -723,8 +674,6 @@ public class TestDocumentSequencerWithTreeDocument {
         
         Assert.assertEquals("(*24)", 
                 getRecord(documentHolder.finishOperations()));
-        
-        // FIXME: test for tree-structured documents also
         
     }
     

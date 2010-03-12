@@ -121,9 +121,11 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
                 stepElmFwd(value == DocumentState.ELM_END_CODE);
             }       
         }
-        if ((charsLeft == 0) && (curPosChars == chars) && (curPos < size) 
-            && (data.get(curPos) == DocumentState.ELM_END_CODE)) {
-            stepElmFwd(true);
+        if ((charsLeft == 0) && (curPosChars == chars)) {
+            while ((curPos < size) && 
+                   (data.get(curPos) == DocumentState.ELM_END_CODE)) {
+                stepElmFwd(true);
+            }
         }
         
         return curPosElms - prevPos;
