@@ -17,8 +17,8 @@ import com.google.common.collect.ImmutableMap;
  */
 public class NoAttrsTag extends AbstractDocumentTag {
 
-    protected NoAttrsTag(TagID id, String name, String author, String content) {
-        super(id, name, author, content);
+    protected NoAttrsTag(TagID id, String tagName, String author, String content) {
+        super(id, tagName, author, content);
     }
     
     public NoAttrsTag(TagID id, String tagName, ParticipantId author, String content) {
@@ -31,7 +31,7 @@ public class NoAttrsTag extends AbstractDocumentTag {
     
     public NoAttrsTag(TagID id, String tagName, String author) {
         super(id, tagName, author);
-    }    
+    }
 
     @Override
     protected boolean checkAttributes(Attributes attrs) { return true; }

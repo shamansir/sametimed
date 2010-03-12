@@ -8,14 +8,15 @@ import org.junit.*;
 import org.waveprotocol.wave.model.document.operation.Attributes;
 import org.waveprotocol.wave.model.document.operation.BufferedDocOp;
 import org.waveprotocol.wave.model.operation.wave.WaveletDocumentOperation;
+import org.waveprotocol.wave.model.wave.ParticipantId;
 
 import name.shamansir.sametimed.test.mock.*;
 
 import name.shamansir.sametimed.wave.doc.AbstractDocumentTag;
+import name.shamansir.sametimed.wave.doc.NoAttrsTag;
 import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.*;
 import name.shamansir.sametimed.wave.doc.sequencing.DocumentProcessingException;
-
 /**
  * TestCursors
  *
@@ -67,17 +68,8 @@ public class TestCursors {
     
     // FIXME: tests for tree-structured documents
     
-    private void reinitDocument() {
-        resetRecorder();
-        final BufferedDocOp encodedDoc = createDocument(DOCUMENT_CODE);
-        documentHolder.setCurrentDocument(encodedDoc);        
-    }
-    
-    @Test
-    public void testDocumentEncodedOk() {
-        reinitDocument();
-        
-        final String EXPECTED_RECORDED_DOC_CODE =
+    private static String getEncodedDocument() {
+        return             
             // order of attributes is important here, AttributesImpl sorts them alphabetically
             "[{word:" + BY_ATTR + "=0@a.com;" + ID_ATTR + "=a;" + "}" + "ijk" + "]" +
             "[{word:" + BY_ATTR + "=a@a.com;" + ID_ATTR + "=b;" + "}" + "lmn" + "]" +
@@ -98,13 +90,52 @@ public class TestCursors {
             "[{word:" + BY_ATTR + "=f@a.com;" + ID_ATTR + "=j;" + "}" + "bcd" + "]" +
             "[{word:" + BY_ATTR + "=g@a.com;" + ID_ATTR + "=k;" + "}" + "efg" + "]" +
             "[{word:" + BY_ATTR + "=g@a.com;" + ID_ATTR + "=l;" + "}" + "hij" + "]";
+    }
+    
+    private static String getEncodedDocumentOrdered() {
+        return             
+            "[{word:" + ID_ATTR + "=a;" + BY_ATTR + "=0@a.com" + "}" + "ijk" + "]" + // 1
+            "[{word:" + ID_ATTR + "=b;" + BY_ATTR + "=a@a.com" + "}" + "lmn" + "]" + // 2
+            "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "op"  + "]" + // 3
+            "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=a@a.com" + "}" + "qrs" + "]" + // 4 
+            /*  these tags are not valid so they are skipped 
+            "[{word:" + ID_ATTR + "=-;" + BY_ATTR + "=e@a.com" + "}" + "tuv" + "]" + // 5
+            "[{word:" + ID_ATTR + "=d;" + BY_ATTR + "=?"       + "}" + "wxy" + "]" + // 6
+            "[{word:" + ID_ATTR + "=-;" + BY_ATTR + "=?"       + "}" + "zab" + "]" + // 7
+            "[{text:" + ID_ATTR + "=-;" + BY_ATTR + "=?"       + "}" + "cde" + "]" + // 8
+            "[{text:" + ID_ATTR + "=mm;" + BY_ATTR + "=?"      + "}" + "fgh" + "]" + // 9 */
+            "[{word:" + ID_ATTR + "=e;" + BY_ATTR + "=b@a.com" + "}" + "ijk" + "]" + // 10
+            "[{text:" + ID_ATTR + "=f;" + BY_ATTR + "=c@a.com" + "}" + "lm"  + "]" + // 11
+            "[{word:" + ID_ATTR + "=g;" + BY_ATTR + "=b@a.com" + "}" + "no"  + "]" + // 12
+            "[{word:" + ID_ATTR + "=h;" + BY_ATTR + "=-"       + "}" + "pqr" + "]" + // 13
+            "[{test:" + ID_ATTR + "=c;" + BY_ATTR + "=b@a.com" + "}" + "stu" + "]" + // 14
+            "[{word:" + ID_ATTR + "=i;" + BY_ATTR + "=d@a.com" + "}" + "vwx" + "]" + // 15
+            "[{word:" + ID_ATTR + "=c;" + BY_ATTR + "=a@a.com" + "}" + "yza" + "]" + // 16
+            "[{word:" + ID_ATTR + "=j;" + BY_ATTR + "=f@a.com" + "}" + "bcd" + "]" + // 17
+            "[{word:" + ID_ATTR + "=k;" + BY_ATTR + "=g@a.com" + "}" + "efg" + "]" + // 18
+            "[{word:" + ID_ATTR + "=l;" + BY_ATTR + "=g@a.com" + "}" + "hij" + "]"; // 19        
+    }    
+    
+    private void reinitDocument() {
+        resetRecorder();
+        final BufferedDocOp encodedDoc = createDocument(DOCUMENT_CODE);
+        documentHolder.setCurrentDocument(encodedDoc);        
+    }
+    
+    @Test
+    public void testDocumentEncodedOk() {
+        reinitDocument();        
         documentHolder.getSource().apply(recordingCursor);
-        Assert.assertEquals(EXPECTED_RECORDED_DOC_CODE, recordingCursor.finish());        
+        Assert.assertEquals(getEncodedDocument(), recordingCursor.finish());        
     }
     
     @Test
     public void testElementsScannerCursor() {        
-        Assert.fail();
+        reinitDocument();
+        
+        TestTagsScanningCursor testCursor = new TestTagsScanningCursor(); 
+        documentHolder.applyCursor(testCursor);
+        Assert.assertEquals(getEncodedDocumentOrdered(), testCursor.getResult());
     }
     
     @Test
@@ -250,7 +281,7 @@ public class TestCursors {
         // tag without author
                 
         reinitDocument();        
-        documentHolder.startOperations();
+        documentHolder.startOperations();                       
         Assert.assertTrue(
                easyTag("mm", "text", "?", "fgh").equals( 
                documentHolder.applyCursor(new DocumentElementCuttingCursor(new TagID("mm")) {
@@ -471,4 +502,50 @@ public class TestCursors {
     private static AbstractDocumentTag easyTag(String tagID, String name, String author, String content) {
         return AbstractDocumentTag.createNoAttrs(tagID, name, author, content);
     }
+    
+    private final class TestTagsScanningCursor extends AbstractElementsScannerCursor<TestTag> implements ICursorWithResult<String> {
+        
+        private final StringBuffer tagsInfo = new StringBuffer();
+        
+        @Override
+        protected void applyTag(TestTag tag) {
+            tagsInfo.append("[{" + tag.getName() + ":" +
+                        ID_ATTR + "=" + tag.getAttribute(ID_ATTR) + ";" +
+                        BY_ATTR + "=" + tag.getAttribute(BY_ATTR) +                        
+            		"}" + tag.getContent() + "]");
+            
+        }
+
+        // FIXME: a factory should be used to create tags
+        @Override
+        protected TestTag createTag(TagID id, String tagName,
+                Attributes attrs) throws IllegalArgumentException {
+            TestTag newTag = new TestTag(id, tagName);
+            newTag.initFromElement(tagName, attrs);
+            return newTag;
+        }
+
+        @Override
+        public String getResult() {
+            return tagsInfo.toString();
+        }
+               
+    }
+    
+    private class TestTag extends NoAttrsTag {
+        
+        public TestTag(TagID id, String tagName, String author, String content) {
+            super(id, tagName, author);
+            this.setContent(content);            
+        }
+        
+        public TestTag(TagID id, String tagName) {
+            super(id, tagName, (ParticipantId)null);
+        }
+
+        protected boolean checkTagName(String tagName) {
+            return true;
+        }
+    }
+    
 }

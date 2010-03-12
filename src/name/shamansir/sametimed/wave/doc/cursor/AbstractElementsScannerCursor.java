@@ -15,7 +15,6 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 	
     private static final Log LOG = LogFactory.getLog(AbstractElementsScannerCursor.class);
 	
-	private AtomicBoolean gotEnd;
 	private AtomicBoolean gotCharacters;
 	private AtomicBoolean skipElement; 
 	
@@ -25,8 +24,7 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 		this.currentTag = null;
 		
 		this.skipElement = new AtomicBoolean(false);
-		this.gotCharacters = new AtomicBoolean(false);	// used to determine the flow order
-		this.gotEnd = new AtomicBoolean(false); // used to determine the flow order
+		this.gotCharacters = new AtomicBoolean(false);
 		
 	}
 	
@@ -36,8 +34,7 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 	@Override
 	public void elementStart(String type, Attributes attrs) {
 		this.skipElement.set(false);
-		this.gotCharacters.set(false);		
-		this.gotEnd.set(false);
+		this.gotCharacters.set(false);
 		
 		try {
 			currentTag = createTag(
@@ -55,7 +52,8 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 	public void characters(String chars) {
 		if (!this.skipElement.get()) {
 			currentTag.setContent(chars);			
-			if (this.gotEnd.get()) applyTag(currentTag);			
+			// this was added to conform with wave-styled documents
+			//if (this.gotEnd.get()) applyTag(currentTag);			
 			this.gotCharacters.set(true);
 		}
 	}
@@ -64,7 +62,6 @@ public abstract class AbstractElementsScannerCursor<TagType extends AbstractDocu
 	public void elementEnd() {
 		if (!this.skipElement.get()) {
 			if (this.gotCharacters.get()) applyTag(currentTag);
-			this.gotEnd.set(true);
 		}
 	}
 	

@@ -156,6 +156,7 @@ public abstract class AbstractDocumentTag {
 		return attrsMap; 
 	}
 	
+	// FIXME: protected?
 	public DocOpBuilder build(DocOpBuilder docOp) {
 		AttributesImpl attrs = new AttributesImpl(
 					new ImmutableMap.Builder<String, String>()
