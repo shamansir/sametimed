@@ -66,7 +66,8 @@ public class TestCursors {
     //  345  678  901  234
     //            50
     
-    // FIXME: tests for tree-structured documents
+    // FIXME: tests for tree-structured documents    
+
     
     private static String getEncodedDocument() {
         return             
@@ -140,7 +141,21 @@ public class TestCursors {
     
     @Test
     public void testLastElementSearchingCursor() {
-        Assert.fail();        
+        reinitDocument();
+        
+        TestLastElementSearchingCursor testCursor = 
+                            new TestLastElementSearchingCursor("word"); 
+        documentHolder.applyCursor(testCursor);
+        Assert.assertEquals(new TagID("l"), testCursor.getResult());
+        
+        testCursor = new TestLastElementSearchingCursor("test"); 
+        documentHolder.applyCursor(testCursor);
+        Assert.assertEquals(new TagID("c"), testCursor.getResult());
+        
+        testCursor = new TestLastElementSearchingCursor("text"); 
+        documentHolder.applyCursor(testCursor);
+        Assert.assertEquals(new TagID("f"), testCursor.getResult());        
+        
     }
     
     @Test
@@ -501,6 +516,27 @@ public class TestCursors {
     
     private static AbstractDocumentTag easyTag(String tagID, String name, String author, String content) {
         return AbstractDocumentTag.createNoAttrs(tagID, name, author, content);
+    }
+    
+    private final class TestLastElementSearchingCursor extends AbstractLastElementSearchingCursor {
+        
+        private final String tagName;
+
+        public TestLastElementSearchingCursor(String tagName) {
+            this.tagName = tagName;
+        }
+        
+        @Override
+        protected boolean areAttrsApproved(Attributes attrs) {
+            return true;
+        }
+
+
+        @Override
+        protected boolean isElementApproved(String elementName) {
+            return elementName.equals(tagName);
+        }
+        
     }
     
     private final class TestTagsScanningCursor extends AbstractElementsScannerCursor<TestTag> implements ICursorWithResult<String> {
