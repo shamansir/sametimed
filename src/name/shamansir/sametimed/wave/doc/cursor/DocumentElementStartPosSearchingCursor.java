@@ -7,18 +7,18 @@ import org.waveprotocol.wave.model.document.operation.Attributes;
 public class DocumentElementStartPosSearchingCursor implements
     ICursorWithResult<Integer> {
     
-    private final int searchPos;  
+    private final int searchPos;  // in chars
     private final boolean returnChars;
     
     private int elmsPassed = 0; // TODO: make atomic
     private int charsPassed = 0; // TODO: make atomic
     private int lastTagStart = 0; // TODO: make atomic
-    private int foundPos = -1; // TODO: make atomic // in chars!
+    private int foundPos = -1; // TODO: make atomic // in chars or in elements, related to returnChars
     
     private boolean found = false;
 
 	public DocumentElementStartPosSearchingCursor(int pos, boolean returnChars) {
-		this.searchPos = pos;
+		this.searchPos = pos; // in chars
 		this.returnChars = returnChars;
 	}
 	

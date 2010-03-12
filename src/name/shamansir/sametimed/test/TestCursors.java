@@ -489,15 +489,31 @@ public class TestCursors {
                 documentHolder.applyCursor(new DocumentLastUserElementCursor("g@a.com")));      
     }
     
-    /*
+    /* behavior is same to TestTagsScanningCursor
     @Test
     public void testXMLGeneratingCursor() {
         
     } */   
     
     @Test 
-    public void testCursorsSequence() {
-        Assert.fail(); // cursors sequences are mutations, may be test them?
+    public void testCursorsSequence() throws DocumentProcessingException {
+        reinitDocument();
+        
+        documentHolder.startOperations();
+        documentHolder.scrollToPos(documentHolder.findElmStart(10));
+        documentHolder.applyCursor(new DocumentElementDeletionByPosCursor(17)); // delete 'zab'
+        // 30 - 3 = 27, 49 - 5 = 44 : 3 chars/5 elements deleted, 'lm' element search
+        documentHolder.scrollToPos(
+                documentHolder.applyCursor(new DocumentElementStartPosSearchingCursor(27, true)));
+        // documentHolder.scrollToPos(documentHolder.findElmStart(chars));        
+        
+        // (*14) + (*29 - *14) == (*29)
+        // (*5) * 3 = (*15) // 3 of 3-chars elements after 'zab' to 'lm' 
+        Assert.assertEquals("(*29)(-[)(-zab)(-])(*15)", 
+                getRecord(documentHolder.finishOperations()));   
+        
+        // FIXME: there is no inserting cursors still, but may be they are required? 
+        // cursors sequences are mutations, may be test them in separate test?
     }
     
     private static BufferedDocOp createDocument(String documentCode) {

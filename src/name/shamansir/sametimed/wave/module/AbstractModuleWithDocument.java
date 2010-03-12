@@ -8,7 +8,6 @@ import name.shamansir.sametimed.wave.doc.TagID;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementCuttingByPosCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementCuttingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementDeletionByPosCursor;
-import name.shamansir.sametimed.wave.doc.cursor.DocumentElementStartPosSearchingCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentLastTagIDCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentLastUserElementCursor;
 import name.shamansir.sametimed.wave.doc.cursor.DocumentElementDeletionCursor;
@@ -105,6 +104,7 @@ public abstract class AbstractModuleWithDocument<InnerType> extends AbstractDocu
 	    
 		if (getDocBuilder() == null) throw new DocumentProcessingException("The sequence was not started before adding tag or some similar error occured");
 		useDocBuilder(newTag.build(getDocBuilder())); // adds tag building operations to the current operation
+		        // FIXME: use cursor or something like, not build manually?
 	}
 	
 	public AbstractDocumentTag makeTag(ParticipantId author, String text) {

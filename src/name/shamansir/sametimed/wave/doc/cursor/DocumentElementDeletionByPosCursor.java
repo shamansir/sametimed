@@ -12,7 +12,7 @@ public class DocumentElementDeletionByPosCursor extends
     private boolean deleteCurrentTag = false;  // FIXME: make atomic    
 
 	public DocumentElementDeletionByPosCursor(int position) {
-        posBeforeTag = position;
+        posBeforeTag = position; // in chars
 	}
 	
     @Override

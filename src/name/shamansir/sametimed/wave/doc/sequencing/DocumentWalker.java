@@ -13,10 +13,6 @@ public class DocumentWalker extends DocumentState implements IDocumentWalker {
 	public DocumentWalker(BufferedDocOp sourceDoc) {
 	    super(sourceDoc);
 	    collectDocumentData();
-	    // super(sourceDoc); 
-	    // collectDocumentData(this); // collectData walks through document as a result,
-	                                  // but it is not required
-        // resetPosition();
 	}
 	
 	public boolean foundElmStart() {
