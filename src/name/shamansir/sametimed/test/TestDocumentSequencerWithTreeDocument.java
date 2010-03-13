@@ -58,8 +58,8 @@ public class TestDocumentSequencerWithTreeDocument {
         documentHolder.startOperations();        
         documentHolder.scrollToPos(8); //  to 8  chars, after 'g'
         documentHolder.scrollToPos(10); // to 10 chars, between 'j' and 'k'        
-        // 12345678901234 1234
-        // [abcd[ef[i]g]] [[hj k][lmno[
+        // 123456789012345 123
+        // [abcd[ef[i]g]][ [hj k][lmno[
         Assert.assertEquals("(*18)", 
                             getRecord(documentHolder.finishOperations()));
         
@@ -85,6 +85,27 @@ public class TestDocumentSequencerWithTreeDocument {
         //  1234 56 7 8    901  2345 6 789 0        
         Assert.assertEquals("(*36)", 
                             getRecord(documentHolder.finishOperations()));
+        
+        // test scrolling skipping empty tags
+        
+        resetRecorder();
+        useDocument("[ab[]cd[ef[i]g]][[][hj[]k]]");
+        documentHolder.startOperations();        
+        documentHolder.scrollToPos(3); // between 'c' and 'd'
+        // 123456 
+        // [ab[]c d[ef[i]g]][[][hj[]k]]
+        //  12  3 4 56 7 8      90  1
+        Assert.assertEquals("(*6)", 
+                getRecord(documentHolder.finishOperations()));         
+        
+        resetRecorder();
+        documentHolder.startOperations();        
+        documentHolder.scrollToPos(8); // after 'g'
+        // 1234567890123456789
+        // [ab[]cd[ef[i]g]][[] [hj[]k]]
+        //  12  34 56 7 8       90  1
+        Assert.assertEquals("(*19)", 
+                getRecord(documentHolder.finishOperations()));        
             
     }
     
@@ -165,8 +186,26 @@ public class TestDocumentSequencerWithTreeDocument {
         doBuilder.deleteElementEnd();
         
         documentHolder.scrollToPos(8); //  to 8 chars, between 'g' and 'h'
-        // FIXME: how to specify what element to delete here, wrapping or hjk?,
+        // FIX?ME: how to specify what element to delete here, wrapping or hjk?,
         //        or even not allow to delete wrapping tags?
+        // SOLUTION: in situation like [[hjk - docWalker will scroll to position
+        //           [.[hjk, and the next scrollTo will not raise an exception 
+        //           about scrolling back, because the required number of chars is
+        //           already reached, no way; when looking for tag start, when
+        //           searching like [[hj?k it must also be positioned at [.[hjk; 
+        //           for [[hjk]dj?jd[ and like this, it must be positioned before 
+        //           the start of the wrapping tag: .[[hjk]djdj[]; so when deleting
+        //           tags by char pos, in first variant [hjk] will be deleted and in
+        //           second - the whole wrapping tag: [[hjk]djdj[...
+        //            
+        //           (dot is position of the scroller, q-mark is position of 
+        //           search)
+        // 
+        //           or may be just return elements everywhere.
+        // 
+        // I'll postpone this tests to the time when tree documents will be
+        // implemented
+       
         
         doBuilder = documentHolder.unhideOp();
         doBuilder.deleteElementStart(DEFAULT_TAG_NAME, AttributesImpl.EMPTY_MAP);
