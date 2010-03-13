@@ -29,13 +29,6 @@
         <war basedir="${war.dir}" 
         	 destfile="${project.name}.${project.version}.war" 
         	 webxml="${war.dir}/WEB-INF/web.xml" />
-    </target>
-	
-    <target name="build-no-servlet-lib-war" depends="compile">
-        <war basedir="${war.dir}" 
-        	 destfile="${project.name}.${project.version}.no-servlet-lib.war" 
-        	 webxml="${war.dir}/WEB-INF/web.xml"
-        	 excludes="WEB-INF/lib/servlet-api-2.4.jar" />
     </target>	
 
     <target name="archive-project-files">
