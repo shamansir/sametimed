@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <project default="build-war">
 	
 	<property name="project.name" value="sametimed" />
