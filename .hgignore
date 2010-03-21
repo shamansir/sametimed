@@ -10,4 +10,4 @@ doc
 syntax: regexp
 ^src/name/*$
 ^WebContent/WEB-INF/classes/*$
-^WebContent/0.1.3/*$
+^WebContent/js/0.1.3/*$

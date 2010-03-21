@@ -3,11 +3,19 @@
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
-<web-app>
+<web-app>	
   
     <display-name>sametimed</display-name>
     
+    <!-- Logback -->
+    <!-- see http://logback.qos.ch/manual/contextSelector.html -->    
+        
+    <listener>
+        <listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
+    </listener>    
+    
     <!-- Cometd -->
+    <!-- see http://cometd.org/documentation/cometd-java/server/configuration -->
     
     <servlet>
         <servlet-name>cometd</servlet-name>
@@ -17,20 +25,13 @@
             <param-value>30000</param-value>
         </init-param>
         <init-param>
-            <param-name>interval</param-name>
-            <param-value>0</param-value>
-        </init-param>
-        <init-param>
-            <param-name>maxInterval</param-name>
-            <param-value>10000</param-value>
-        </init-param>
-        <init-param>
             <param-name>multiFrameInterval</param-name>
             <param-value>2000</param-value>
         </init-param>
         <init-param>
             <param-name>logLevel</param-name>
             <param-value>0</param-value>
+            <!-- 0 = warn, 1 = info, 2 = debug -->
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -38,12 +39,29 @@
     <servlet-mapping>
         <servlet-name>cometd</servlet-name>
         <url-pattern>/cometd/*</url-pattern>
-    </servlet-mapping>    
+    </servlet-mapping>   
   
     <!-- Default pages -->
     
     <welcome-file-list>
         <welcome-file>sametimed.html</welcome-file>
-    </welcome-file-list>    
+    </welcome-file-list>
+    
+    <!-- Logback-required setup -->    
+    <!-- see http://logback.qos.ch/manual/contextSelector.html -->
+        
+    <env-entry>
+      <description>JNDI logging context for sametimed app</description>
+      <env-entry-name>logback/context-name</env-entry-name>
+      <env-entry-value>ContextSametimed</env-entry-value>
+      <env-entry-type>java.lang.String</env-entry-type>      
+    </env-entry> 
+    
+    <env-entry>  
+        <description>URL for configuring logback context</description>
+        <env-entry-name>logback/configuration-resource</env-entry-name>
+        <env-entry-value>logback-sametimed.xml</env-entry-value>
+        <env-entry-type>java.lang.String</env-entry-type>        
+    </env-entry>            
     
 </web-app>

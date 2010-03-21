@@ -25,11 +25,32 @@
             </fileset>
         </copy>
     </target>
+	
+	<target name="build-war" depends="build-full-war" />
+	
+	<target name="build-jetty-war" depends="build-full-war" />
+	
+	<target name="build-tomcat-war" depends="build-with-no-logback-lib-war" />
+	<!-- it is required to place slf4j-api, logback-classic and logback-core
+	     jars into $TOMCAT_HOME/common/lib/ folder and running it with 
+	     -Dlogback.ContextSelector=JNDI. 
+	     see http://logback.qos.ch/manual/contextSelector.html -->
 
-    <target name="build-war" depends="compile">
+    <target name="build-full-war" depends="compile">
         <war basedir="${war.dir}" 
         	 destfile="${project.name}.${project.version}.war" 
         	 webxml="${war.dir}/WEB-INF/web.xml" />
+    </target>
+	
+    <target name="build-with-no-logback-lib-war" depends="compile">
+        <war basedir="${war.dir}" 
+                 destfile="${project.name}.${project.version}.no-servlet-lib.war" 
+                 webxml="${war.dir}/WEB-INF/web.xml"
+                 excludes="WEB-INF/lib/slf4j-api-*.jar,
+        	               WEB-INF/lib/logback-*.jar" />    	
+        <war basedir="${war.dir}" 
+             destfile="${project.name}.${project.version}.war" 
+             webxml="${war.dir}/WEB-INF/web.xml" />
     </target>	
 
     <target name="archive-project-files">

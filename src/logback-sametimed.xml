@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <!-- <Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</Pattern> -->
+      <Pattern>%d %5p [%t] (%F:%L) - %m%n</Pattern>
+    </layout>
+  </appender>
+  
+  <logger name="org.sametimed" level="DEBUG" />  
+  
+  <!-- <logger name="org.sametimed.facade" level="DEBUG" /> -->
+
+  <root level="DEBUG">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
