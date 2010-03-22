@@ -73,19 +73,21 @@
     
     <!-- ===================== Logback-required setup ====================== -->    
     <!-- see http://logback.qos.ch/manual/contextSelector.html -->
-        
+    
+    <!--    
     <env-entry>
       <description>JNDI logging context for sametimed app</description>
       <env-entry-name>logback/context-name</env-entry-name>
       <env-entry-value>ContextSametimed</env-entry-value>
       <env-entry-type>java.lang.String</env-entry-type>      
     </env-entry> 
-    
+        
     <env-entry>  
         <description>URL for configuring logback context</description>
         <env-entry-name>logback/configuration-resource</env-entry-name>
         <env-entry-value>sametimed-logback.xml</env-entry-value>
         <env-entry-type>java.lang.String</env-entry-type>        
-    </env-entry>            
+    </env-entry>
+    -->            
     
 </web-app>

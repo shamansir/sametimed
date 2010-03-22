@@ -44,7 +44,11 @@ public class SametimedService extends BayeuxService {
         bayeux.addExtension(new TimesyncExtension());
         subscribe("/" + SERVICE_NAME + "/join", "tryJoin");
         subscribe("/" + SERVICE_NAME + "/cmd", "processCmd");
-        log.info("Sametimed Bayeux service initialized under /{}", SERVICE_NAME);
+        log.info("Sametimed Bayeux service initialized under /{}", SERVICE_NAME);       
+    }
+    
+    public void tryJoin(Client remote, Message message) {
+        log.info("join received");
         Channel channel = getBayeux().getChannel("/" + SERVICE_NAME + "/upd", true);
         if (channel != null)
         {
@@ -52,11 +56,7 @@ public class SametimedService extends BayeuxService {
             data.put("test", "aaafaa");
             channel.publish(null, data, null);
             log.info("published to channel");
-        }        
-    }
-    
-    public void tryJoin(Client remote, Message message) {
-        log.info("join received");
+        }         
     }     
     
     public void processCmd(Client remote, Message message) {

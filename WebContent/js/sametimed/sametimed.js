@@ -14,14 +14,14 @@ var Sametimed = $.inherit({
 		// cometd.handshake(); // done in init
 		
 		cometd.subscribe('/w/upd', 
-						 createMethodReference(this, 'gotUpdate'));
+						 createMethodReference(this, this.gotUpdate));
 		// TODO: unsubscribe and disconnect on exit
 		
 		cometd.publish('/w/join', {test: 'test'});
 	},
 	
 	gotUpdate: function(data) {
-		alert('update ' + data);
+		if (console) console.log('update ', data);
 	}	
 	
 });
