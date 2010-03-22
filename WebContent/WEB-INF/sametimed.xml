@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sametimed>
 	
+	<channel>
+		<name>sametimed</name>
+		<join-channel>/join</join-channel>
+		<cmd-channel>/cmd</cmd-channel>
+		<upd-channel>/upd</upd-channel>
+	</channel>
+	
 </sametimed>

@@ -4,17 +4,19 @@
     "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app>	
+
+    <!-- ===================== display-name ================================ -->
   
     <display-name>sametimed</display-name>
     
-    <!-- Logback -->
+    <!-- ===================== Logback Listener ============================ -->
     <!-- see http://logback.qos.ch/manual/contextSelector.html -->    
         
     <listener>
         <listener-class>ch.qos.logback.classic.selector.servlet.ContextDetachingSCL</listener-class>
     </listener>    
     
-    <!-- Cometd -->
+    <!-- ===================== Cometd Servlet ============================== -->
     <!-- see http://cometd.org/documentation/cometd-java/server/configuration -->
     
     <servlet>
@@ -35,19 +37,29 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    
+    <!-- ===================== Sametimed Services Initializer ============== -->    
+    
+    <servlet>
+        <servlet-name>intializer</servlet-name>
+        <servlet-class>org.sametimed.facade.SametimedServicesInitializer</servlet-class>
+        <load-on-startup>2</load-on-startup> <!-- after cometd intialization --> 
+    </servlet>    
+    
+    <!-- ===================== Cometd Servlet URL ========================== -->    
 
     <servlet-mapping>
         <servlet-name>cometd</servlet-name>
         <url-pattern>/cometd/*</url-pattern>
-    </servlet-mapping>   
+    </servlet-mapping>    
   
-    <!-- Default pages -->
+    <!-- ===================== welcome-file-list =========================== -->    
     
     <welcome-file-list>
         <welcome-file>sametimed.html</welcome-file>
     </welcome-file-list>
     
-    <!-- Logback-required setup -->    
+    <!-- ===================== Logback-required setup ====================== -->    
     <!-- see http://logback.qos.ch/manual/contextSelector.html -->
         
     <env-entry>
