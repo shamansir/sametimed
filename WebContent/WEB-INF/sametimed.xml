@@ -3,6 +3,7 @@
 	
 	<channel>
 		<name>sametimed</name>
+		<service>w</service>
 		<join-channel>/join</join-channel>
 		<cmd-channel>/cmd</cmd-channel>
 		<upd-channel>/upd</upd-channel>

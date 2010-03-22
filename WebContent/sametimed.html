@@ -11,6 +11,7 @@
     <!-- Cometd -->
     
     <script type="text/javascript" src="js/cometd/cometd.js"></script>
+    <script type="text/javascript" src="js/cometd/ext/TimeSyncExtension.js"></script>    
     
     <!-- JQuery + Plugins -->
     
@@ -24,15 +25,16 @@
     <script type="text/javascript" src="js/jquery/jquery.cometd-timesync.js"></script>
     
     <!-- Sametimed -->
-    
+
+    <script type="text/javascript" src="js/sametimed/sametimed.utils.js"></script>    
     <script type="text/javascript" src="js/sametimed/sametimed.js"></script>    
     
     <script type="text/javascript">
-        var cometd = $.cometd;
-    
         $(document).ready(function(){
-        	initSametimed();            
-        });
+        	sametimed.init({
+            	cometdURL: '/sametimed/cometd'
+        	});          
+        }); // TODO: load configuration from sametimed.xml
     </script>
     
     <link type="text/css" rel="stylesheet" href="css/page.css" />
