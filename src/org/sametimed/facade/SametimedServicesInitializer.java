@@ -26,20 +26,33 @@ public class SametimedServicesInitializer extends GenericServlet {
     
     private static final long serialVersionUID = -8428887423512182828L;
 
+    /**
+     * Initialization code
+     */
     @Override
     public void init() throws ServletException
     {
         // Grab the Bayeux object
         Bayeux bayeux = (Bayeux)getServletContext().getAttribute(Bayeux.ATTRIBUTE);
-        new SametimedService(bayeux);
+        // Grab configuration file
+        SametimedConfig config = new SametimedConfig(
+                getServletContext().getResourceAsStream("/sametimed.xml")); 
+        
+        new SametimedService(bayeux, config);
 
-        // TODO: configuration and extensions
+        // TODO: extensions
     }
-
-    /* (non-Javadoc)
-     * @see javax.servlet.GenericServlet#service(javax.servlet.ServletRequest, javax.servlet.ServletResponse)
+    
+    /**
+     * {@code service} method is not supported for Initializer servlet
+     * 
+     * @param request request
+     * @param response response
+     * 
+     * @throws ServletException always
+     * @throws IOException never
      */
-    @Override
+    @Override    
     public void service(ServletRequest request, ServletResponse response)
             throws ServletException, IOException {
         throw new ServletException("'service' method is not appliable to this servlet");
