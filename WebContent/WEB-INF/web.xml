@@ -50,13 +50,25 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     
-    <!-- ===================== Sametimed Services Initializer ============== -->    
+    <!-- ===================== Sametimed Services Initializer ============== -->
     
     <servlet>
         <servlet-name>intializer</servlet-name>
         <servlet-class>org.sametimed.facade.SametimedServicesInitializer</servlet-class>
         <load-on-startup>2</load-on-startup> <!-- after cometd intialization --> 
-    </servlet>    
+    </servlet>
+    
+    <servlet>
+        <servlet-name>getconf</servlet-name>
+        <servlet-class>org.sametimed.facade.GetSametimedConfigurationServlet</servlet-class> 
+    </servlet>
+    
+    <!-- ===================== Configuration URL =========================== -->    
+
+    <servlet-mapping>
+        <servlet-name>getconf</servlet-name>
+        <url-pattern>/getconf</url-pattern>
+    </servlet-mapping>    
     
     <!-- ===================== Cometd Servlet URL ========================== -->    
 

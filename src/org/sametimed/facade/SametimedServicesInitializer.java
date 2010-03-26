@@ -11,6 +11,8 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.cometd.Bayeux;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Project: sametimed
@@ -25,21 +27,24 @@ import org.cometd.Bayeux;
 public class SametimedServicesInitializer extends GenericServlet {
     
     private static final long serialVersionUID = -8428887423512182828L;
+    
+    private static final Logger log = LoggerFactory
+            .getLogger(SametimedServicesInitializer.class);
 
     /**
      * Initialization code
      */
     @Override
-    public void init() throws ServletException
-    {
-        // Grab the Bayeux object
-        Bayeux bayeux = (Bayeux)getServletContext().getAttribute(Bayeux.ATTRIBUTE);
-        // Grab configuration file
-        SametimedConfig config = new SametimedConfig(
-                getServletContext().getResourceAsStream("/sametimed.xml")); 
+    public void init() throws ServletException {
         
-        new SametimedService(bayeux, config);
+        // Grab the Bayeux object
+        Bayeux bayeux = (Bayeux)getServletContext().getAttribute(Bayeux.ATTRIBUTE);        
+        
+        // Initialize and configure Sametimed service 
+        new SametimedService(bayeux, SametimedConfig.loadConfig(getServletContext()));
 
+        log.info("Launched and configured SametimedService");
+        
         // TODO: extensions
     }
     

@@ -33,8 +33,6 @@ public class SametimedService extends BayeuxService {
     private static final Logger log = LoggerFactory
             .getLogger(SametimedService.class);    
     
-    public static final String SERVICE_NAME = "w";
-    
     private final Channel updatesChannel;
 
     /**
@@ -53,27 +51,19 @@ public class SametimedService extends BayeuxService {
      * @param config Sametimed configuration data
      */
     public SametimedService(Bayeux bayeux, SametimedConfig config) {
-        super(bayeux, SERVICE_NAME);
-        configure(config);
+        super(bayeux, config.getServicePath());
+        
+        final String servicePath = config.getServicePath();
         
         bayeux.addExtension(new TimesyncExtension());
         
-        subscribe("/" + SERVICE_NAME + "/join", "tryJoin");
-        subscribe("/" + SERVICE_NAME + "/cmd", "processCmd");
+        subscribe("/" + servicePath + "/join", "tryJoin");
+        subscribe("/" + servicePath + "/cmd", "processCmd");
         
-        updatesChannel = getBayeux().getChannel("/" + SERVICE_NAME + "/upd", true);
-        log.info("Sametimed Bayeux service initialized under /{}", SERVICE_NAME);       
+        updatesChannel = getBayeux().getChannel("/" + servicePath + "/upd", true);
+        log.info("Sametimed Bayeux service initialized under /{}", servicePath);       
     }
     
-    /**
-     * Configure service
-     * 
-     * @param config Sametimed configuration data
-     */
-    private void configure(SametimedConfig config) {
-
-    }
-
     /**
      * Fires when client tries to join
      * 
