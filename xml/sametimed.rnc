@@ -1,0 +1,25 @@
+default namespace = "http://www.sametimed.org"
+
+element sametimed {
+
+    element service {
+        element absolute-url {
+            element protocol? { type-url }        
+            element hostname { type-url }
+            element port? { type-number }
+        }
+        element app-name { type-word }
+        element tunnel { type-word }                 
+        element channels {
+            element join-channel { type-word }
+            element cmd-channel { type-word }
+            element upd-channel { type-word }
+        }
+        element cometd-init? { type-url }        
+    }
+
+}
+
+type-text = text
+type-url = type-text
+type-word = type-text

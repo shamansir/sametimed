@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sametimed>
-	
-	<channel>
-		<name>sametimed</name>
-		<service-path>w</service-path>
-		<join-channel>/join</join-channel>
-		<cmd-channel>/cmd</cmd-channel>
-		<upd-channel>/upd</upd-channel>
-	</channel>
+		
+	<service>
+
+        <app-name>sametimed</app-name>
+        				
+		<tunnel>w</tunnel>
+        <channels>
+    		<join-channel>/join</join-channel>
+    		<cmd-channel>/cmd</cmd-channel>
+    		<upd-channel>/upd</upd-channel>
+		</channels>
+		
+        <cometd-init>cometd</cometd-init>
+        				
+	</service>
 	
 </sametimed>

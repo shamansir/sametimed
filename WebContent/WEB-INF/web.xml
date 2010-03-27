@@ -68,7 +68,7 @@
     <servlet-mapping>
         <servlet-name>getconf</servlet-name>
         <url-pattern>/getconf</url-pattern>
-    </servlet-mapping>    
+    </servlet-mapping>  
     
     <!-- ===================== Cometd Servlet URL ========================== -->    
 

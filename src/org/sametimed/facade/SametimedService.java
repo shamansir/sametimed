@@ -51,17 +51,17 @@ public class SametimedService extends BayeuxService {
      * @param config Sametimed configuration data
      */
     public SametimedService(Bayeux bayeux, SametimedConfig config) {
-        super(bayeux, config.getServicePath());
-        
-        final String servicePath = config.getServicePath();
+        super(bayeux, config.getAppName());        
         
         bayeux.addExtension(new TimesyncExtension());
         
-        subscribe("/" + servicePath + "/join", "tryJoin");
-        subscribe("/" + servicePath + "/cmd", "processCmd");
+        subscribe(config.getJoinChannelPath(), "tryJoin");
+        subscribe(config.getCmdChannelPath(), "processCmd");
         
-        updatesChannel = getBayeux().getChannel("/" + servicePath + "/upd", true);
-        log.info("Sametimed Bayeux service initialized under /{}", servicePath);       
+        updatesChannel = getBayeux().getChannel(config.getUpdChannelPath(), true);
+        log.info("Sametimed Bayeux service initialized under {}", config.getFullTunnelPath());
+        
+        // FIXME: check if works on hostname different from localhost
     }
     
     /**

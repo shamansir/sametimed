@@ -1,10 +1,12 @@
 default namespace = "http://www.sametimed.org"
 
 element waveserver {
-   element domain-name { type-text },
-   element hostname { type-text },
+   element domain-name { type-url },
+   element hostname { type-word },
    element port { type-number}    
 }
 
 type-text = text
+type-url = type-text
+type-word = type-text
 type-number = xsd:integer
