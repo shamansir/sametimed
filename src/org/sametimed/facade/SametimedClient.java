@@ -4,8 +4,8 @@
 package org.sametimed.facade;
 
 import org.cometd.Client;
-import org.sametimed.cmd.Command;
-import org.sametimed.cmd.CommandsListener;
+import org.sametimed.message.Command;
+import org.sametimed.message.Update;
 
 /**
  * Project: sametimed
@@ -17,7 +17,7 @@ import org.sametimed.cmd.CommandsListener;
  * @date Mar 27, 2010 8:57:41 PM 
  *
  */
-public class SametimedClient implements CommandsListener {
+public abstract class SametimedClient {
     
     private final Client cometdClient;
     
@@ -25,22 +25,17 @@ public class SametimedClient implements CommandsListener {
         this.cometdClient = cometdClient;
     }
 
-    /* (non-Javadoc)
-     * @see org.sametimed.cmd.CommandsListener#commandReceived(org.sametimed.cmd.Command)
+    /** 
+     * Handles command and applies it internally
      */
-    @Override
-    public void commandReceived(Command command) {
+    public void handleCommand(Command command) {
         // FIXME: implement        
     }
-
-    /**
-     * Returns client id
-     * 
-     * @return client id
-     */
-    @Override
-    public String getClientId() {
-        return cometdClient.getId();
+    
+    public abstract void sendUpdate(Update update);
+    
+    protected Client getCometdClient() {
+        return this.cometdClient;
     }
 
 }

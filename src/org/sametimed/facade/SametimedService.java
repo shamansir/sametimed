@@ -13,9 +13,8 @@ import org.cometd.Client;
 import org.cometd.Message;
 import org.cometd.server.BayeuxService;
 import org.cometd.server.ext.TimesyncExtension;
-import org.sametimed.cmd.Command;
-import org.sametimed.cmd.CommandsListener;
-import org.sametimed.cmd.CommandsReceiver;
+import org.sametimed.message.Command;
+import org.sametimed.message.Update;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @date Mar 22, 2010 5:15:25 PM 
  *
  */
-public class SametimedService extends BayeuxService implements CommandsReceiver {
+public class SametimedService extends BayeuxService {
     
     private static final Logger log = LoggerFactory
             .getLogger(SametimedService.class);    
@@ -77,17 +76,23 @@ public class SametimedService extends BayeuxService implements CommandsReceiver 
      * @param message message with joining information
      */
     public void tryJoin(Client remote, Message message) {
-        log.info("join received");
-        if (!clients.containsKey(remote.getId())) {
-            clients.put(remote.getId(), new SametimedClient(remote));
+        log.info("client {} tries to join", remote.getId());
+        if (!clients.containsKey(remote.getId())) {       
+            log.info("registering new client");
+            clients.put(remote.getId(), new SametimedClient(remote) {
+
+                @Override
+                public void sendUpdate(Update update) {
+                    if (updatesChannel != null) {
+                        updatesChannel.publish(getCometdClient(), update.extractData(), update.getCallerId());
+                        log.info("published to channel");
+                    }
+                }                                
+                
+            });
+        } else {
+            log.info("client already registered, joining is declined");
         }
-        if (updatesChannel != null)
-        {
-            Map<String, Object> data = new HashMap<String, Object>();
-            data.put("test", "aaafaa");
-            updatesChannel.publish(null, data, null);
-            log.info("published to channel");
-        }         
     }     
     
     /**
@@ -97,32 +102,9 @@ public class SametimedService extends BayeuxService implements CommandsReceiver 
      * @param message the command data
      */
     public void processCmd(Client remote, Message message) {
-    // FIXME: change to: processCmd(SametimedClient remote, Command command) or cast inside
-        // TODO: call dispatchCommand here, using id from message
+        if (clients.containsKey(remote.getId())) {
+            clients.get(remote.getId()).handleCommand(Command.fromMessage(message));
+        }
     }
-
-    /* (non-Javadoc)
-     * @see org.sametimed.cmd.CommandsReceiver#addListener(org.sametimed.cmd.CommandsListener)
-     */
-    @Override
-    public void addListener(CommandsListener listener) {
-        // FIXME: implement        
-    }
-
-    /* (non-Javadoc)
-     * @see org.sametimed.cmd.CommandsReceiver#dispatchCommand(org.sametimed.cmd.Command)
-     */
-    @Override
-    public void dispatchCommand(Command command) {
-        // FIXME: implement        
-    }
-
-    /* (non-Javadoc)
-     * @see org.sametimed.cmd.CommandsReceiver#removeListener(org.sametimed.cmd.CommandsListener)
-     */
-    @Override
-    public void removeListener(CommandsListener listener) {
-        // FIXME: implement        
-    }    
 
 }
