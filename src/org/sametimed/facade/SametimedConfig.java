@@ -75,16 +75,16 @@ public class SametimedConfig implements JSON.Generator {
                 log.info("configuration loaded from: {}", CONFIG_FILE_PATH);                
                 configFile = confFile; 
             } catch (Exception e) {                
-                log.debug("exception appeared while loading XML config: {}", 
-                                        e.getClass() + " " + e.getMessage());
+                log.debug("exception appeared while loading XML config: {} from {}", 
+                                                e.getClass() + " " + e.getMessage(),
+                                                CONFIG_FILE_PATH);
                 loadDefaults();             
                 log.debug("ignored exception, loaded defaults");                
             }
         } else {
             loadDefaults();
-            log.debug("no file passed, loaded defaults");             
-        }
-        
+            log.debug("no file passed or found at {}, loaded defaults", CONFIG_FILE_PATH);          
+        }        
     }
 
     /**
@@ -135,7 +135,7 @@ public class SametimedConfig implements JSON.Generator {
      * Load defaults values for configuration
      */
     private void loadDefaults() {
-        // defaults are set through the inner classes variables
+        // defaults are already set through the inner classes attributes' default values
         usedDefaults = true;
     }
 

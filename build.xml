@@ -2,7 +2,7 @@
 <project default="build-war">
 	
 	<property name="project.name" value="sametimed" />
-    <property name="project.version" value="b0.1.3" />
+    <property name="project.version" value="g0.5" />
 	 
     <property name="project.dir" value="${basedir}" />
 	<property name="src.dir" value="${basedir}/src" />
@@ -26,9 +26,9 @@
         </copy>
     </target>
 	
-	<target name="build-war" depends="build-full-war" />
+	<target name="build-war" depends="build-complete-war" />
 	
-	<target name="build-jetty-war" depends="build-full-war" />
+	<target name="build-jetty-war" depends="build-complete-war" />
 	
 	<target name="build-tomcat-war" depends="build-with-no-logback-lib-war" />
 	<!-- it is required to place slf4j-api, logback-classic and logback-core
@@ -36,7 +36,7 @@
 	     -Dlogback.ContextSelector=JNDI. 
 	     see http://logback.qos.ch/manual/contextSelector.html -->
 
-    <target name="build-full-war" depends="compile">
+    <target name="build-complete-war" depends="compile">
         <war basedir="${war.dir}" 
         	 destfile="${project.name}.${project.version}.war" 
         	 webxml="${war.dir}/WEB-INF/web.xml" />

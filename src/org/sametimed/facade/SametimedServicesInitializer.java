@@ -11,6 +11,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.cometd.Bayeux;
+import org.sametimed.facade.wave.WaveServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +42,8 @@ public class SametimedServicesInitializer extends GenericServlet {
         Bayeux bayeux = (Bayeux)getServletContext().getAttribute(Bayeux.ATTRIBUTE);        
         
         // Initialize and configure Sametimed service 
-        new SametimedService(bayeux, SametimedConfig.loadConfig(getServletContext()));
+        new SametimedService(bayeux, SametimedConfig.loadConfig(getServletContext()),
+                                     WaveServerProperties.load(getServletContext()));
 
         log.info("Launched and configured SametimedService");
         

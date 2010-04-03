@@ -13,6 +13,7 @@ import org.cometd.Client;
 import org.cometd.Message;
 import org.cometd.server.BayeuxService;
 import org.cometd.server.ext.TimesyncExtension;
+import org.sametimed.facade.wave.WaveServerProperties;
 import org.sametimed.message.Command;
 import org.sametimed.message.Update;
 import org.slf4j.Logger;
@@ -39,24 +40,22 @@ public class SametimedService extends BayeuxService {
     private final Channel updatesChannel;
     private final Map<String, SametimedClient> clients 
           = Collections.synchronizedMap(new HashMap<String, SametimedClient>());
-
-    /**
-     * Initiate service at {@code w/* } channel
-     * 
-     * @param bayeux a Bayeux server interface
-     */
-    public SametimedService(Bayeux bayeux) {
-        this(bayeux, null);
-    }
+    
+    private final WaveServerProperties waveServerProps;
     
     /**
-     * Initiate service at {@code w/* } channel
+     * Initiate service at {@code w/* } channel (or different one, if other
+     * specified in configuration file)
      * 
      * @param bayeux a Bayeux server interface
      * @param config Sametimed configuration data
+     * @param waveServerProps Wave (FedOne Protocol) Server information 
      */
-    public SametimedService(Bayeux bayeux, SametimedConfig config) {
+    public SametimedService(Bayeux bayeux, SametimedConfig config,
+                                           WaveServerProperties waveServerProps) {
         super(bayeux, config.getAppName());        
+        
+        this.waveServerProps = waveServerProps;
         
         bayeux.addExtension(new TimesyncExtension());
         
@@ -78,10 +77,11 @@ public class SametimedService extends BayeuxService {
     public void tryJoin(Client remote, Map<String, Object> data) {
         log.info("client {} tries to join as {}", remote.getId(),
                                                   data.get("username"));
-        if (!clients.containsKey(remote.getId())) {       
-            log.info("registering new client");
-            clients.put(remote.getId(), 
-                    new SametimedClient(remote, (String)data.get("username")) {
+        if (!clients.containsKey(remote.getId())) {
+            String username = (String)data.get("username") + 
+                              "@" + waveServerProps.getDomain();
+            log.info("registering new client with id {}", username);
+            clients.put(remote.getId(), new SametimedClient(remote, username) {
 
                 @Override
                 public void sendUpdate(Update update) {
