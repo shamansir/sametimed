@@ -27,9 +27,9 @@ public class Update {
     // TODO: private final UpdateType updateType;
     private final String changedModuleId;
     private final String changedDocumentId;
-    private final String hash;
+    private final String hashcode;
     // TODO: private final TagID changedTag;
-    private final List<String> arguments = new ArrayList<String>();    
+    private final List<String> arguments = new ArrayList<String>(); 
     
     private Update(String callerId, 
                    String changedModuleId, 
@@ -37,7 +37,7 @@ public class Update {
         this.callerId = callerId;
         this.changedModuleId = changedModuleId;
         this.changedDocumentId = changedModuleId;
-        this.hash = ""; // FIXME: implement
+        this.hashcode = null; // FIXME: implement
     }
 
     /**
@@ -50,6 +50,10 @@ public class Update {
     
     public String getCallerId() {
         return callerId;
+    }
+    
+    public String getHashcode() {
+        return hashcode;
     }
 
 }

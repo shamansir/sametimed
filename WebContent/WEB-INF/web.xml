@@ -36,7 +36,7 @@
         <servlet-class>org.cometd.server.continuation.ContinuationCometdServlet</servlet-class>
         <init-param>
             <param-name>timeout</param-name>
-            <param-value>30000</param-value>
+            <param-value>100000</param-value>
         </init-param>
         <init-param>
             <param-name>multiFrameInterval</param-name>

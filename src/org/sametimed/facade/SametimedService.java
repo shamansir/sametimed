@@ -75,23 +75,25 @@ public class SametimedService extends BayeuxService {
      * @param remote client that tries to join
      * @param message message with joining information
      */
-    public void tryJoin(Client remote, Message message) {
-        log.info("client {} tries to join", remote.getId());
+    public void tryJoin(Client remote, Map<String, Object> data) {
+        log.info("client {} tries to join as {}", remote.getId(),
+                                                  data.get("username"));
         if (!clients.containsKey(remote.getId())) {       
             log.info("registering new client");
-            clients.put(remote.getId(), new SametimedClient(remote) {
+            clients.put(remote.getId(), 
+                    new SametimedClient(remote, (String)data.get("username")) {
 
                 @Override
                 public void sendUpdate(Update update) {
                     if (updatesChannel != null) {
-                        updatesChannel.publish(getCometdClient(), update.extractData(), update.getCallerId());
+                        updatesChannel.publish(getCometdClient(), update.extractData(), update.getHashcode());
                         log.info("published to channel");
                     }
                 }                                
                 
             });
         } else {
-            log.info("client already registered, joining is declined");
+            log.info("client already registered, join is not performed");
         }
     }     
     

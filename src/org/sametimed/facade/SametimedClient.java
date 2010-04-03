@@ -20,9 +20,11 @@ import org.sametimed.message.Update;
 public abstract class SametimedClient {
     
     private final Client cometdClient;
+    private final String username;
     
-    public SametimedClient(Client cometdClient) {
+    public SametimedClient(Client cometdClient, String username) {
         this.cometdClient = cometdClient;
+        this.username = username;
     }
 
     /** 
@@ -36,6 +38,10 @@ public abstract class SametimedClient {
     
     protected Client getCometdClient() {
         return this.cometdClient;
+    }
+    
+    public String getUsername() {
+        return username;
     }
 
 }
