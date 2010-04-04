@@ -21,7 +21,8 @@
         <module id="errors" system="true" />
         <module id="users" system="true" />
         <module id="console" system="true" />
-        <module id="chat" />
+        <module id="example" />        
+        <module id="chat" path="name.shamansir.sametimed.modules" />
         <!--
         <module id="calendar" path="com.slurm.module" />
         <module id="editor" />
@@ -34,10 +35,10 @@
         <command alias="CMD_ADD" system="true" />
         <command alias="CMD_UNDO" system="true" />                
         <command alias="CMD_VIEW" system="true" />
-        <command alias="CMD_SAY" />
+        <command alias="CMD_SAY" defined-for="chat" />
         <!--
-        <command alias="CMD_PUT" />
-        <command alias="CMD_SETDATE" />        
+        <command alias="CMD_PUT" defined-for="editor" />
+        <command alias="CMD_SETDATE" defined-for="calendar" />        
         -->                		
 	</registered-commands>
 	

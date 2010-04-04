@@ -29,7 +29,8 @@ element sametimed {
     element registered-commands {
         element command+ {
             attribute alias { type-word }
-            attribute system? { type-boolean }                    
+            attribute system? { type-boolean }
+            attribute defined-for? { type-path }                  
         }
     }
 

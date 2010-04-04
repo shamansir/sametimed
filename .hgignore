@@ -8,6 +8,4 @@ sametimed.*.eclipse-files.zip
 build
 doc
 syntax: regexp
-^src/name/*$
 ^WebContent/WEB-INF/classes/*$
-^WebContent/js/0.1.3/*$
