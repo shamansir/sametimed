@@ -17,9 +17,26 @@ element sametimed {
         }
         element cometd-init? { type-url }        
     }
+    
+    element enabled-modules {
+        element module+ {
+            attribute id { type-word }
+            attribute system? { type-boolean }
+            attribute path? { type-path } 
+        }
+    }
+    
+    element registered-commands {
+        element command+ {
+            attribute alias { type-word }
+            attribute system? { type-boolean }                    
+        }
+    }
 
 }
 
 type-text = text
 type-url = type-text
+type-path = type-text
 type-word = type-text
+type-boolean = type-text

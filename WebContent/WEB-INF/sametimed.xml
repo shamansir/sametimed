@@ -16,4 +16,29 @@
         				
 	</service>
 	
+	<enabled-modules>
+		<module id="inbox" system="true" />
+        <module id="errors" system="true" />
+        <module id="users" system="true" />
+        <module id="console" system="true" />
+        <module id="chat" />
+        <!--
+        <module id="calendar" path="com.slurm.module" />
+        <module id="editor" />
+        -->                                
+	</enabled-modules>
+	
+	<registered-commands>
+		<command alias="CMD_NEW" system="true" />
+        <command alias="CMD_OPEN" system="true" />
+        <command alias="CMD_ADD" system="true" />
+        <command alias="CMD_UNDO" system="true" />                
+        <command alias="CMD_VIEW" system="true" />
+        <command alias="CMD_SAY" />
+        <!--
+        <command alias="CMD_PUT" />
+        <command alias="CMD_SETDATE" />        
+        -->                		
+	</registered-commands>
+	
 </sametimed>
