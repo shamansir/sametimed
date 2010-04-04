@@ -17,4 +17,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class ChatModule extends SametimedModule {
 
+    protected ChatModule(final String id) { super(id); }     
+    
 }

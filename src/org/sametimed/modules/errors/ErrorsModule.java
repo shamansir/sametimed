@@ -17,4 +17,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class ErrorsModule extends SametimedModule {
 
+    protected ErrorsModule(final String id) { super(id); }    
+    
 }

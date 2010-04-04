@@ -17,4 +17,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class ConsoleModule extends SametimedModule {
 
+    protected ConsoleModule(final String id) { super(id); }
+
 }

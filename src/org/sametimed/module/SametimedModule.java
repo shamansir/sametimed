@@ -14,5 +14,18 @@ package org.sametimed.module;
  *
  */
 public class SametimedModule {
+    
+    private final String moduleId;
+    
+    protected SametimedModule(final String id) {
+        moduleId = id;
+    }
+
+    /**
+     * @return
+     */
+    public String getId() {
+        return moduleId;
+    }
 
 }

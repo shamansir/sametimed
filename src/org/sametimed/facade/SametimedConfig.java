@@ -7,6 +7,8 @@ import org.sametimed.util.XmlConfigurationFile;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.servlet.ServletContext;
 import javax.xml.xpath.XPathExpressionException;
@@ -44,6 +46,8 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     private static SametimedConfig instance;
     
     private final ServiceData serviceData = new ServiceData();
+    private final CommandsDataList commandsData = new CommandsDataList();
+    private final ModulesDataList modulesData = new ModulesDataList();    
 
     /**
      * Loads data from configuration file, lying in passed servlet context.
@@ -53,7 +57,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      * @param fromContext context to load file from
      * @return {@code SametimedConfig} instance
      */
-    public static SametimedConfig loadConfig(ServletContext fromContext) {
+    public final synchronized static SametimedConfig loadConfig(ServletContext fromContext) {
         if ((configFile == null) && !usedDefaults) { // not loaded for the moment
             instance = new SametimedConfig(fromContext.getResourceAsStream(CONFIG_FILE_PATH));
         }
@@ -116,7 +120,11 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         serviceData.channels.cmdChannelPath = evaluate("/sametimed/service/channels/cmd-channel");
         log.debug("Commands channel set to '{}'", serviceData.channels.cmdChannelPath);
         serviceData.channels.updChannelPath = evaluate("/sametimed/service/channels/upd-channel");
-        log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);        
+        log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);       
+        
+        // FIXME: extract modulesData
+        
+        // FIXME: extract commandsData        
     }
 
     /**
@@ -145,16 +153,20 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      */
     @Override
     public void addJSON(StringBuffer buffer) {
+        // final char q = '\''; TODO: use quot defined here
+        
         buffer.append("{");
         String appURL = (serviceData.useAbsoluteURL 
                         ? (serviceData.protocol + "://" +
                            serviceData.hostname + ":" + serviceData.port + "/" +
                            serviceData.appName) 
                         : "/" + serviceData.appName);
-        buffer.append("'appURL':'" +  appURL + "',");
-        buffer.append("'cometdURL':'" + (serviceData.useAbsoluteURL 
-                                        ? (appURL + serviceData.cometdPath) 
-                                        : serviceData.cometdPath) + "',");
+        
+            buffer.append("'appURL':'" +  appURL + "',");
+            buffer.append("'cometdURL':'" + (serviceData.useAbsoluteURL 
+                                            ? (appURL + serviceData.cometdPath) 
+                                            : serviceData.cometdPath) + "',");
+            
             buffer.append("'channels':{");
                 buffer.append("'joinChannel':'" 
                               + (serviceData.useAbsoluteURL ? appURL: "")
@@ -169,6 +181,21 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                               + "/" + serviceData.tunnelPath 
                               + serviceData.channels.updChannelPath + "'");                
             buffer.append("}");
+            
+            buffer.append("'modules':[");
+                for (Iterator<ModuleData> iter = modulesData.values().iterator(); iter.hasNext(); ) {
+                    buffer.append("'" + iter.next().id  + "'");
+                    if (iter.hasNext()) buffer.append(",");
+                }
+            buffer.append("]");
+            
+            buffer.append("'commands':[");
+                for (Iterator<CommandData> iter = commandsData.values().iterator(); iter.hasNext(); ) {
+                    buffer.append("'" + iter.next().alias  + "'");
+                    if (iter.hasNext()) buffer.append(",");
+                }
+            buffer.append("]");            
+            
         buffer.append("}");
     }
     
@@ -194,6 +221,47 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         }
         
     }
+    
+    public final class CommandData {
+        
+        public final String alias;
+        public final boolean system;
+        public final String path;
+        
+        public CommandData(String alias, boolean system, String path) {
+            this.alias = alias;
+            this.system = system;
+            this.path = path;
+        }
+        
+        public CommandData(String alias) { this(alias, false, null); }
+        public CommandData(String alias, String path) { this(alias, false, path); }
+        public CommandData(String alias, boolean system) { this(alias, system, null); }        
+        
+    }
+    
+    public final class ModuleData {
+        
+        public final String id;
+        public final boolean system;
+        public final String path;
+        
+        public ModuleData(String id, boolean system, String path) {
+            this.id = id;
+            this.system = system;
+            this.path = path;
+        }
+        
+        public ModuleData(String id) { this(id, false, null); }
+        public ModuleData(String id, String path) { this(id, false, path); }
+        public ModuleData(String id, boolean system) { this(id, system, null); }           
+        
+    } 
+    
+    @SuppressWarnings("serial")
+    public final class ModulesDataList extends HashMap<String, ModuleData> { }
+    @SuppressWarnings("serial")
+    public final class CommandsDataList extends HashMap<String, CommandData> { }    
 
     /**
      * Returns application name
@@ -244,5 +312,13 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                 ? (serviceData.protocol + "://" + serviceData.hostname + ":" + serviceData.port) 
                 : "") + "/" + serviceData.appName + "/" + serviceData.tunnelPath;
     }
+    
+    public ModulesDataList getModulesData() {
+        return modulesData;
+    }
+    
+    public CommandsDataList getCommandsData() {
+        return commandsData;
+    }    
 
 }

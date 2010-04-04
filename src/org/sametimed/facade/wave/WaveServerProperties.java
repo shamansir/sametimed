@@ -65,7 +65,7 @@ public final class WaveServerProperties extends XmlConfigurationFile {
         port = Integer.valueOf(evaluate("/waveserver/port"));        
     }
     
-    public static WaveServerProperties load(ServletContext fromContext) {
+    public final synchronized static WaveServerProperties load(ServletContext fromContext) {
         if (wavePropsFile == null) { // not loaded or failed to load for the moment
             instance = new WaveServerProperties(fromContext.getResourceAsStream(PROPS_FILE_PATH));
         }

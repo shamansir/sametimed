@@ -5,6 +5,7 @@ package org.sametimed.facade;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.cometd.Client;
 import org.sametimed.facade.wave.WavesClient;
@@ -34,14 +35,15 @@ public abstract class SametimedClient {
     
     private final Map<String, SametimedModule> modules = 
                                          new HashMap<String, SametimedModule>();
-    private final Map<String, Command> registeredCommands =
-                                         new HashMap<String, Command>();
     
-    public SametimedClient(Client cometdClient, String username) {
+    public SametimedClient(Client cometdClient, String username, Set<SametimedModule> modules) {
         this.cometdClient = cometdClient;
         this.wavesClient = null; // FIXME: implement
         this.view = null; // FIXME: implement
         this.username = username;
+        for (SametimedModule module: modules) {
+            this.modules.put(module.getId(), module);
+        }
     }
 
     /** 

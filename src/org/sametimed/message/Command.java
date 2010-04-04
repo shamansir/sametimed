@@ -3,8 +3,6 @@
  */
 package org.sametimed.message;
 
-import org.cometd.Message;
-
 /**
  * Project: sametimed
  * Package: org.sametimed.cmd
@@ -22,7 +20,7 @@ public class Command {
     
     private final String senderId;
     //private final String hash;
-    // TODO: private final CommandType commandType;
+    // FIXME: private final CommandType commandType;
     private final String targetModuleId;
     private final String targetDocumentId;
     // private final String[] arguments;
@@ -36,9 +34,6 @@ public class Command {
         //this.arguments = new String[3]; // FIXME: load number of args from constructor
     }
     
-    public static Command fromMessage(Message message) {
-        // FIXME: implement
-        return null;
-    }
+    // FIXME: implement getType()
     
 }

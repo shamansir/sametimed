@@ -3,6 +3,10 @@
  */
 package org.sametimed.module;
 
+import java.util.Set;
+
+import org.sametimed.facade.SametimedConfig.ModulesDataList;
+
 /**
  * Project: sametimed
  * Package: org.sametimed.module
@@ -14,7 +18,12 @@ package org.sametimed.module;
  *
  */
 public class ModulesFactory {
-
-    private ModulesFactory() { }    
+    
+    public ModulesFactory(ModulesDataList modulesDataList) { }
+    
+    public Set<SametimedModule> getEnabledModules() {
+        // FIXME: implement
+        return null;
+    }    
     
 }

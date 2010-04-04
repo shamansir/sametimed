@@ -17,4 +17,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class InboxModule extends SametimedModule {
 
+    protected InboxModule(final String id) { super(id); }       
+    
 }

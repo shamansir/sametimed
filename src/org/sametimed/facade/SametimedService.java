@@ -14,8 +14,9 @@ import org.cometd.Message;
 import org.cometd.server.BayeuxService;
 import org.cometd.server.ext.TimesyncExtension;
 import org.sametimed.facade.wave.WaveServerProperties;
-import org.sametimed.message.Command;
+import org.sametimed.message.CommandsFactory;
 import org.sametimed.message.Update;
+import org.sametimed.module.ModulesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,9 @@ public class SametimedService extends BayeuxService {
     
     private final WaveServerProperties waveServerProps;
     
+    private final CommandsFactory commandsFactory;
+    private final ModulesFactory modulesFactory;
+    
     /**
      * Initiate service at {@code w/* } channel (or different one, if other
      * specified in configuration file)
@@ -68,7 +72,10 @@ public class SametimedService extends BayeuxService {
         updatesChannel = getBayeux().getChannel(config.getUpdChannelPath(), true);
         log.info("Sametimed Bayeux service initialized under {}", config.getFullTunnelPath());
         
-        // FIXME: check if works on hostname different from localhost
+        this.commandsFactory = new CommandsFactory(config.getCommandsData());
+        this.modulesFactory = new ModulesFactory(config.getModulesData());        
+        
+        // FIXME: check if works with hostname different from localhost
     }
     
     /**
@@ -84,17 +91,20 @@ public class SametimedService extends BayeuxService {
             String username = (String)data.get("username") + 
                               "@" + waveServerProps.getDomain();
             log.info("registering new client with id {}", username);
-            clients.put(remote.getId(), new SametimedClient(remote, username) {
+            clients.put(remote.getId(), 
+                new SametimedClient(remote, username, modulesFactory.getEnabledModules()) {
 
-                @Override
-                public void sendUpdate(Update update) {
-                    if (updatesChannel != null) {
-                        updatesChannel.publish(getCometdClient(), update.extractData(), update.getHashcode());
-                        log.info("published to channel");
-                    }
-                }                                
+                    @Override
+                    public void sendUpdate(Update update) {
+                        if (updatesChannel != null) {
+                            updatesChannel.publish(getCometdClient(), 
+                                                   update.extractData(), 
+                                                   update.getHashcode());
+                            log.info("published to channel");
+                        }
+                    }                                
                 
-            });
+                });
         } else {
             log.info("client already registered, join is not performed");
         }
@@ -108,7 +118,8 @@ public class SametimedService extends BayeuxService {
      */
     public void processCmd(Client remote, Message message) {
         if (clients.containsKey(remote.getId())) {
-            clients.get(remote.getId()).handleCommand(Command.fromMessage(message));
+            clients.get(remote.getId()).handleCommand(
+                                          commandsFactory.fromMessage(message));
         }
     }
 

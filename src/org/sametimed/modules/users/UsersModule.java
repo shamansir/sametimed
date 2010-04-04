@@ -17,4 +17,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class UsersModule extends SametimedModule {
 
+    protected UsersModule(final String id) { super(id); }       
+    
 }
