@@ -42,12 +42,21 @@ public class SametimedServicesInitializer extends GenericServlet {
         Bayeux bayeux = (Bayeux)getServletContext().getAttribute(Bayeux.ATTRIBUTE);        
         
         // Initialize and configure Sametimed service 
-        new SametimedService(bayeux, SametimedConfig.loadConfig(getServletContext()),
-                                     WaveServerProperties.load(getServletContext()));
-
-        log.info("Launched and configured SametimedService");
+        final SametimedConfig sametimedConfig = 
+                                SametimedConfig.loadConfig(getServletContext());
+        final WaveServerProperties waveServerProps = 
+                                WaveServerProperties.load(getServletContext());
         
-        // TODO: extensions
+        if (!waveServerProps.wereLoadErrors()) {            
+            new SametimedService(bayeux, sametimedConfig, waveServerProps);
+            // TODO: extensions    
+            log.info("Launched and configured SametimedService");            
+        } else {            
+            log.error("Not initialized. There were errors while loading wave " +
+            		                                       "server properties");
+            throw new ServletException("Not initialized. There were errors" +
+            		                   " while loading wave server properties");            
+        }
     }
     
     /**

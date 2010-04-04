@@ -3,17 +3,16 @@
  */
 package org.sametimed.facade.wave;
 
+import org.sametimed.util.XmlConfigurationFile;
+
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import javax.servlet.ServletContext;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 
 /**
  * Project: sametimed
@@ -25,7 +24,7 @@ import org.w3c.dom.Document;
  * @date Apr 3, 2010 6:12:45 PM 
  *
  */
-public class WaveServerProperties {
+public final class WaveServerProperties extends XmlConfigurationFile {
     
     // WARN: be sure to set Project Build Path to WebContent/WEB-INF/classes to get this file
     public static final String PROPS_FILE_PATH = "/WEB-INF/classes/sametimed-waveserver.xml";
@@ -36,39 +35,38 @@ public class WaveServerProperties {
     private static WaveServerProperties instance;    
     private static InputStream wavePropsFile = null;
     
+    private boolean wereLoadErrors = false;
+    
     private String hostname = null;
     private String domain = null;
-    private int port = -1;    
+    private int port = -1;
     
     private WaveServerProperties(InputStream propsFile) {
-        if (propsFile != null) {
-            final DocumentBuilderFactory factory = 
-                                       DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            try {
-                loadFromXML(factory.newDocumentBuilder().parse(propsFile));
-                log.info("wave server configuration loaded from: {}", PROPS_FILE_PATH);                
-                wavePropsFile = propsFile; 
-            } catch (Exception e) {                
-                log.debug("exception appeared while loading XML config: {} from {}", 
-                                                e.getClass() + " " + e.getMessage(),
-                                                PROPS_FILE_PATH);                
-            }
-        } else {
-            log.debug("no file passed or found at {}, nothing is loaded", PROPS_FILE_PATH);             
-        }        
+        try {
+            loadFrom(propsFile);
+            wereLoadErrors = false;            
+            wavePropsFile = propsFile;
+            if (wavePropsFile != null) log.info("wave server configuration loaded from: {}", PROPS_FILE_PATH);
+        } catch (FileNotFoundException e) {
+            wereLoadErrors = true;            
+            log.debug("no file passed or found at {}", PROPS_FILE_PATH); 
+        } catch (Exception e) {
+            wereLoadErrors = true;            
+            log.debug("exception appeared while loading XML config: {} from {}", 
+                    e.getClass() + " " + e.getMessage(),
+                    PROPS_FILE_PATH);             
+        }
     }
     
-    private void loadFromXML(Document doc) throws XPathExpressionException {
-        final XPath xpath = XPathFactory.newInstance().newXPath();
-        
-        hostname = xpath.evaluate("/waveserver/hostname", doc);
-        domain = xpath.evaluate("/waveserver/domain-name", doc);
-        port = Integer.valueOf(xpath.evaluate("/waveserver/port", doc));        
+    @Override
+    protected void extractValues() throws XPathExpressionException {
+        hostname = evaluate("/waveserver/hostname");
+        domain = evaluate("/waveserver/domain-name");
+        port = Integer.valueOf(evaluate("/waveserver/port"));        
     }
     
     public static WaveServerProperties load(ServletContext fromContext) {
-        if (wavePropsFile == null) { // not loaded for the moment
+        if (wavePropsFile == null) { // not loaded or failed to load for the moment
             instance = new WaveServerProperties(fromContext.getResourceAsStream(PROPS_FILE_PATH));
         }
         return instance;        
@@ -84,6 +82,10 @@ public class WaveServerProperties {
     
     public int getPort() {
         return port;
-    }    
+    }
+    
+    public boolean wereLoadErrors() {
+        return wereLoadErrors;
+    }
 
 }

@@ -3,17 +3,16 @@
  */
 package org.sametimed.facade;
 
+import org.sametimed.util.XmlConfigurationFile;
+
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 import javax.servlet.ServletContext;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 
 import org.eclipse.jetty.util.ajax.JSON;
 
@@ -32,15 +31,16 @@ import org.eclipse.jetty.util.ajax.JSON;
  * @date Mar 23, 2010 11:17:11 PM 
  *
  */
-public class SametimedConfig implements JSON.Generator {
+public class SametimedConfig extends XmlConfigurationFile implements JSON.Generator {
     
     public static final String CONFIG_FILE_PATH = "/WEB-INF/sametimed.xml";    
     
     private static final Logger log = LoggerFactory
             .getLogger(SametimedConfig.class);
-    private static boolean usedDefaults = false;
     
     private static InputStream configFile = null;
+    private static boolean usedDefaults = false;
+    
     private static SametimedConfig instance;
     
     private final ServiceData serviceData = new ServiceData();
@@ -54,7 +54,7 @@ public class SametimedConfig implements JSON.Generator {
      * @return {@code SametimedConfig} instance
      */
     public static SametimedConfig loadConfig(ServletContext fromContext) {
-        if (configFile == null) { // not loaded for the moment
+        if ((configFile == null) && !usedDefaults) { // not loaded for the moment
             instance = new SametimedConfig(fromContext.getResourceAsStream(CONFIG_FILE_PATH));
         }
         return instance;
@@ -66,68 +66,56 @@ public class SametimedConfig implements JSON.Generator {
      * @param confFile configuration file
      */
     private SametimedConfig(InputStream confFile) {
-        if (confFile != null) {
-            final DocumentBuilderFactory factory = 
-                                       DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            try {
-                loadFromXML(factory.newDocumentBuilder().parse(confFile));
-                log.info("configuration loaded from: {}", CONFIG_FILE_PATH);                
-                configFile = confFile; 
-            } catch (Exception e) {                
-                log.debug("exception appeared while loading XML config: {} from {}", 
-                                                e.getClass() + " " + e.getMessage(),
-                                                CONFIG_FILE_PATH);
-                loadDefaults();             
-                log.debug("ignored exception, loaded defaults");                
-            }
-        } else {
-            loadDefaults();
-            log.debug("no file passed or found at {}, loaded defaults", CONFIG_FILE_PATH);          
+        try {
+            loadFrom(confFile);          
+            configFile = confFile;
+            if (configFile != null) log.info("configuration loaded from: {}", CONFIG_FILE_PATH);
+        } catch (FileNotFoundException e) {
+            loadDefaults();          
+            log.debug("no file passed or found at {}, loaded defaults", CONFIG_FILE_PATH);  
+        } catch (Exception e) {
+            loadDefaults();            
+            log.debug("exception appeared while loading XML config: {} from {}", 
+                    e.getClass() + " " + e.getMessage(),
+                    CONFIG_FILE_PATH);            
+            log.debug("ignored exception, loaded defaults");              
         }        
-    }
-
-    /**
-     * Loads values from XML document
-     * 
-     * @param doc source XML document
-     * @throws XPathExpressionException when some of properties were not found
-     */
-    protected void loadFromXML(Document doc) throws XPathExpressionException {
-        final XPath xpath = XPathFactory.newInstance().newXPath();
-        
+    }    
+    
+    @Override
+    protected void extractValues() throws XPathExpressionException {
         // optional
-        final String absoluteURLElmPresentStr = xpath.evaluate("/sametimed/service/absolute-url", doc);
+        final String absoluteURLElmPresentStr = evaluate("/sametimed/service/absolute-url");
         serviceData.useAbsoluteURL = (absoluteURLElmPresentStr.length() > 0);
         log.debug("Using absolute URL set to '{}'", serviceData.useAbsoluteURL);
         if (serviceData.useAbsoluteURL) {
-            final String protocolStr = xpath.evaluate("/sametimed/service/absolute-url/protocol", doc);
+            final String protocolStr = evaluate("/sametimed/service/absolute-url/protocol");
             if (protocolStr.length() > 0) serviceData.protocol = protocolStr;        
             log.debug("Protocol set to '{}'", serviceData.protocol);            
-            serviceData.hostname = xpath.evaluate("/sametimed/service/absolute-url/hostname", doc); 
+            serviceData.hostname = evaluate("/sametimed/service/absolute-url/hostname"); 
             log.debug("Hostname set to '{}'", serviceData.hostname);
-            final String portStr = xpath.evaluate("/sametimed/service/absolute-url/port", doc);
+            final String portStr = evaluate("/sametimed/service/absolute-url/port");
             if (portStr.length() > 0) serviceData.port = Integer.valueOf(portStr);        
             log.debug("Port set to '{}'", serviceData.port);
         }
         
         // required
-        serviceData.appName = xpath.evaluate("/sametimed/service/app-name", doc);
+        serviceData.appName = evaluate("/sametimed/service/app-name");
         log.debug("AppName set to '{}'", serviceData.appName);
-        serviceData.tunnelPath = xpath.evaluate("/sametimed/service/tunnel", doc);
+        serviceData.tunnelPath = evaluate("/sametimed/service/tunnel");
         log.debug("Tunnel set to '{}'", serviceData.tunnelPath);
         
         // optional
-        final String cometdPathStr = xpath.evaluate("/sametimed/service/cometd-init", doc);
+        final String cometdPathStr = evaluate("/sametimed/service/cometd-init");
         if (cometdPathStr.length() > 0) serviceData.cometdPath = cometdPathStr;
         log.debug("CometD path set to '{}'", serviceData.cometdPath);
         
         // required
-        serviceData.channels.joinChannelPath = xpath.evaluate("/sametimed/service/channels/join-channel", doc);
+        serviceData.channels.joinChannelPath = evaluate("/sametimed/service/channels/join-channel");
         log.debug("Join channel set to '{}'", serviceData.channels.joinChannelPath);
-        serviceData.channels.cmdChannelPath = xpath.evaluate("/sametimed/service/channels/cmd-channel", doc);
+        serviceData.channels.cmdChannelPath = evaluate("/sametimed/service/channels/cmd-channel");
         log.debug("Commands channel set to '{}'", serviceData.channels.cmdChannelPath);
-        serviceData.channels.updChannelPath = xpath.evaluate("/sametimed/service/channels/upd-channel", doc);
+        serviceData.channels.updChannelPath = evaluate("/sametimed/service/channels/upd-channel");
         log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);        
     }
 
@@ -191,17 +179,17 @@ public class SametimedConfig implements JSON.Generator {
         String protocol = "http";
         String hostname = "localhost";
         int port = 6067;
-        String appName = null;
-        String tunnelPath = null;
+        String appName = "app-name";
+        String tunnelPath = "t";
         String cometdPath = "cometd";    
         
         ChannelsPaths channels = new ChannelsPaths();
         
         private final class ChannelsPaths {
             
-            String joinChannelPath;
-            String cmdChannelPath;
-            String updChannelPath;            
+            String joinChannelPath = "/j";
+            String cmdChannelPath = "/c";
+            String updChannelPath = "/u";            
             
         }
         

@@ -34,6 +34,9 @@ import org.slf4j.LoggerFactory;
  */
 public class SametimedService extends BayeuxService {
     
+    // TODO: set Eclipse to Warn about all missing JavaDoc comments/tags and
+    //       fix these warnings
+    
     private static final Logger log = LoggerFactory
             .getLogger(SametimedService.class);    
     
