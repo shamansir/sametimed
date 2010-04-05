@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module tree-structured="false">
+	
+	<class>org.sametimed.modules.errors.ErrorsModule</class>
+	<document-id>errors</document-id>
+		
+    <model>
+    	<class>org.sametimed.modules.errors.ErrorsModel</class>
+    	<atom>java.util.String</atom>
+    </model>
+    
+    <view>
+        <class>org.sametimed.modules.errors.ErrorsView</class>
+        <tag>org.sametimed.modules.errors.ErrorTag</tag>    	
+    </view>
+	
+</module>

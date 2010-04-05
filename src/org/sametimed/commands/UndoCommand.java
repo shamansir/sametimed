@@ -17,9 +17,9 @@ import org.sametimed.message.Command;
  */
 public class UndoCommand extends Command {
 
-    private UndoCommand(String senderId, String targetModuleId,
+    private UndoCommand(String alias, String senderId, String targetModuleId,
             String targetDocumentId) {
-        super(senderId, targetModuleId, targetDocumentId);
+        super(alias, senderId, targetModuleId, targetDocumentId);
     }    
     
 }

@@ -11,6 +11,7 @@ import org.cometd.Client;
 import org.sametimed.facade.wave.WavesClient;
 import org.sametimed.message.Command;
 import org.sametimed.message.Update;
+import org.sametimed.module.ModulesList;
 import org.sametimed.module.SametimedModule;
 import org.sametimed.view.SametimedClientView;
 
@@ -33,17 +34,14 @@ public abstract class SametimedClient {
                                            // waves
     private final SametimedClientView view;
     
-    private final Map<String, SametimedModule> modules = 
-                                         new HashMap<String, SametimedModule>();
+    private final ModulesList modules;
     
-    public SametimedClient(Client cometdClient, String username, Set<SametimedModule> modules) {
+    public SametimedClient(Client cometdClient, String username, ModulesList enabledModules) {
         this.cometdClient = cometdClient;
         this.wavesClient = null; // FIXME: implement
         this.view = null; // FIXME: implement
         this.username = username;
-        for (SametimedModule module: modules) {
-            this.modules.put(module.getId(), module);
-        }
+        this.modules = enabledModules;
     }
 
     /** 

@@ -59,7 +59,9 @@ public class SametimedService extends BayeuxService {
      * @param waveServerProps Wave (FedOne Protocol) Server information 
      */
     public SametimedService(Bayeux bayeux, SametimedConfig config,
-                                           WaveServerProperties waveServerProps) {
+                                           WaveServerProperties waveServerProps,
+                                           CommandsFactory commandsFactory,
+                                           ModulesFactory modulesFactory) {
         super(bayeux, config.getAppName());        
         
         this.waveServerProps = waveServerProps;
@@ -72,8 +74,8 @@ public class SametimedService extends BayeuxService {
         updatesChannel = getBayeux().getChannel(config.getUpdChannelPath(), true);
         log.info("Sametimed Bayeux service initialized under {}", config.getFullTunnelPath());
         
-        this.commandsFactory = new CommandsFactory(config.getCommandsData());
-        this.modulesFactory = new ModulesFactory(config.getModulesData());        
+        this.commandsFactory = commandsFactory; // TODO: must be initialized inside?
+        this.modulesFactory = modulesFactory;   // TODO: must be initialized inside?
         
         // FIXME: check if works with hostname different from localhost
     }

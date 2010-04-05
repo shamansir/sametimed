@@ -12,6 +12,8 @@ import javax.servlet.ServletResponse;
 
 import org.cometd.Bayeux;
 import org.sametimed.facade.wave.WaveServerProperties;
+import org.sametimed.message.CommandsFactory;
+import org.sametimed.module.ModulesFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,10 @@ public class SametimedServicesInitializer extends GenericServlet {
                                 WaveServerProperties.load(getServletContext());
         
         if (!waveServerProps.wereLoadErrors()) {            
-            new SametimedService(bayeux, sametimedConfig, waveServerProps);
+            new SametimedService(bayeux, sametimedConfig, waveServerProps,
+                   new CommandsFactory(sametimedConfig.getCommandsData()),
+                   new ModulesFactory(sametimedConfig.getModulesData(),
+                                      getServletContext()));
             // TODO: extensions    
             log.info("Launched and configured SametimedService");            
         } else {            

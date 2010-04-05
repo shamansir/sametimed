@@ -3,9 +3,6 @@
  */
 package org.sametimed.message;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.cometd.Message;
 import org.sametimed.facade.SametimedConfig.CommandsDataList;
 
@@ -21,9 +18,11 @@ import org.sametimed.facade.SametimedConfig.CommandsDataList;
  */
 public class CommandsFactory {
     
-    private final Set<String> registeredCommands = new HashSet<String>();      
+    private final CommandsDataList commandsData;
     
-    public CommandsFactory(CommandsDataList commandsDataList) { }
+    public CommandsFactory(CommandsDataList commandsDataList) { 
+        this.commandsData = commandsDataList;
+    }
 
     public Command fromMessage(Message message) {
         // FIXME: implement

@@ -1,0 +1,21 @@
+default namespace = "http://www.sametimed.org"
+
+element module {
+    attribute tree-structured? { type-boolean }
+    element class? { type-class }
+    element document-id? { type-word } 
+    element model {
+        element class? { type-class }
+        element atom { type-class }
+    }
+    element view {
+        element class? { type-class }
+        element tag { type-class }
+    }
+        
+}
+
+type-text = text
+type-boolean = type-text
+type-word = type-text
+type-class = type-text

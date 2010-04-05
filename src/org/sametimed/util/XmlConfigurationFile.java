@@ -30,7 +30,11 @@ public abstract class XmlConfigurationFile {
     
     private Document sourceDoc = null;
     private XPath xpath = null;
-    
+        
+    // FIXME: can't be called in constructor because of thrown exceptions
+    //        (the super constructor can't be surrounded with try/catch),
+    //        but user _must_ to use it in his implementation constructor to
+    //        load configuration properly. fix this... 
     protected void loadFrom(InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
         if (source != null) {        
             final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -44,7 +48,8 @@ public abstract class XmlConfigurationFile {
     protected abstract void extractValues() throws XPathExpressionException;
     
     public String evaluate(String xpathStr) throws XPathExpressionException {
-        return xpath.evaluate(xpathStr, sourceDoc);
+        return xpath.evaluate(xpathStr, sourceDoc); // will throw NPE if 
+                                 // loadFrom was not called, but it's ok     
     }
 
 }

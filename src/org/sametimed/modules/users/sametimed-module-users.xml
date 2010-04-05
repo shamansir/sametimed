@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module tree-structured="false">
+	
+	<class>org.sametimed.modules.users.UsersModule</class>
+	<document-id>inbox</document-id>
+		
+    <model>
+    	<class>org.sametimed.modules.users.UsersModel</class>
+    	<atom>java.util.String</atom>
+    	<!-- ParticipantId -->
+    </model>
+    
+    <view>
+        <class>org.sametimed.modules.users.UsersView</class>
+        <tag>org.sametimed.modules.users.ParticipantTag</tag>    	
+    </view>
+	
+</module>

@@ -74,7 +74,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             loadFrom(confFile);          
             configFile = confFile;
             if (configFile != null) log.info("configuration loaded from: {}", CONFIG_FILE_PATH);
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException fnfe) {
             loadDefaults();          
             log.debug("no file passed or found at {}, loaded defaults", CONFIG_FILE_PATH);  
         } catch (Exception e) {
@@ -88,6 +88,9 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     
     @Override
     protected void extractValues() throws XPathExpressionException {
+        
+        // ---------------------------- URL Values -----------------------------
+        
         // optional
         final String absoluteURLElmPresentStr = evaluate("/sametimed/service/absolute-url");
         serviceData.useAbsoluteURL = (absoluteURLElmPresentStr.length() > 0);
@@ -103,16 +106,22 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             log.debug("Port set to '{}'", serviceData.port);
         }
         
+        // ---------------------------- Service Tunnel ----------------------        
+        
         // required
         serviceData.appName = evaluate("/sametimed/service/app-name");
         log.debug("AppName set to '{}'", serviceData.appName);
         serviceData.tunnelPath = evaluate("/sametimed/service/tunnel");
         log.debug("Tunnel set to '{}'", serviceData.tunnelPath);
         
+        // ---------------------------- Cometd ---------------------------------
+        
         // optional
         final String cometdPathStr = evaluate("/sametimed/service/cometd-init");
         if (cometdPathStr.length() > 0) serviceData.cometdPath = cometdPathStr;
         log.debug("CometD path set to '{}'", serviceData.cometdPath);
+        
+        // ---------------------------- Channels -------------------------------
         
         // required
         serviceData.channels.joinChannelPath = evaluate("/sametimed/service/channels/join-channel");
@@ -120,11 +129,29 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         serviceData.channels.cmdChannelPath = evaluate("/sametimed/service/channels/cmd-channel");
         log.debug("Commands channel set to '{}'", serviceData.channels.cmdChannelPath);
         serviceData.channels.updChannelPath = evaluate("/sametimed/service/channels/upd-channel");
-        log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);       
+        log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);
         
-        // FIXME: extract modulesData
+        // ---------------------------- Modules Data ---------------------------
+        // FIXME: replace with ones read from configuration file
         
-        // FIXME: extract commandsData        
+        modulesData.put("inbox",   new ModuleData("inbox",   true));
+        modulesData.put("errors",  new ModuleData("errors",  true));
+        modulesData.put("users",   new ModuleData("users",   true));
+        modulesData.put("console", new ModuleData("console", true));
+        modulesData.put("example", new ModuleData("example"));
+        modulesData.put("chat",    new ModuleData("chat", 
+                                           "name.shamansir.sametimed.modules"));
+        
+        // ---------------------------- Commands Data --------------------------
+        // FIXME: replace with ones read from configuration file
+        
+        commandsData.put("new",  new CommandData("CMD_NEW",  "new",  true));
+        commandsData.put("open", new CommandData("CMD_OPEN", "open", true));
+        commandsData.put("add",  new CommandData("CMD_ADD",  "add",  true));
+        commandsData.put("undo", new CommandData("CMD_UNDO", "undo", true));
+        commandsData.put("swch", new CommandData("CMD_VIEW", "swch", true));
+        commandsData.put("say",  new CommandData("CMD_SAY",  "say",  "chat"));        
+        
     }
 
     /**
@@ -180,14 +207,14 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                               + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
                               + serviceData.channels.updChannelPath + "'");                
-            buffer.append("}");
+            buffer.append("},");
             
             buffer.append("'modules':[");
                 for (Iterator<ModuleData> iter = modulesData.values().iterator(); iter.hasNext(); ) {
                     buffer.append("'" + iter.next().id  + "'");
                     if (iter.hasNext()) buffer.append(",");
                 }
-            buffer.append("]");
+            buffer.append("],");
             
             buffer.append("'commands':[");
                 for (Iterator<CommandData> iter = commandsData.values().iterator(); iter.hasNext(); ) {
@@ -224,19 +251,21 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     
     public final class CommandData {
         
+        public final String id;
         public final String alias;
         public final boolean system;
-        public final String path;
+        public final String definedFor;
         
-        public CommandData(String alias, boolean system, String path) {
+        public CommandData(String id, String alias, boolean system, String definedFor) {
+            this.id = id;
             this.alias = alias;
             this.system = system;
-            this.path = path;
+            this.definedFor = definedFor;
         }
         
-        public CommandData(String alias) { this(alias, false, null); }
-        public CommandData(String alias, String path) { this(alias, false, path); }
-        public CommandData(String alias, boolean system) { this(alias, system, null); }        
+        public CommandData(String id, String alias) { this(id, alias, false, null); }
+        public CommandData(String id, String alias, String definedFor) { this(id, alias, false, definedFor); }
+        public CommandData(String id, String alias, boolean system) { this(id, alias, system, null); }        
         
     }
     

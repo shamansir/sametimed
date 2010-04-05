@@ -15,6 +15,7 @@ package org.sametimed.module;
  */
 public class SametimedModule {
     
+    // FIXME: private final ModuleId moduleId;    
     private final String moduleId;
     
     protected SametimedModule(final String id) {

@@ -17,9 +17,9 @@ import org.sametimed.message.Command;
  */
 public class SayCommand extends Command {
 
-    private SayCommand(String senderId, String targetModuleId,
+    private SayCommand(String alias, String senderId, String targetModuleId,
             String targetDocumentId) {
-        super(senderId, targetModuleId, targetDocumentId);
+        super(alias, senderId, targetModuleId, targetDocumentId);
     }     
     
 }

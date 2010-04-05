@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+			
+    <model>
+    	<atom>.ChatLine</atom>
+    </model>
+    
+    <view>
+        <tag>.ChatTag</tag>    	
+    </view>
+	
+</module>

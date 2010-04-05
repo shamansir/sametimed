@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module tree-structured="false">
+	
+	<class>org.sametimed.modules.console.ConsoleModule</class>
+	<document-id>console</document-id>
+		
+    <model>
+    	<class>org.sametimed.modules.console.ConsoleModel</class>
+    	<atom>java.util.String</atom>
+    </model>
+    
+    <view>
+        <class>org.sametimed.modules.console.ConsoleView</class>
+        <tag>org.sametimed.modules.console.HistoryTag</tag>    	
+    </view>
+	
+</module>

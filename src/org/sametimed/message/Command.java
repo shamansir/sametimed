@@ -18,6 +18,7 @@ package org.sametimed.message;
  */
 public class Command {
     
+    private final String alias; 
     private final String senderId;
     //private final String hash;
     // FIXME: private final CommandType commandType;
@@ -25,8 +26,9 @@ public class Command {
     private final String targetDocumentId;
     // private final String[] arguments;
     
-    protected Command(String senderId, 
+    protected Command(String alias, String senderId, 
                       String targetModuleId, String targetDocumentId) {
+        this.alias = alias;
         this.senderId = senderId;
         this.targetModuleId = targetModuleId;
         this.targetDocumentId = targetDocumentId;
@@ -35,5 +37,9 @@ public class Command {
     }
     
     // FIXME: implement getType()
+    
+    public String getAlias() {
+        return alias;
+    }
     
 }
