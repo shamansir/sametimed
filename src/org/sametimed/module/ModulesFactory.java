@@ -4,17 +4,13 @@
 package org.sametimed.module;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import javax.servlet.ServletContext;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.sametimed.facade.SametimedConfig.ModuleData;
 import org.sametimed.facade.SametimedConfig.ModulesDataList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 /**
  * Project: sametimed
@@ -47,13 +43,13 @@ public class ModulesFactory {
             try {
                 createModule(mdata, new ModuleConfig(mdata.id, servletContext.getResourceAsStream(configPath)));
             } catch (FileNotFoundException fnfe) {
-                log.error("configuration file for module '" + mdata.id + "' was " +
-                          "not found at path '" + configPath + "', so this module is not created."); 
+                log.error("configuration file for module '{}' was " +
+                          "not found at path '{}', so this module is not created.",
+                          mdata.id, configPath); 
             } catch (Exception e) {
-                log.error("configuration file for module '" + mdata.id + "' " +
-                        "at path '" + configPath + "' was failed to be parsed, " +
-                        "so this module is not created. Caused by: {} / {}", 
-                               e.getClass(), e.getMessage());
+                log.error("configuration file for module '{}' at path '{}' was " +
+                        "failed to be parsed, so this module is not created", mdata.id, configPath);
+                log.error("parsing error was caused by: {} / {}", e.getClass().getName(), e.getMessage());
             }
         }        
     }
