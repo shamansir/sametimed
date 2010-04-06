@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.xml.xpath.XPathExpressionException;
@@ -132,25 +133,48 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);
         
         // ---------------------------- Modules Data ---------------------------
-        // FIXME: replace with ones read from configuration file
         
-        modulesData.put("inbox",   new ModuleData("inbox",   true));
-        modulesData.put("errors",  new ModuleData("errors",  true));
-        modulesData.put("users",   new ModuleData("users",   true));
-        modulesData.put("console", new ModuleData("console", true));
-        modulesData.put("example", new ModuleData("example"));
-        modulesData.put("chat",    new ModuleData("chat", 
-                                           "name.shamansir.sametimed.modules"));
-        
+        List<String> modulesIds = evaluateNodes("/sametimed/enabled-modules/module/@id");
+        for (String moduleId: modulesIds) {
+            
+            final boolean isSystem = 
+                "true".equals(evaluate("/sametimed/enabled-modules/module[@id='" + moduleId + "']/@system"));
+            
+            String path = null;
+            final String pathStr =
+                evaluate("/sametimed/enabled-modules/module[@id='" + moduleId + "']/@path");
+            if (pathStr.length() > 0) path = pathStr;
+            
+            modulesData.put(moduleId, new ModuleData(moduleId, isSystem, path));
+            
+        }
+        log.debug("modules {} data is loaded from 'sametimed' configuration file", 
+                                                         modulesIds.toString());
+                
         // ---------------------------- Commands Data --------------------------
-        // FIXME: replace with ones read from configuration file
         
-        commandsData.put("new",  new CommandData("CMD_NEW",  "new",  true));
-        commandsData.put("open", new CommandData("CMD_OPEN", "open", true));
-        commandsData.put("add",  new CommandData("CMD_ADD",  "add",  true));
-        commandsData.put("undo", new CommandData("CMD_UNDO", "undo", true));
-        commandsData.put("swch", new CommandData("CMD_VIEW", "swch", true));
-        commandsData.put("say",  new CommandData("CMD_SAY",  "say",  "chat"));        
+        List<String> commandsAliases = evaluateNodes("/sametimed/registered-commands/command/@alias");
+        for (String commandAlias: commandsAliases) {
+            
+            String commandId = null;
+            final String commandIdStr = 
+                evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@id");
+            if (commandIdStr.length() > 0) commandId = commandIdStr;
+            
+            final boolean isSystem = 
+                "true".equals(evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@system"));
+            
+            String definedFor = null;
+            final String definedForStr =
+                evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@defined-for");
+            if (definedForStr.length() > 0) definedFor = definedForStr;
+            
+            commandsData.put(commandAlias, 
+                    new CommandData(commandAlias, commandId, isSystem, definedFor));
+            
+        }
+        log.debug("commands {} data is loaded from 'sametimed' configuration file", 
+                                                    commandsAliases.toString());    
         
     }
 

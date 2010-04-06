@@ -41,7 +41,7 @@ public class ModuleConfig extends XmlConfigurationFile {
     public ModuleConfig(String moduleId, InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
         loadFrom(source);
         //this.moduleId = moduleId;
-        log.info("module '{}' configuration is loaded", moduleId);
+        log.info("module '{}' configuration is loaded from its configuration file", moduleId);
     }
     
     @Override

@@ -34,6 +34,7 @@ public class ModulesFactory {
     
     public ModulesFactory(ModulesDataList modulesDataList, ServletContext servletContext) {      
         for (ModuleData mdata: modulesDataList.values()) {
+            // FIXME: load configuration file using module class
             String configPath =
                 "/WEB-INF/classes/" +
                 ((mdata.path != null) 

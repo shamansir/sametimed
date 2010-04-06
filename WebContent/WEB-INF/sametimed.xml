@@ -30,12 +30,12 @@
 	</enabled-modules>
 	
 	<registered-commands>
-		<command id="CMD_NEW"  system="true" />
-        <command id="CMD_OPEN" system="true" />
-        <command id="CMD_ADD"  system="true" />
-        <command id="CMD_UNDO" system="true" />                
-        <command id="CMD_VIEW" system="true" alias="switch" />
-        <command id="CMD_SAY"  defined-for="chat" />
+		<command alias="new"  system="true" />
+        <command alias="open" system="true" />
+        <command alias="add"  system="true" />
+        <command alias="undo" system="true" />                
+        <command alias="swch" system="true" id="CMD_VIEW" />
+        <command alias="say"  defined-for="chat" />
         <!--
         <command alias="CMD_PUT" defined-for="editor" />
         <command alias="CMD_SETDATE" defined-for="calendar" />        

@@ -6,14 +6,19 @@ package org.sametimed.util;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -50,6 +55,16 @@ public abstract class XmlConfigurationFile {
     public String evaluate(String xpathStr) throws XPathExpressionException {
         return xpath.evaluate(xpathStr, sourceDoc); // will throw NPE if 
                                  // loadFrom was not called, but it's ok     
+    }
+    
+    public List<String> evaluateNodes(String xpathStr) throws XPathExpressionException {
+        List<String> result = new ArrayList<String>(); 
+        XPathExpression expr = xpath.compile(xpathStr);
+        NodeList nodes = (NodeList)expr.evaluate(sourceDoc, XPathConstants.NODESET);
+        for (int i = 0; i < nodes.getLength(); i++) {
+            result.add(nodes.item(i).getNodeValue()); 
+        }
+        return result;
     }
 
 }
