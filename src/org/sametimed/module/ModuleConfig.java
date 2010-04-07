@@ -38,10 +38,10 @@ public class ModuleConfig extends XmlConfigurationFile {
     private String viewClassName = null;
     private String viewTagClassName = null;
 
-    public ModuleConfig(String moduleId, InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
+    public ModuleConfig(final String moduleId, InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
         loadFrom(source);
         //this.moduleId = moduleId;
-        log.info("module '{}' configuration is loaded from its configuration file", moduleId);
+        log.debug("module '{}' configuration is loaded from its configuration file", moduleId);
     }
     
     @Override

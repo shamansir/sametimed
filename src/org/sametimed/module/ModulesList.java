@@ -17,5 +17,10 @@ import java.util.HashMap;
  */
 @SuppressWarnings("serial")
 public class ModulesList extends HashMap<String, SametimedModule> {
-
+    
+    @Override
+    public String toString() {
+        return this.keySet().toString();
+    }
+    
 }

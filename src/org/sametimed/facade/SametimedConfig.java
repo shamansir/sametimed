@@ -148,7 +148,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             modulesData.put(moduleId, new ModuleData(moduleId, isSystem, path));
             
         }
-        log.debug("modules {} data is loaded from 'sametimed' configuration file", 
+        log.info("modules {} data is loaded from 'sametimed' configuration file", 
                                                          modulesIds.toString());
                 
         // ---------------------------- Commands Data --------------------------
@@ -173,7 +173,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                     new CommandData(commandAlias, commandId, isSystem, definedFor));
             
         }
-        log.debug("commands {} data is loaded from 'sametimed' configuration file", 
+        log.info("commands {} data is loaded from 'sametimed' configuration file", 
                                                     commandsAliases.toString());    
         
     }

@@ -10,7 +10,7 @@
   
   <logger name="org.sametimed" level="DEBUG" />  
   
-  <!-- <logger name="org.sametimed.facade" level="DEBUG" /> -->
+  <!-- <logger name="org.sametimed.facade" level="INFO" /> -->
 
   <root level="DEBUG">
     <appender-ref ref="STDOUT" />
