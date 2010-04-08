@@ -42,6 +42,7 @@ public class SametimedService extends BayeuxService {
             .getLogger(SametimedService.class);    
     
     private final Channel updatesChannel;
+    private final Channel joinChannel;
     private final Map<String, SametimedClient> clients 
           = Collections.synchronizedMap(new HashMap<String, SametimedClient>());
     
@@ -69,7 +70,12 @@ public class SametimedService extends BayeuxService {
         subscribe(config.getJoinChannelPath(), "tryJoin");
         subscribe(config.getCmdChannelPath(), "processCmd");
         
+        // client <-  updChannel  <-  server
+        // client <-> joinChannel <-> server
+        // client  -> cmdChannel   -> server
+        
         updatesChannel = getBayeux().getChannel(config.getUpdChannelPath(), true);
+        joinChannel = getBayeux().getChannel(config.getJoinChannelPath(), true);
         log.info("Sametimed Bayeux service initialized under {}", config.getFullTunnelPath());
         
         // FIXME: check if works with hostname different from localhost        
@@ -89,29 +95,43 @@ public class SametimedService extends BayeuxService {
      * @param message message with joining information
      */
     public void tryJoin(Client remote, Map<String, Object> data) {
-        log.info("client {} tries to join as {}", remote.getId(),
-                                                  data.get("username"));
-        if (!clients.containsKey(remote.getId())) {
-            String username = (String)data.get("username") + 
-                              "@" + waveServerProps.getDomain();
-            log.info("registering new client with id {}", username);
-            clients.put(remote.getId(), 
-                new SametimedClient(remote, username, modulesFactory.getEnabledModules()) {
-
-                    @Override
-                    public void sendUpdate(Update update) {
-                        if (updatesChannel != null) {
-                            updatesChannel.publish(getCometdClient(), 
-                                                   update.extractData(), 
-                                                   update.getHashcode());
-                            log.info("published to channel");
-                        }
-                    }                                
+        if (!data.containsKey("status")) { // not receiving message, sent by itself
+            log.info("client {} tries to join as {}", remote.getId(),
+                    data.get("username"));            
+            if (!clients.containsKey(remote.getId())) {
                 
-                });
-        } else {
-            log.info("client already registered, join is not performed");
-        }
+                String username = (String)data.get("username") + 
+                                  "@" + waveServerProps.getDomain();
+                log.info("registering new client with id {}", username);
+                    
+                clients.put(remote.getId(), 
+                    new SametimedClient(remote, username, modulesFactory.getEnabledModules()) {
+    
+                        @Override
+                        public void sendUpdate(Update update) {
+                            if (updatesChannel != null) {
+                                updatesChannel.publish(getCometdClient(), 
+                                                       update.extractData(), 
+                                                       update.getHashcode());
+                                log.debug("published update to channel");
+                            }
+                        }                                
+                    
+                    }); 
+                   
+                Map<String, String> statusData = new HashMap<String, String>();
+                statusData.put("username", data.get("username").toString());
+                statusData.put("status", "ok");
+                joinChannel.publish(remote, statusData, "serv");
+                    
+            } else {
+                log.info("client already registered, join is not performed");
+                Map<String, String> statusData = new HashMap<String, String>();
+                statusData.put("username", data.get("username").toString());
+                statusData.put("status", "passed");
+                joinChannel.publish(remote, statusData, null);            
+            }
+        }  
     }     
     
     /**
