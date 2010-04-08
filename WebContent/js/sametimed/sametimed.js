@@ -77,8 +77,8 @@ var Sametimed = $.inherit({
 			
 			cometd.subscribe(this.config.channels.updChannel,					
 							 createMethodReference(this, this._gotUpdate));
-			cometd.subscribe(this.config.channels.joinChannel,					
-					 		 createMethodReference(this, this._gotJoinStatus));			
+			cometd.subscribe(this.config.channels.cfrmChannel,					
+					 		 createMethodReference(this, this._gotConfirm));			
 			
 			$('#sametimed-login-submit').click(
 							createMethodReference(this, this._onJoinBtnClick));
@@ -103,7 +103,8 @@ var Sametimed = $.inherit({
 				cometd.publish(this.config.channels.joinChannel, { 'username': username });
 				// FIXME: disable login field and button				
 			} else {
-				alert('already connected');
+				alert('already connected. reload page to reconnect with ' +
+				      'different user');
 				_log('already connected');
 			}	
 		} else {
@@ -119,18 +120,16 @@ var Sametimed = $.inherit({
 		}
 	},
 	
-	_gotJoinStatus: function(cometObj) {
-		if (cometObj.data.status) _log('join status: ', cometObj.data);
-		if (cometObj.data.status && this.sclient) {
+	_gotConfirm: function(cometObj) {
+		_log('join confirmation status: ', cometObj.data);
+		if (this.sclient) {
 			if ((cometObj.data.status == 'ok') 
 			    && (cometObj.data.username == this.sclient.username)) {
 				
 				this.sclient.handleConnect(); 
-			}
+			} // handle 'passed' status?
 		} 
-	},
-	
-	disconnect: function() {}
+	}
 	
 });
 

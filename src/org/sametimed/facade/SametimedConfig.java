@@ -127,10 +127,12 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         // required
         serviceData.channels.joinChannelPath = evaluate("/sametimed/service/channels/join-channel");
         log.debug("Join channel set to '{}'", serviceData.channels.joinChannelPath);
-        serviceData.channels.cmdChannelPath = evaluate("/sametimed/service/channels/cmd-channel");
+        serviceData.channels.cfrmChannelPath = evaluate("/sametimed/service/channels/confirm-channel");
+        log.debug("Confirm channel set to '{}'", serviceData.channels.cfrmChannelPath);        
+        serviceData.channels.cmdChannelPath = evaluate("/sametimed/service/channels/commands-channel");
         log.debug("Commands channel set to '{}'", serviceData.channels.cmdChannelPath);
-        serviceData.channels.updChannelPath = evaluate("/sametimed/service/channels/upd-channel");
-        log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);
+        serviceData.channels.updChannelPath = evaluate("/sametimed/service/channels/updates-channel");
+        log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);        
         
         // ---------------------------- Modules Data ---------------------------
         
@@ -223,6 +225,10 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                               + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
                               + serviceData.channels.joinChannelPath + "',");
+                buffer.append("'cfrmChannel':'" 
+                              + (serviceData.useAbsoluteURL ? appURL: "")
+                              + "/" + serviceData.tunnelPath 
+                              + serviceData.channels.cfrmChannelPath + "',");                 
                 buffer.append("'cmdChannel':'" 
                               + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
@@ -230,7 +236,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                 buffer.append("'updChannel':'" 
                               + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
-                              + serviceData.channels.updChannelPath + "'");                
+                              + serviceData.channels.updChannelPath + "'");               
             buffer.append("},");
             
             buffer.append("'modules':[");
@@ -267,7 +273,8 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             
             String joinChannelPath = "/j";
             String cmdChannelPath = "/c";
-            String updChannelPath = "/u";            
+            String updChannelPath = "/u";
+            String cfrmChannelPath = "/r";
             
         }
         
@@ -333,6 +340,15 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     public String getJoinChannelPath() {
         return "/" + serviceData.tunnelPath + serviceData.channels.joinChannelPath;
     }
+    
+    /**
+     * Returns Confirm channel path in format {@code /<tunnel-path>/<channel-name>}
+     * 
+     * @return confirm channel path
+     */
+    public String getCfrmChannelPath() {
+        return  "/" + serviceData.tunnelPath + serviceData.channels.cfrmChannelPath;
+    }    
 
     /**
      * Returns Commands channel path in format {@code /<tunnel-path>/<channel-name>}
@@ -350,7 +366,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      */
     public String getUpdChannelPath() {
         return "/" + serviceData.tunnelPath + serviceData.channels.updChannelPath;
-    }
+    }   
 
     /**
      * Returns full path to tunnel. If absolute path is set in sametimed configuration
@@ -372,6 +388,6 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     
     public CommandsDataList getCommandsData() {
         return commandsData;
-    }    
+    }   
 
 }

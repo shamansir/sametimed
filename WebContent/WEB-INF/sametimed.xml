@@ -8,8 +8,9 @@
 		<tunnel>w</tunnel>
         <channels>
     		<join-channel>/join</join-channel>
-    		<cmd-channel>/cmd</cmd-channel>
-    		<upd-channel>/upd</upd-channel>
+    		<confirm-channel>/confirm</confirm-channel>
+    		<commands-channel>/command</commands-channel>
+    		<updates-channel>/update</updates-channel>
 		</channels>
 		
         <cometd-init>cometd</cometd-init>

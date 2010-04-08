@@ -12,8 +12,9 @@ element sametimed {
         element tunnel { type-word }                 
         element channels {
             element join-channel { type-word }
-            element cmd-channel { type-word }
-            element upd-channel { type-word }
+            element confirm-channel { type-word }            
+            element commands-channel { type-word }
+            element updates-channel { type-word }
         }
         element cometd-init? { type-url }        
     }
