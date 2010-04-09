@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.sametimed.facade.wave;
+package org.sametimed.wave;
 
 import org.sametimed.util.XmlConfigurationFile;
 

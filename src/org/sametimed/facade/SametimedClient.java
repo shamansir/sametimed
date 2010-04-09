@@ -3,17 +3,11 @@
  */
 package org.sametimed.facade;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.cometd.Client;
-import org.sametimed.facade.wave.WavesClient;
 import org.sametimed.message.Command;
 import org.sametimed.message.Update;
 import org.sametimed.module.ModulesList;
-import org.sametimed.module.SametimedModule;
-import org.sametimed.view.SametimedClientView;
+import org.sametimed.wave.WavesClient;
 
 /**
  * Project: sametimed
@@ -29,19 +23,14 @@ public abstract class SametimedClient {
     
     private final String username;    
     
-    private final Client cometdClient;
     private final WavesClient wavesClient; // connects to the server and stores 
-                                           // waves
-    private final SametimedClientView view;
-    
+                                           // waves    
     private final ModulesList modules;
     
-    public SametimedClient(Client cometdClient, String username, ModulesList enabledModules) {
-        this.cometdClient = cometdClient;
-        this.wavesClient = null; // FIXME: implement
-        this.view = null; // FIXME: implement
+    public SametimedClient(String username, ModulesList enabledModules) {
         this.username = username;
         this.modules = enabledModules;
+        this.wavesClient = null; // FIXME: implement
     }
 
     /** 
@@ -52,10 +41,6 @@ public abstract class SametimedClient {
     }
     
     public abstract void sendUpdate(Update update);
-    
-    protected Client getCometdClient() {
-        return this.cometdClient;
-    }
     
     public String getUsername() {
         return username;

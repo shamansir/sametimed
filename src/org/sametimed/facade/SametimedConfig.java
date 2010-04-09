@@ -35,7 +35,7 @@ import org.eclipse.jetty.util.ajax.JSON;
  *
  */
 public class SametimedConfig extends XmlConfigurationFile implements JSON.Generator {
-    
+        
     public static final String CONFIG_FILE_PATH = "/WEB-INF/sametimed.xml";    
     
     private static final Logger log = LoggerFactory
@@ -50,14 +50,6 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     private final CommandsDataList commandsData = new CommandsDataList();
     private final ModulesDataList modulesData = new ModulesDataList();    
 
-    /**
-     * Loads data from configuration file, lying in passed servlet context.
-     * If file is already loaded - just returns the cached instance, even if
-     * the different context passed. (means {@code SametimedConfig} is singleton)
-     * 
-     * @param fromContext context to load file from
-     * @return {@code SametimedConfig} instance
-     */
     public final synchronized static SametimedConfig loadConfig(ServletContext fromContext) {
         if ((configFile == null) && !usedDefaults) { // not loaded for the moment
             instance = new SametimedConfig(fromContext.getResourceAsStream(CONFIG_FILE_PATH));
@@ -91,6 +83,8 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     protected void extractValues() throws XPathExpressionException {
         
         // ---------------------------- URL Values -----------------------------
+
+        // FIXME: 'absolute-url' block seems not ever required        
         
         // optional
         final String absoluteURLElmPresentStr = evaluate("/sametimed/service/absolute-url");
@@ -172,7 +166,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             if (definedForStr.length() > 0) definedFor = definedForStr;
             
             commandsData.put(commandAlias, 
-                    new CommandData(commandAlias, commandId, isSystem, definedFor));
+                    new CommandData(commandId, commandAlias, isSystem, definedFor));
             
         }
         log.info("commands {} data is loaded from 'sametimed' configuration file", 
@@ -209,32 +203,29 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         // final char q = '\''; TODO: use quot defined here
         
         buffer.append("{");
-        String appURL = (serviceData.useAbsoluteURL 
+        String shortAppURL = "/" + serviceData.appName;        
+        String fullAppURL = (serviceData.useAbsoluteURL 
                         ? (serviceData.protocol + "://" +
                            serviceData.hostname + ":" + serviceData.port + "/" +
                            serviceData.appName) 
-                        : "/" + serviceData.appName);
+                        : shortAppURL);
         
-            buffer.append("'appURL':'" +  appURL + "',");
+            buffer.append("'appURL':'" +  fullAppURL + "',");
             buffer.append("'cometdURL':'" + (serviceData.useAbsoluteURL 
-                                            ? (appURL + serviceData.cometdPath) 
+                                            ? (fullAppURL + "/" + serviceData.cometdPath) 
                                             : serviceData.cometdPath) + "',");
             
             buffer.append("'channels':{");
                 buffer.append("'joinChannel':'" 
-                              + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
                               + serviceData.channels.joinChannelPath + "',");
                 buffer.append("'cfrmChannel':'" 
-                              + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
                               + serviceData.channels.cfrmChannelPath + "',");                 
                 buffer.append("'cmdChannel':'" 
-                              + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
                               + serviceData.channels.cmdChannelPath + "',");
                 buffer.append("'updChannel':'" 
-                              + (serviceData.useAbsoluteURL ? appURL: "")
                               + "/" + serviceData.tunnelPath 
                               + serviceData.channels.updChannelPath + "'");               
             buffer.append("},");

@@ -24,9 +24,8 @@ import javax.servlet.ServletResponse;
  * @date Mar 26, 2010 11:06:44 AM 
  *
  */
+@SuppressWarnings("serial")
 public class GetSametimedConfigurationServlet extends GenericServlet {
-
-    private static final long serialVersionUID = 6502482329786676573L;
 
     /**
      * Returns JSON object, containing the Sametimed configuration data
