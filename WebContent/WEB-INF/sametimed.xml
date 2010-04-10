@@ -5,43 +5,40 @@
 
         <app-name>sametimed</app-name>
         				
-		<tunnel>w</tunnel>
-        <channels>
-    		<join-channel>/join</join-channel>
-    		<confirm-channel>/confirm</confirm-channel>
-    		<commands-channel>/command</commands-channel>
-    		<updates-channel>/update</updates-channel>
-		</channels>
+		<tunnel>
+		    <path>/w</path>
+            <channels>
+        		<join-channel>/join</join-channel>
+        		<confirm-channel>/confirm</confirm-channel>
+        		<commands-channel>/command</commands-channel>
+        		<updates-channel>/update</updates-channel>
+    		</channels>
+		</tunnel>
 		
-        <cometd-init>cometd</cometd-init>
+        <cometd-init>/cometd</cometd-init>
         				
 	</service>
 	
-	<enabled-modules>
-		<module id="inbox"   system="true" />
-        <module id="errors"  system="true" />
-        <module id="users"   system="true" />
-        <module id="console" system="true" />
+	<prepared-modules>
+		<module id="inbox" />
+        <module id="errors" />
+        <module id="users" />
+        <module id="console" />
         <module id="example" />        
-        <module id="chat"    path="name.shamansir.sametimed.modules" />
-        <!--
-        <module id="calendar" path="com.slurm.module" />
-        <module id="editor" />
-        -->                                
-	</enabled-modules>
+        <module id="chat" package="name.shamansir.sametimed.modules.chat" />                              
+	</prepared-modules>
+	
+	<disabled-modules>
+		<module-id>example</module-id>	
+	</disabled-modules>
 	
 	<registered-commands>
-		<command alias="new"    system="true" />
-        <command alias="open"   system="true" />
-        <command alias="add"    system="true" />
-        <command alias="undo"   system="true" />
-        <command alias="remove" system="true" />
-        <command alias="swch"   system="true" id="CMD_VIEW" />
-        <command alias="say"    defined-for="chat" />
-        <!--
-        <command alias="CMD_PUT" defined-for="editor" />
-        <command alias="CMD_SETDATE" defined-for="calendar" />        
-        -->                		
+		<command alias="new" id="CMD_NEW" />
+        <command alias="open" id="CMD_OPEN" />
+        <command alias="add" id="CMD_ADD" />
+        <command alias="undo" id="CMD_UNDO" />
+        <command alias="remove" id="CMD_REMOVE" />
+        <command alias="swch" id="CMD_VIEW" />               		
 	</registered-commands>
 	
 </sametimed>

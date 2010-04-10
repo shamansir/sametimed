@@ -8,8 +8,10 @@ import org.sametimed.util.XmlConfigurationFile;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.xml.xpath.XPathExpressionException;
@@ -47,8 +49,9 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     private static SametimedConfig instance;
     
     private final ServiceData serviceData = new ServiceData();
-    private final CommandsDataList commandsData = new CommandsDataList();
-    private final ModulesDataList modulesData = new ModulesDataList();    
+    private final CommandsDataList registeredCommands = new CommandsDataList();
+    private final ModulesDataList modulesToPrepare = new ModulesDataList();
+    private final Set<String> modulesToDisable = new HashSet<String>();    
 
     public final synchronized static SametimedConfig loadConfig(ServletContext fromContext) {
         if ((configFile == null) && !usedDefaults) { // not loaded for the moment
@@ -82,21 +85,22 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     @Override
     protected void extractValues() throws XPathExpressionException {
         
+        modulesToPrepare.clear();
+        modulesToDisable.clear();
+        registeredCommands.clear();        
+        
         // ---------------------------- URL Values -----------------------------
 
-        // FIXME: 'absolute-url' block seems not ever required        
-        
         // optional
-        final String absoluteURLElmPresentStr = evaluate("/sametimed/service/absolute-url");
-        serviceData.useAbsoluteURL = (absoluteURLElmPresentStr.length() > 0);
-        log.debug("Using absolute URL set to '{}'", serviceData.useAbsoluteURL);
-        if (serviceData.useAbsoluteURL) {
-            final String protocolStr = evaluate("/sametimed/service/absolute-url/protocol");
+        if (nodeExists("/sametimed/service/location")) {
+            serviceData.locationDefined = true;
+            log.debug("Using absolute location for service");
+            final String protocolStr = evaluate("/sametimed/service/location/protocol");
             if (protocolStr.length() > 0) serviceData.protocol = protocolStr;        
             log.debug("Protocol set to '{}'", serviceData.protocol);            
-            serviceData.hostname = evaluate("/sametimed/service/absolute-url/hostname"); 
+            serviceData.hostname = evaluate("/sametimed/service/location/hostname"); 
             log.debug("Hostname set to '{}'", serviceData.hostname);
-            final String portStr = evaluate("/sametimed/service/absolute-url/port");
+            final String portStr = evaluate("/sametimed/service/location/port");
             if (portStr.length() > 0) serviceData.port = Integer.valueOf(portStr);        
             log.debug("Port set to '{}'", serviceData.port);
         }
@@ -106,46 +110,64 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         // required
         serviceData.appName = evaluate("/sametimed/service/app-name");
         log.debug("AppName set to '{}'", serviceData.appName);
-        serviceData.tunnelPath = evaluate("/sametimed/service/tunnel");
+        serviceData.tunnelPath = evaluate("/sametimed/service/tunnel/path");
         log.debug("Tunnel set to '{}'", serviceData.tunnelPath);
         
         // ---------------------------- Cometd ---------------------------------
         
-        // optional
+        // optional        
         final String cometdPathStr = evaluate("/sametimed/service/cometd-init");
         if (cometdPathStr.length() > 0) serviceData.cometdPath = cometdPathStr;
         log.debug("CometD path set to '{}'", serviceData.cometdPath);
         
         // ---------------------------- Channels -------------------------------
         
-        // required
-        serviceData.channels.joinChannelPath = evaluate("/sametimed/service/channels/join-channel");
-        log.debug("Join channel set to '{}'", serviceData.channels.joinChannelPath);
-        serviceData.channels.cfrmChannelPath = evaluate("/sametimed/service/channels/confirm-channel");
-        log.debug("Confirm channel set to '{}'", serviceData.channels.cfrmChannelPath);        
-        serviceData.channels.cmdChannelPath = evaluate("/sametimed/service/channels/commands-channel");
-        log.debug("Commands channel set to '{}'", serviceData.channels.cmdChannelPath);
-        serviceData.channels.updChannelPath = evaluate("/sametimed/service/channels/updates-channel");
-        log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);        
-        
-        // ---------------------------- Modules Data ---------------------------
-        
-        List<String> modulesIds = evaluateNodes("/sametimed/enabled-modules/module/@id");
-        for (String moduleId: modulesIds) {
-            
-            final boolean isSystem = 
-                "true".equals(evaluate("/sametimed/enabled-modules/module[@id='" + moduleId + "']/@system"));
-            
-            String path = null;
-            final String pathStr =
-                evaluate("/sametimed/enabled-modules/module[@id='" + moduleId + "']/@path");
-            if (pathStr.length() > 0) path = pathStr;
-            
-            modulesData.put(moduleId, new ModuleData(moduleId, isSystem, path));
-            
+        // optional
+        if (nodeExists("/sametimed/service/tunnel/channels")) {
+            serviceData.channels.joinChannelPath = evaluate("/sametimed/service/tunnel/channels/join-channel");
+            log.debug("Join channel set to '{}'", serviceData.channels.joinChannelPath);
+            serviceData.channels.cfrmChannelPath = evaluate("/sametimed/service/tunnel/channels/confirm-channel");
+            log.debug("Confirm channel set to '{}'", serviceData.channels.cfrmChannelPath);        
+            serviceData.channels.cmdChannelPath = evaluate("/sametimed/service/tunnel/channels/commands-channel");
+            log.debug("Commands channel set to '{}'", serviceData.channels.cmdChannelPath);
+            serviceData.channels.updChannelPath = evaluate("/sametimed/service/tunnel/channels/updates-channel");
+            log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);
         }
-        log.info("modules {} data is loaded from 'sametimed' configuration file", 
-                                                         modulesIds.toString());
+        
+        // ---------------------------- Prepared Modules -----------------------
+        
+        if (nodeExists("/sametimed/prepared-modules")) { 
+            List<String> modulesIds = evaluateNodes("/sametimed/prepared-modules/module/@id");
+            for (String moduleId: modulesIds) {
+                
+                String packageName = null;
+                final String packageNameStr =
+                    evaluate("/sametimed/prepared-modules/module[@id='" + moduleId + "']/@package");
+                if (packageNameStr.length() > 0) packageName = packageNameStr;                
+                
+                modulesToPrepare.put(moduleId, new ModuleData(moduleId, packageName));
+                
+            }
+
+        }
+        
+        if (!modulesToPrepare.isEmpty()) {
+            log.info("modules {} data is loaded from 'sametimed.xml' configuration file " +
+                    "and they are going to be prepared", 
+                    modulesToPrepare.keySet().toString());            
+        }
+        
+        // ---------------------------- Disabled Modules -----------------------        
+        
+        if (nodeExists("/sametimed/disabled-modules")) { 
+            modulesToDisable.addAll(
+                    evaluateNodes("/sametimed/disabled-modules/module-id"));
+        }
+        
+        if (!modulesToDisable.isEmpty()) {
+            log.info("modules {} are going to be disabled conforming with 'sametimed.xml'", 
+                    modulesToDisable.toString());
+        }        
                 
         // ---------------------------- Commands Data --------------------------
         
@@ -157,20 +179,18 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                 evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@id");
             if (commandIdStr.length() > 0) commandId = commandIdStr;
             
-            final boolean isSystem = 
-                "true".equals(evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@system"));
+            String className = null;
+            final String classNameStr = 
+                evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@class");
+            if (classNameStr.length() > 0) className = classNameStr;            
             
-            String definedFor = null;
-            final String definedForStr =
-                evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@defined-for");
-            if (definedForStr.length() > 0) definedFor = definedForStr;
-            
-            commandsData.put(commandAlias, 
-                    new CommandData(commandId, commandAlias, isSystem, definedFor));
-            
+            registeredCommands.put(commandAlias, new CommandData(commandId, commandAlias, className));            
         }
-        log.info("commands {} data is loaded from 'sametimed' configuration file", 
-                                                    commandsAliases.toString());    
+        
+        if (!registeredCommands.isEmpty()) {
+            log.info("commands {} data is loaded from 'sametimed.xml' configuration file", 
+                                                registeredCommands.keySet().toString());
+        }
         
     }
 
@@ -203,42 +223,48 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         // final char q = '\''; TODO: use quot defined here
         
         buffer.append("{");
-        String shortAppURL = "/" + serviceData.appName;        
-        String fullAppURL = (serviceData.useAbsoluteURL 
+        final String shortAppURL = "/" + serviceData.appName;        
+        final String fullAppURL = (serviceData.locationDefined 
                         ? (serviceData.protocol + "://" +
                            serviceData.hostname + ":" + serviceData.port + "/" +
                            serviceData.appName) 
                         : shortAppURL);
+        final String cometdPath = serviceData.cometdPath.startsWith("/")
+                                  ? serviceData.cometdPath.substring(1)
+                                  : serviceData.cometdPath;
         
             buffer.append("'appURL':'" +  fullAppURL + "',");
-            buffer.append("'cometdURL':'" + (serviceData.useAbsoluteURL 
-                                            ? (fullAppURL + "/" + serviceData.cometdPath) 
-                                            : serviceData.cometdPath) + "',");
+            buffer.append("'cometdURL':'" + (serviceData.locationDefined 
+                                            ? (fullAppURL + cometdPath) 
+                                            : cometdPath) + "',");
             
             buffer.append("'channels':{");
                 buffer.append("'joinChannel':'" 
-                              + "/" + serviceData.tunnelPath 
+                              + serviceData.tunnelPath 
                               + serviceData.channels.joinChannelPath + "',");
                 buffer.append("'cfrmChannel':'" 
-                              + "/" + serviceData.tunnelPath 
+                              + serviceData.tunnelPath 
                               + serviceData.channels.cfrmChannelPath + "',");                 
                 buffer.append("'cmdChannel':'" 
-                              + "/" + serviceData.tunnelPath 
+                              + serviceData.tunnelPath 
                               + serviceData.channels.cmdChannelPath + "',");
                 buffer.append("'updChannel':'" 
-                              + "/" + serviceData.tunnelPath 
+                              + serviceData.tunnelPath 
                               + serviceData.channels.updChannelPath + "'");               
             buffer.append("},");
             
             buffer.append("'modules':[");
-                for (Iterator<ModuleData> iter = modulesData.values().iterator(); iter.hasNext(); ) {
-                    buffer.append("'" + iter.next().id  + "'");
-                    if (iter.hasNext()) buffer.append(",");
+                for (Iterator<String> iter = modulesToPrepare.keySet().iterator(); iter.hasNext(); ) {
+                    String moduleId = iter.next();
+                    if (!modulesToDisable.contains(moduleId)) {
+                        buffer.append("'" + moduleId + "'");
+                        if (iter.hasNext()) buffer.append(",");
+                    }
                 }
             buffer.append("],");
-            
+                        
             buffer.append("'commands':[");
-                for (Iterator<CommandData> iter = commandsData.values().iterator(); iter.hasNext(); ) {
+                for (Iterator<CommandData> iter = registeredCommands.values().iterator(); iter.hasNext(); ) {
                     buffer.append("'" + iter.next().alias  + "'");
                     if (iter.hasNext()) buffer.append(",");
                 }
@@ -249,14 +275,14 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     
     private final class ServiceData {
         
-        boolean useAbsoluteURL = false;
+        boolean locationDefined = false;
         
         String protocol = "http";
         String hostname = "localhost";
         int port = 6067;
-        String appName = "app-name";
-        String tunnelPath = "t";
-        String cometdPath = "cometd";    
+        String appName = "fooapp";
+        String tunnelPath = "/t";
+        String cometdPath = "/cometd";    
         
         ChannelsPaths channels = new ChannelsPaths();
         
@@ -275,37 +301,29 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         
         public final String id;
         public final String alias;
-        public final boolean system;
-        public final String definedFor;
+        public final String className;
         
-        public CommandData(String id, String alias, boolean system, String definedFor) {
+        public CommandData(String id, String alias, String className) {
             this.id = id;
             this.alias = alias;
-            this.system = system;
-            this.definedFor = definedFor;
+            this.className = className;
         }
         
-        public CommandData(String id, String alias) { this(id, alias, false, null); }
-        public CommandData(String id, String alias, String definedFor) { this(id, alias, false, definedFor); }
-        public CommandData(String id, String alias, boolean system) { this(id, alias, system, null); }        
+        public CommandData(String id, String alias) { this(id, alias, null); }        
         
     }
     
     public final class ModuleData {
         
         public final String id;
-        public final boolean system;
-        public final String path;
+        public final String packageName;    
         
-        public ModuleData(String id, boolean system, String path) {
+        public ModuleData(String id, String packageName) {
             this.id = id;
-            this.system = system;
-            this.path = path;
+            this.packageName = packageName;
         }
         
-        public ModuleData(String id) { this(id, false, null); }
-        public ModuleData(String id, String path) { this(id, false, path); }
-        public ModuleData(String id, boolean system) { this(id, system, null); }           
+        public ModuleData(String id) { this(id, null); }           
         
     } 
     
@@ -329,7 +347,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      * @return join channel path
      */
     public String getJoinChannelPath() {
-        return "/" + serviceData.tunnelPath + serviceData.channels.joinChannelPath;
+        return serviceData.tunnelPath + serviceData.channels.joinChannelPath;
     }
     
     /**
@@ -338,7 +356,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      * @return confirm channel path
      */
     public String getCfrmChannelPath() {
-        return  "/" + serviceData.tunnelPath + serviceData.channels.cfrmChannelPath;
+        return  serviceData.tunnelPath + serviceData.channels.cfrmChannelPath;
     }    
 
     /**
@@ -347,7 +365,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      * @return commands channel path
      */
     public String getCmdChannelPath() {
-        return "/" + serviceData.tunnelPath + serviceData.channels.cmdChannelPath;
+        return serviceData.tunnelPath + serviceData.channels.cmdChannelPath;
     }
 
     /**
@@ -356,7 +374,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      * @return updates channel path
      */
     public String getUpdChannelPath() {
-        return "/" + serviceData.tunnelPath + serviceData.channels.updChannelPath;
+        return serviceData.tunnelPath + serviceData.channels.updChannelPath;
     }   
 
     /**
@@ -368,17 +386,21 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      * @return
      */
     public String getFullTunnelPath() {
-        return (serviceData.useAbsoluteURL 
+        return (serviceData.locationDefined 
                 ? (serviceData.protocol + "://" + serviceData.hostname + ":" + serviceData.port) 
                 : "") + "/" + serviceData.appName + "/" + serviceData.tunnelPath;
     }
     
-    public ModulesDataList getModulesData() {
-        return modulesData;
+    public ModulesDataList getModulesToPrepare() {
+        return modulesToPrepare;
     }
     
-    public CommandsDataList getCommandsData() {
-        return commandsData;
+    public Set<String> getModulesToDisable() {
+        return modulesToDisable;
+    }    
+    
+    public CommandsDataList getRegisteredCommands() {
+        return registeredCommands;
     }   
 
 }

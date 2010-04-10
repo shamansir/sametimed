@@ -3,7 +3,6 @@
  */
 package org.sametimed.facade;
 
-import org.cometd.Client;
 import org.sametimed.message.Command;
 import org.sametimed.message.Update;
 import org.sametimed.module.ModulesList;

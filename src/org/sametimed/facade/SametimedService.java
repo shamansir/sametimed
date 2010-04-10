@@ -73,14 +73,17 @@ public class SametimedService extends BayeuxService {
         // client  -> joinChannel  -> server
         // client <-  cfrmChannel <-  server 
         // client  -> cmdChannel   -> server
-        // client <-  updChannel  <-  server        
+        // client <-  updChannel  <-  server      
+        
+        // TODO: some channel that will monitor admin console changes
         
         confirmChannel = getBayeux().getChannel(config.getCfrmChannelPath(), true);        
         updatesChannel = getBayeux().getChannel(config.getUpdChannelPath(), true);
         log.info("Sametimed Bayeux service initialized under {}", config.getFullTunnelPath());
         
-        this.commandsFactory = new CommandsFactory(config.getCommandsData());
-        this.modulesFactory = new ModulesFactory(config.getModulesData()); 
+        this.commandsFactory = new CommandsFactory(config.getRegisteredCommands());
+        this.modulesFactory = new ModulesFactory(config.getModulesToPrepare(),
+                                                 config.getModulesToDisable()); 
         
         log.info("these modules are successfully configured and initialized: {}", 
                                 modulesFactory.getEnabledModules().toString());
@@ -101,7 +104,7 @@ public class SametimedService extends BayeuxService {
             
             String username = (String)data.get("username") + 
                               "@" + waveServerProps.getDomain();
-            log.info("registering new client with id {}", username);
+            log.info("registering new client as {}", username);
                 
             clients.put(remote.getId(), 
                 new SametimedClient(username, modulesFactory.getEnabledModules()) {

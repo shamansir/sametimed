@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module tree-structured="false">
 	
-	<class>org.sametimed.modules.inbox.InboxModule</class>
-	<document-id>inbox</document-id>
-		
-    <model>
-    	<class>org.sametimed.modules.inbox.InboxModel</class>
-    	<atom>java.util.String</atom>
-    	<!-- WaveId -->
-    </model>
+    <document-id>inbox</document-id>
     
-    <view>
-        <class>org.sametimed.modules.inbox.InboxView</class>
-        <tag>org.sametimed.modules.inbox.WaveIdTag</tag>    	
-    </view>
+    <accepts-commands>
+        <by-alias>
+            <command-alias>new</command-alias>
+            <command-alias>open</command-alias>                     
+        </by-alias>
+    </accepts-commands>
 	
 </module>

@@ -3,36 +3,40 @@ default namespace = "http://www.sametimed.org"
 element sametimed {
 
     element service {
-        element absolute-url {
+        element location? {
             element protocol? { type-url }        
-            element hostname { type-url }
-            element port? { type-number }
+            element hostname? { type-url }
+            element port { type-number }
         }
         element app-name { type-word }
-        element tunnel { type-word }                 
-        element channels {
-            element join-channel { type-word }
-            element confirm-channel { type-word }            
-            element commands-channel { type-word }
-            element updates-channel { type-word }
+        element tunnel { 
+            element path { type-word }                 
+            element channels? {
+                element join-channel { type-word }
+                element confirm-channel { type-word }            
+                element commands-channel { type-word }
+                element updates-channel { type-word }
+            }
         }
         element cometd-init? { type-url }        
     }
     
-    element enabled-modules {
+    element prepared-modules? {
         element module+ {
             attribute id { type-word }
-            attribute system? { type-boolean }
-            attribute path? { type-path } 
+            attribute package? { type-path } 
         }
     }
     
-    element registered-commands {
+    element disabled-modules? {
+        element module-id+ { type-word }
+    }
+    
+    element registered-commands? {
         element command+ {
             attribute alias { type-word }
-            attribute id? { type-word }            
-            attribute system? { type-boolean }
-            attribute defined-for? { type-path }                  
+            attribute id { type-word }            
+            attribute class? { type-class }                  
         }
     }
 
@@ -41,5 +45,6 @@ element sametimed {
 type-text = text
 type-url = type-text
 type-path = type-text
+type-class = type-text
 type-word = type-text
 type-boolean = type-text

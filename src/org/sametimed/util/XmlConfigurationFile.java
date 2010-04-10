@@ -62,9 +62,15 @@ public abstract class XmlConfigurationFile {
         XPathExpression expr = xpath.compile(xpathStr);
         NodeList nodes = (NodeList)expr.evaluate(sourceDoc, XPathConstants.NODESET);
         for (int i = 0; i < nodes.getLength(); i++) {
-            result.add(nodes.item(i).getNodeValue()); 
+            result.add(nodes.item(i).getTextContent()); 
         }
         return result;
+    }
+    
+    public boolean nodeExists(String xpathStr) throws XPathExpressionException {
+        XPathExpression expr = xpath.compile(xpathStr);        
+        NodeList nodes = (NodeList)expr.evaluate(sourceDoc, XPathConstants.NODESET);
+        return nodes.getLength() > 0;
     }
 
 }

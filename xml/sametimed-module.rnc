@@ -1,18 +1,26 @@
 default namespace = "http://www.sametimed.org"
 
 element module {
-    attribute tree-structured? { type-boolean }
-    element class? { type-class }
-    element document-id? { type-word } 
-    element model {
-        element class? { type-class }
-        element atom { type-class }
+    attribute tree-structured { type-boolean }
+    element document-id? { type-word }
+    element declares-commands? {
+        element command+ {
+            attribute alias { type-word }
+            attribute id { type-word }
+            attribute class? { type-class }                        
+        }
     }
-    element view {
-        element class? { type-class }
-        element tag { type-class }
+    element accepts-commands? {
+        element all { type-word } | 
+            {
+            element by-id? {
+                element command-id+ { type-word }
+            }
+            element by-alias? {
+                element command-alias+ { type-word }
+            }
+        }
     }
-        
 }
 
 type-text = text

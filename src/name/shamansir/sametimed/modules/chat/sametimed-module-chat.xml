@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module>
 			
-    <model>
-    	<atom>.ChatLine</atom>
-    </model>
+    <document-id>chat</document-id>
     
-    <view>
-        <tag>.ChatTag</tag>    	
-    </view>
+    <declares-commands>
+    	<command alias="say" id="CMD_SAY" />
+    </declares-commands>
+    
+    <accepts-commands>
+    	<by-id>
+    		<command-id>CMD_SAY</command-id>
+            <command-id>CMD_ADD</command-id>    		
+    	</by-id>
+    </accepts-commands>
 	
 </module>

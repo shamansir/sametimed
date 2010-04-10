@@ -17,12 +17,12 @@ var SametimedClient = $.inherit({
 		this.connected = false;
 		this.modules = {};
 		this.username = username;
-		_log("client instance is created, username is '" + username + "'");
+		_log("client instance is created, username is '" + this.username + "'");
 		_log('modules data received: ', this._modulesData);
 	},
 	
 	handleConnect: function() {
-		_log('client connected');
+		_log("client '" + this.username + "' connected to service");
 		this.connected = true;
 		if (this._modulesData.size > 0) _log('preparing modules'); 
 		for (moduleId in this._modulesData) {
@@ -85,7 +85,7 @@ var Sametimed = $.inherit({
 			
 			this._srvAcessible = true; 
 			
-			_log('Sametimed instance initialized');
+			_log('Sametimed instance initialized');			
 			
 			// TODO: unsubscribe and disconnect on exit
 		} else {
