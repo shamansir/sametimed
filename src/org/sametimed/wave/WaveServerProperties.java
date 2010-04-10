@@ -41,6 +41,13 @@ public final class WaveServerProperties extends XmlConfigurationFile {
     private String domain = null;
     private int port = -1;
     
+    public final synchronized static WaveServerProperties load(ServletContext fromContext) {
+        if (wavePropsFile == null) { // not loaded or failed to load for the moment
+            instance = new WaveServerProperties(fromContext.getResourceAsStream(PROPS_FILE_PATH));
+        }
+        return instance;        
+    }    
+    
     private WaveServerProperties(InputStream propsFile) {
         try {
             loadFrom(propsFile);
@@ -63,13 +70,6 @@ public final class WaveServerProperties extends XmlConfigurationFile {
         hostname = evaluate("/waveserver/hostname");
         domain = evaluate("/waveserver/domain-name");
         port = Integer.valueOf(evaluate("/waveserver/port"));        
-    }
-    
-    public final synchronized static WaveServerProperties load(ServletContext fromContext) {
-        if (wavePropsFile == null) { // not loaded or failed to load for the moment
-            instance = new WaveServerProperties(fromContext.getResourceAsStream(PROPS_FILE_PATH));
-        }
-        return instance;        
     }
     
     public String getHostname() {

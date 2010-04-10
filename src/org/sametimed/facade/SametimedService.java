@@ -15,7 +15,9 @@ import org.cometd.server.BayeuxService;
 import org.cometd.server.ext.TimesyncExtension;
 import org.sametimed.message.CommandsFactory;
 import org.sametimed.message.Update;
+import org.sametimed.module.ModuleConfig;
 import org.sametimed.module.ModulesFactory;
+import org.sametimed.module.SametimedModule;
 import org.sametimed.wave.WaveServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,8 @@ public class SametimedService extends BayeuxService {
     
     private final Channel confirmChannel;    
     private final Channel updatesChannel;
+    private final Channel mfactoryChannel;
+    
     private final Map<String, SametimedClient> clients 
           = Collections.synchronizedMap(new HashMap<String, SametimedClient>());
     
@@ -79,11 +83,22 @@ public class SametimedService extends BayeuxService {
         
         confirmChannel = getBayeux().getChannel(config.getCfrmChannelPath(), true);        
         updatesChannel = getBayeux().getChannel(config.getUpdChannelPath(), true);
+        mfactoryChannel = getBayeux().getChannel(config.getMFtryChannelPath(), true);
         log.info("Sametimed Bayeux service initialized under {}", config.getFullTunnelPath());
         
         this.commandsFactory = new CommandsFactory(config.getRegisteredCommands());
         this.modulesFactory = new ModulesFactory(config.getModulesToPrepare(),
-                                                 config.getModulesToDisable()); 
+                                                 config.getModulesToDisable()) {
+            
+            @Override
+            protected void onModuleCreated(String moduleId, 
+                                           SametimedModule module, 
+                                           ModuleConfig config) {
+                super.onModuleCreated(moduleId, module, config);
+                publishModuleData(moduleId, config);
+            }
+            
+        }; 
         
         log.info("these modules are successfully configured and initialized: {}", 
                                 modulesFactory.getEnabledModules().toString());
@@ -102,6 +117,7 @@ public class SametimedService extends BayeuxService {
         
         if (!clients.containsKey(remote.getId())) {
             
+            // TODO: recheck username
             String username = (String)data.get("username") + 
                               "@" + waveServerProps.getDomain();
             log.info("registering new client as {}", username);
@@ -111,28 +127,16 @@ public class SametimedService extends BayeuxService {
 
                     @Override
                     public void sendUpdate(Update update) {
-                        if (updatesChannel != null) {
-                            updatesChannel.publish(remote, 
-                                                   update.extractData(), 
-                                                   update.getHashcode());
-                            log.debug("published update to channel");
-                        }
+                        publishUpdate(remote, update);
                     }                                
                 
                 }); 
                
-            Map<String, String> statusData = new HashMap<String, String>();
-            statusData.put("username", data.get("username").toString());
-            statusData.put("status", "ok");
-            confirmChannel.publish(remote, statusData, "serv");
+            publishConfirmation(remote, data.get("username").toString(), true);
                 
         } else {
             
-            log.info("client already registered, join is not performed");            
-            Map<String, String> statusData = new HashMap<String, String>();
-            statusData.put("username", data.get("username").toString());
-            statusData.put("status", "passed");
-            confirmChannel.publish(remote, statusData, null);  
+            publishConfirmation(remote, data.get("username").toString(), true);
             
         }
     }     
@@ -146,8 +150,31 @@ public class SametimedService extends BayeuxService {
     public void processCmd(Client remote, Message message) {
         if (clients.containsKey(remote.getId())) {
             clients.get(remote.getId()).handleCommand(
+                                          // TODO: pass only map and msgId/clientId
                                           commandsFactory.fromMessage(message));
         }
+    }
+    
+    protected void publishUpdate(final Client remote, Update update) {
+        updatesChannel.publish(remote, 
+                               update.extractData(), 
+                               update.getHashcode());
+        log.debug("published update to channel");        
+    }
+    
+    protected void publishConfirmation(final Client remote, String username, boolean registered) {
+        Map<String, String> statusData = new HashMap<String, String>();
+        statusData.put("username", username);
+        statusData.put("status", registered ? "ok" : "passed");
+        confirmChannel.publish(remote, statusData, null);  
+    }
+    
+    protected void publishModuleData(String moduleId, ModuleConfig moduleConfig) {
+        Map<String, String> moduleData = new HashMap<String, String>();
+        moduleData.put("moduleId", moduleId);
+        moduleData.put("treeStructured", String.valueOf(moduleConfig.treeStructured()));
+        moduleData.put("prerendersUpdates", String.valueOf(moduleConfig.prerendersUpdates()));        
+        mfactoryChannel.publish(null, moduleData, null);   
     }
 
 }

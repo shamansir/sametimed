@@ -16,6 +16,7 @@ element sametimed {
                 element confirm-channel { type-word }            
                 element commands-channel { type-word }
                 element updates-channel { type-word }
+                element mfactory-channel { type-word }                
             }
         }
         element cometd-init? { type-url }        

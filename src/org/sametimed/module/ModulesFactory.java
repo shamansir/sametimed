@@ -5,13 +5,17 @@ package org.sametimed.module;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
+
 import java.util.Set;
 
-import org.sametimed.facade.SametimedConfig.ModuleData;
-import org.sametimed.facade.SametimedConfig.ModulesDataList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Constructor;
+
+import org.sametimed.facade.SametimedConfig;
+import org.sametimed.facade.SametimedConfig.ModuleData;
+import org.sametimed.facade.SametimedConfig.ModulesDataList;
 
 /**
  * Project: sametimed
@@ -30,7 +34,7 @@ public class ModulesFactory {
     
     public static final String DEFAULT_MODULES_PACKAGE = "org.sametimed.modules";
     public static final String MODULE_CONF_FILE_PREFIX = "sametimed-module-"; // TODO: store in sametimed.xml?
-    public static final String MODULE_CLASS_NAME_POSTFIX = "Module";    
+    public static final String MODULE_CLASS_NAME_POSTFIX = "Module";
     
     private final Set<String> disabledModules;
     private final ModulesList modules = new ModulesList();
@@ -38,8 +42,7 @@ public class ModulesFactory {
     public ModulesFactory(ModulesDataList modulesToPrepare, Set<String> modulesToDisable) {
         this.disabledModules = modulesToDisable;
         for (ModuleData mdata: modulesToPrepare.values()) {
-            SametimedModule newModule = createModule(mdata);
-            if (newModule != null) modules.put(mdata.id, newModule);
+            createModule(mdata);
         }        
     }
     
@@ -70,8 +73,8 @@ public class ModulesFactory {
     }
     
     public SametimedModule createModule(String moduleId, String modulePackage) {
-        if (!disabledModules.contains(moduleId)) {
-            if (!modules.containsKey(moduleId)) {
+        if (!moduleDisabled(moduleId)) {
+            if (!moduleCreated(moduleId)) {
                 
                 String moduleClassName = getModuleClassName(moduleId); 
                 
@@ -91,19 +94,10 @@ public class ModulesFactory {
                                                 
                         if (moduleConfigFile != null) {
                             try {
-                                          
-                                // FIXME: may extend another module!!
-                                if (moduleClass.getSuperclass().equals(SametimedModule.class)) {
-                                    @SuppressWarnings("unchecked")
-                                    SametimedModule newModule = createModuleUsingConfig(moduleId, 
-                                            (Class<? extends SametimedModule>)moduleClass,
-                                            new ModuleConfig(moduleId, moduleConfigFile));
-                                    return newModule; // MAIN SUCCESSFUL RETURN
-                                } else {
-                                    log.error("module '{}', class {} instance not extends " +
-                                              "SametimedModule, module initialization failure", moduleId, moduleClassName);
-                                    return null;
-                                }
+                                         
+                                // MAIN SUCCESSFUL RETURN, may be null
+                                return createModuleUsingConfig(moduleId, moduleClass,
+                                            new ModuleConfig(moduleId, moduleConfigFile)); 
                                 
                             } catch (FileNotFoundException e) {
                                 log.error("configuration file for module '{}' was " +
@@ -136,40 +130,67 @@ public class ModulesFactory {
                     return null;
                 }
                 
-            } else return modules.get(moduleId); // if already created
+            } else return getCreatedModule(moduleId); // if already created
             
         } else return null; //if module disabled        
-    }     
+    }   
     
+    public boolean moduleDisabled(String moduleId) {
+        return disabledModules.contains(moduleId);
+    }
     
-    protected static SametimedModule createModuleUsingConfig(String moduleId, Class<? extends SametimedModule> moduleClass, ModuleConfig config) {
+    protected boolean moduleCreated(String moduleId) {
+        return modules.containsKey(moduleId);
+    }    
+    
+    protected SametimedModule getCreatedModule(String moduleId) {
+        return modules.get(moduleId);
+    }
+    
+    protected void onModuleCreated(String moduleId,
+            SametimedModule module, ModuleConfig config) { 
+        modules.put(moduleId, module);        
+    }    
+        
+    protected SametimedModule createModuleUsingConfig(String moduleId, Class<?> moduleClass, ModuleConfig config) {
         String moduleClassName = moduleClass.getCanonicalName();
         
         try {
             
-            Constructor<? extends SametimedModule> ctor = moduleClass.getDeclaredConstructor(String.class);
+            Constructor<?> ctor = moduleClass.getDeclaredConstructor(String.class);
             ctor.setAccessible(true);
             Object module = ctor.newInstance(moduleId);
             if (module != null) {
-                log.debug("module '{}', class {} instance was successfully created", moduleId, moduleClassName);
-                return (SametimedModule)module; // MAIN SUCCESSFUL RETURN
+                if (module instanceof SametimedModule) { // TODO: check before instantiating, not after
+                    log.debug("module '{}', class {} instance was successfully created", moduleId, moduleClassName);
+                    onModuleCreated(moduleId, (SametimedModule)module, config);
+                    // MAIN SUCCESSFUL RETURN
+                    return (SametimedModule)module;
+                } else {
+                    log.error("module '{}', class {} instance not extends " +
+                              "SametimedModule, module initialization failure", moduleId, moduleClassName);
+                    return null;                    
+                }
             }
+            
+            return null;
             
         } catch (SecurityException e) {
             log.error("Constructor(String) in class {} is inaccessible (private?) "
-                    + "at module '{}'", moduleClassName, moduleId);
+                    + "at module '{}'", moduleClassName, moduleId);            
+            return null;
         } catch (NoSuchMethodException e) {
             log.error("No constructor(String) was found in class {} "
                       + "for module '{}'", moduleClassName, moduleId);
+            return null;
         } catch (Exception e) {
             log.error("Failed to call constructor(String) of class {} "
                       + "for module '{}'", moduleClassName, moduleId);
             log.error("Error was caused by: {} / {}", e.getClass().getName(), e.getMessage());
-        }
-        
-        return null;    
+            return null;
+        } 
     }
-    
+
     public ModulesList getEnabledModules() {
         return modules;
     }    
@@ -177,5 +198,5 @@ public class ModulesFactory {
     public SametimedModule getModule(String moduleId) {
         return modules.get(moduleId);
     }
-    
+        
 }

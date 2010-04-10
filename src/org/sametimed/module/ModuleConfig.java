@@ -31,17 +31,19 @@ public class ModuleConfig extends XmlConfigurationFile {
     
     private final String moduleId;
     private boolean treeStructured = false;
+    private boolean prerendersUpdates = false;    
     private String documentId = null;
 
-    public ModuleConfig(final String moduleId, InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
+    protected ModuleConfig(final String moduleId, InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
         this.moduleId = moduleId;        
         loadFrom(source);
-        log.debug("module '{}' configuration is loaded from its configuration file", moduleId);
+        log.debug("module '{}' configuration is loaded from its configuration file", moduleId);           
     }
     
     @Override
     protected void extractValues() throws XPathExpressionException {
         treeStructured = "true".equalsIgnoreCase(evaluate("/module/@tree-structured"));
+        prerendersUpdates = "true".equalsIgnoreCase(evaluate("/module/@prerenders-updates"));
         
         String documentIdStr = evaluate("/module/documet-id");
         if (documentIdStr.length() > 0) documentId = documentIdStr;
@@ -50,12 +52,16 @@ public class ModuleConfig extends XmlConfigurationFile {
         
     }
 
-    protected boolean treeStructured() {
+    public boolean treeStructured() {
         return treeStructured;
     }
+    
+    public boolean prerendersUpdates() {
+        return prerendersUpdates;
+    }    
     
     public String getDocumentId() {
         return (documentId != null) ? documentId : moduleId;
     }
 
-}
+}    

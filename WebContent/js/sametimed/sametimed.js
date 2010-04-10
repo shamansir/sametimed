@@ -12,26 +12,24 @@ var SametimedModule = $.inherit({
 
 var SametimedClient = $.inherit({
 	
-	__constructor: function(username, modulesData) {
-		this._modulesData = modulesData;	
+	__constructor: function(username, modulesIds) {
 		this.connected = false;
 		this.modules = {};
 		this.username = username;
 		_log("client instance is created, username is '" + this.username + "'");
-		_log('modules data received: ', this._modulesData);
 	},
 	
 	handleConnect: function() {
 		_log("client '" + this.username + "' connected to service");
 		this.connected = true;
-		if (this._modulesData.size > 0) _log('preparing modules'); 
-		for (moduleId in this._modulesData) {
-			// FIXME: instantiate using classes from their js-files
-			this.modules[moduleId] = new SametimedModule(this._modulesData[moduleId]); 
-		}
-	},	
+	},
+	
+	addModule: function(moduleId, module) {
+		_log('module added: ' + module);
+		this.modules[moduleId] = module;
+	},
 
-	preExecuteCmd: function(command) {
+	handleCommand: function(command) {
 	},
 	
 	executeUpdate: function(update) {
@@ -78,7 +76,9 @@ var Sametimed = $.inherit({
 			cometd.subscribe(this.config.channels.updChannel,					
 							 createMethodReference(this, this._gotUpdate));
 			cometd.subscribe(this.config.channels.cfrmChannel,					
-					 		 createMethodReference(this, this._gotConfirm));			
+					 		 createMethodReference(this, this._gotConfirm));
+			cometd.subscribe(this.config.channels.mftryChannel,
+					         createMethodReference(this, this._gotModule));
 			
 			$('#sametimed-login-submit').click(
 							createMethodReference(this, this._onJoinBtnClick));
@@ -97,16 +97,18 @@ var Sametimed = $.inherit({
 	_onJoinBtnClick: function() {
 		if (this._srvAcessible) {
 			var username = $('#sametimed-login').val();
-			_log("trying to connect as user '", username, "'");
-			if (!this.sclient || !this.sclient.connected) {
-				this.sclient = new SametimedClient(username, this.config.modules); 			
-				cometd.publish(this.config.channels.joinChannel, { 'username': username });
-				// FIXME: disable login field and button				
-			} else {
-				alert('already connected. reload page to reconnect with ' +
-				      'different user');
-				_log('already connected');
-			}	
+			if (username.length > 0) {
+				_log("trying to connect as user '", username, "'");
+				if (!this.sclient || !this.sclient.connected) {
+					this.sclient = new SametimedClient(username, this.config.modules); 			
+					cometd.publish(this.config.channels.joinChannel, { 'username': username });
+					// FIXME: disable login field and button				
+				} else {
+					alert('already connected. reload page to reconnect with ' +
+					      'different user');
+					_log('already connected');
+				}
+			}
 		} else {
 			alert('not connected, join is not performed');
 			_log('not connected, join is not performed');
@@ -129,6 +131,11 @@ var Sametimed = $.inherit({
 				this.sclient.handleConnect(); 
 			} // handle 'passed' status?
 		} 
+	},
+	
+	_gotModule: function(cometObj) {
+		_log('module structure: ');
+		
 	}
 	
 });

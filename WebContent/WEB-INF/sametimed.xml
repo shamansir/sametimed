@@ -12,6 +12,7 @@
         		<confirm-channel>/confirm</confirm-channel>
         		<commands-channel>/command</commands-channel>
         		<updates-channel>/update</updates-channel>
+        		<mfactory-channel>/mfactory</mfactory-channel>
     		</channels>
 		</tunnel>
 		

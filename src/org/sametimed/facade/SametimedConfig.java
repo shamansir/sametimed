@@ -132,6 +132,8 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             log.debug("Commands channel set to '{}'", serviceData.channels.cmdChannelPath);
             serviceData.channels.updChannelPath = evaluate("/sametimed/service/tunnel/channels/updates-channel");
             log.debug("Updates channel set to '{}'", serviceData.channels.updChannelPath);
+            serviceData.channels.mftryChannelPath = evaluate("/sametimed/service/tunnel/channels/mfactory-channel");
+            log.debug("Modules Factory channel set to '{}'", serviceData.channels.mftryChannelPath);            
         }
         
         // ---------------------------- Prepared Modules -----------------------
@@ -250,7 +252,10 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
                               + serviceData.channels.cmdChannelPath + "',");
                 buffer.append("'updChannel':'" 
                               + serviceData.tunnelPath 
-                              + serviceData.channels.updChannelPath + "'");               
+                              + serviceData.channels.updChannelPath + "',");
+                buffer.append("'mftryChannel':'" 
+                              + serviceData.tunnelPath 
+                              + serviceData.channels.mftryChannelPath + "'");                
             buffer.append("},");
             
             buffer.append("'modules':[");
@@ -292,6 +297,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             String cmdChannelPath = "/c";
             String updChannelPath = "/u";
             String cfrmChannelPath = "/r";
+            String mftryChannelPath = "/m";
             
         }
         
@@ -375,7 +381,16 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
      */
     public String getUpdChannelPath() {
         return serviceData.tunnelPath + serviceData.channels.updChannelPath;
-    }   
+    }  
+    
+    /**
+     * Returns Modules factory channel path in format {@code /<tunnel-path>/<channel-name>}
+     * 
+     * @return modules factory channel path
+     */    
+    public String getMFtryChannelPath() {
+        return serviceData.tunnelPath + serviceData.channels.mftryChannelPath;        
+    }
 
     /**
      * Returns full path to tunnel. If absolute path is set in sametimed configuration
