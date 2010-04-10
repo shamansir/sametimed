@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module>
+<module tree-structured="false" prerenders-updates="true">
 			
     <document-id>chat</document-id>
     

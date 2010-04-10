@@ -22,6 +22,7 @@
 	<prepared-modules>
 		<module id="inbox" />
         <module id="errors" />
+        <module id="info" />        
         <module id="users" />
         <module id="console" />
         <module id="example" />        

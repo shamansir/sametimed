@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module tree-structured="false">
+<module tree-structured="false" prerenders-updates="false">
 	
     <document-id>errors</document-id>
     	

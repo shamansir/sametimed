@@ -2,6 +2,7 @@ default namespace = "http://www.sametimed.org"
 
 element module {
     attribute tree-structured { type-boolean }
+    attribute prerenders-updates { type-boolean }
     element document-id? { type-word }
     element declares-commands? {
         element command+ {
