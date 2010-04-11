@@ -16,7 +16,7 @@ import java.util.HashMap;
  *
  */
 @SuppressWarnings("serial")
-public class ModulesList extends HashMap<String, SametimedModule> {
+public class ModulesList extends HashMap<ModuleId, SametimedModule> {
     
     @Override
     public String toString() {

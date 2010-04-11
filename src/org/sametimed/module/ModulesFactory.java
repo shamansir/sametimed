@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Constructor;
 
-import org.sametimed.facade.SametimedConfig;
 import org.sametimed.facade.SametimedConfig.ModuleData;
 import org.sametimed.facade.SametimedConfig.ModulesDataList;
 
@@ -36,19 +35,19 @@ public class ModulesFactory {
     public static final String MODULE_CONF_FILE_PREFIX = "sametimed-module-"; // TODO: store in sametimed.xml?
     public static final String MODULE_CLASS_NAME_POSTFIX = "Module";
     
-    private final Set<String> disabledModules;
+    private final Set<ModuleId> disabledModules;
     private final ModulesList modules = new ModulesList();
     
-    public ModulesFactory(ModulesDataList modulesToPrepare, Set<String> modulesToDisable) {
-        this.disabledModules = modulesToDisable;
+    public ModulesFactory(ModulesDataList modulesToPrepare, Set<ModuleId> disabledModules) {
+        this.disabledModules = disabledModules;
         for (ModuleData mdata: modulesToPrepare.values()) {
             createModule(mdata);
         }        
     }
     
-    protected static String getModuleClassName(String moduleId) {
+    protected static String getModuleClassName(ModuleId moduleId) {
         StringBuffer moduleClassName = new StringBuffer();
-        String[] mIdParts = moduleId.split("-");            
+        String[] mIdParts = moduleId.toString().split("-");            
         for (String mIdPart: mIdParts) {
             moduleClassName.append(mIdPart.substring(0, 1).toUpperCase() + mIdPart.substring(1));
         }  
@@ -56,11 +55,11 @@ public class ModulesFactory {
         return moduleClassName.toString();
     }
     
-    protected static String getModulePackageName(String moduleId) {
-        return DEFAULT_MODULES_PACKAGE + "." + moduleId.replace("-", "_");
+    protected static String getModulePackageName(ModuleId moduleId) {
+        return DEFAULT_MODULES_PACKAGE + "." + moduleId.toString().replace("-", "_");
     }
     
-    protected static String getModuleConfigFileName(String moduleId) {
+    protected static String getModuleConfigFileName(ModuleId moduleId) {
         return MODULE_CONF_FILE_PREFIX + moduleId + ".xml"; 
     }    
     
@@ -68,11 +67,11 @@ public class ModulesFactory {
         return createModule(mdata.id, mdata.packageName);
     }
         
-    public SametimedModule createModule(String moduleId) {
+    public SametimedModule createModule(ModuleId moduleId) {
         return createModule(moduleId, null);        
     }
     
-    public SametimedModule createModule(String moduleId, String modulePackage) {
+    public SametimedModule createModule(ModuleId moduleId, String modulePackage) {
         if (!moduleDisabled(moduleId)) {
             if (!moduleCreated(moduleId)) {
                 
@@ -135,24 +134,24 @@ public class ModulesFactory {
         } else return null; //if module disabled        
     }   
     
-    public boolean moduleDisabled(String moduleId) {
+    public boolean moduleDisabled(ModuleId moduleId) {
         return disabledModules.contains(moduleId);
     }
     
-    protected boolean moduleCreated(String moduleId) {
+    protected boolean moduleCreated(ModuleId moduleId) {
         return modules.containsKey(moduleId);
     }    
     
-    protected SametimedModule getCreatedModule(String moduleId) {
+    protected SametimedModule getCreatedModule(ModuleId moduleId) {
         return modules.get(moduleId);
     }
     
-    protected void onModuleCreated(String moduleId,
+    protected void onModuleCreated(ModuleId moduleId,
             SametimedModule module, ModuleConfig config) { 
         modules.put(moduleId, module);        
     }    
         
-    protected SametimedModule createModuleUsingConfig(String moduleId, Class<?> moduleClass, ModuleConfig config) {
+    protected SametimedModule createModuleUsingConfig(ModuleId moduleId, Class<?> moduleClass, ModuleConfig config) {
         String moduleClassName = moduleClass.getCanonicalName();
         
         try {
@@ -195,8 +194,10 @@ public class ModulesFactory {
         return modules;
     }    
     
-    public SametimedModule getModule(String moduleId) {
-        return modules.get(moduleId);
+    public SametimedModule getModule(ModuleId moduleId) {
+        if (!modules.containsKey(moduleId)) {
+            return createModule(moduleId);
+        } else return modules.get(moduleId);
     }
         
 }

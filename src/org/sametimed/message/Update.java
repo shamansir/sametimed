@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.sametimed.ClientId;
+import org.sametimed.document.DocumentId;
+import org.sametimed.module.ModuleId;
+
 /**
  * Project: sametimed
  * Package: org.sametimed.upd
@@ -23,20 +27,20 @@ import java.util.Map;
  */
 public class Update {
     
-    private final String callerId;
+    private final ClientId callerId;
     // TODO: private final UpdateType updateType;
-    private final String changedModuleId;
-    private final String changedDocumentId;
+    private final ModuleId changedModuleId;
+    private final DocumentId changedDocumentId;
     private final String hashcode;
     // TODO: private final TagID changedTag;
     private final List<String> arguments = new ArrayList<String>(); 
     
-    private Update(String callerId, 
-                   String changedModuleId, 
-                   String changedDocumentId) {
+    private Update(ClientId callerId, 
+                   ModuleId changedModuleId, 
+                   DocumentId changedDocumentId) {
         this.callerId = callerId;
         this.changedModuleId = changedModuleId;
-        this.changedDocumentId = changedModuleId;
+        this.changedDocumentId = changedDocumentId;
         this.hashcode = null; // FIXME: implement
     }
 
@@ -48,7 +52,7 @@ public class Update {
         return null;
     }
     
-    public String getCallerId() {
+    public ClientId getCallerId() {
         return callerId;
     }
     

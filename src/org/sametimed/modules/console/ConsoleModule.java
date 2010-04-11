@@ -3,6 +3,7 @@
  */
 package org.sametimed.modules.console;
 
+import org.sametimed.module.ModuleId;
 import org.sametimed.module.SametimedModule;
 
 /**
@@ -17,6 +18,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class ConsoleModule extends SametimedModule {
 
-    protected ConsoleModule(final String id) { super(id); }
+    protected ConsoleModule(final ModuleId id) { super(id); }
 
 }

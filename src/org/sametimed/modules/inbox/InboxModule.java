@@ -3,6 +3,7 @@
  */
 package org.sametimed.modules.inbox;
 
+import org.sametimed.module.ModuleId;
 import org.sametimed.module.SametimedModule;
 
 /**
@@ -17,6 +18,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class InboxModule extends SametimedModule {
 
-    protected InboxModule(final String id) { super(id); }       
+    protected InboxModule(final ModuleId id) { super(id); }       
     
 }

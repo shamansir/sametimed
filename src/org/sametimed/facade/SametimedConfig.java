@@ -3,12 +3,15 @@
  */
 package org.sametimed.facade;
 
+import org.sametimed.message.CommandAlias;
+import org.sametimed.message.CommandType;
+import org.sametimed.module.ModuleId;
 import org.sametimed.util.XmlConfigurationFile;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -51,7 +54,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     private final ServiceData serviceData = new ServiceData();
     private final CommandsDataList registeredCommands = new CommandsDataList();
     private final ModulesDataList modulesToPrepare = new ModulesDataList();
-    private final Set<String> modulesToDisable = new HashSet<String>();    
+    private final Set<ModuleId> modulesToDisable = Collections.emptySet();    
 
     public final synchronized static SametimedConfig loadConfig(ServletContext fromContext) {
         if ((configFile == null) && !usedDefaults) { // not loaded for the moment
@@ -140,7 +143,9 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         
         if (nodeExists("/sametimed/prepared-modules")) { 
             List<String> modulesIds = evaluateNodes("/sametimed/prepared-modules/module/@id");
-            for (String moduleId: modulesIds) {
+            for (String moduleIdStr: modulesIds) {
+                
+                ModuleId moduleId = ModuleId.valueOf(moduleIdStr);
                 
                 String packageName = null;
                 final String packageNameStr =
@@ -162,8 +167,8 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         // ---------------------------- Disabled Modules -----------------------        
         
         if (nodeExists("/sametimed/disabled-modules")) { 
-            modulesToDisable.addAll(
-                    evaluateNodes("/sametimed/disabled-modules/module-id"));
+            List<String> modulesIds = evaluateNodes("/sametimed/disabled-modules/module-id");
+            for (String moduleIdStr: modulesIds) modulesToDisable.add(ModuleId.valueOf(moduleIdStr));
         }
         
         if (!modulesToDisable.isEmpty()) {
@@ -174,19 +179,23 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         // ---------------------------- Commands Data --------------------------
         
         List<String> commandsAliases = evaluateNodes("/sametimed/registered-commands/command/@alias");
-        for (String commandAlias: commandsAliases) {
+        for (String commandAliasStr: commandsAliases) {
             
-            String commandId = null;
-            final String commandIdStr = 
-                evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@id");
-            if (commandIdStr.length() > 0) commandId = commandIdStr;
+            CommandAlias commandAlias = CommandAlias.valueOf(commandAliasStr);
+            
+            CommandType commandType = null;
+            final String commandTypeStr = 
+                evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@type-id");
+            if (commandTypeStr.length() > 0) commandType = 
+                                         CommandType.valueOf(commandTypeStr);
             
             String className = null;
             final String classNameStr = 
                 evaluate("/sametimed/registered-commands/command[@alias='" + commandAlias + "']/@class");
             if (classNameStr.length() > 0) className = classNameStr;            
             
-            registeredCommands.put(commandAlias, new CommandData(commandId, commandAlias, className));            
+            registeredCommands.put(commandType, 
+                         new CommandData(commandType, commandAlias, className));            
         }
         
         if (!registeredCommands.isEmpty()) {
@@ -259,8 +268,8 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             buffer.append("},");
             
             buffer.append("'modules':[");
-                for (Iterator<String> iter = modulesToPrepare.keySet().iterator(); iter.hasNext(); ) {
-                    String moduleId = iter.next();
+                for (Iterator<ModuleId> iter = modulesToPrepare.keySet().iterator(); iter.hasNext(); ) {
+                    ModuleId moduleId = iter.next();
                     if (!modulesToDisable.contains(moduleId)) {
                         buffer.append("'" + moduleId + "'");
                         if (iter.hasNext()) buffer.append(",");
@@ -305,38 +314,38 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     
     public final class CommandData {
         
-        public final String id;
-        public final String alias;
+        public final CommandType type;
+        public final CommandAlias alias;
         public final String className;
         
-        public CommandData(String id, String alias, String className) {
-            this.id = id;
+        public CommandData(CommandType typeId, CommandAlias alias, String className) {
+            this.type = typeId;
             this.alias = alias;
             this.className = className;
         }
         
-        public CommandData(String id, String alias) { this(id, alias, null); }        
+        public CommandData(CommandType typeId, CommandAlias alias) { this(typeId, alias, null); }        
         
     }
     
     public final class ModuleData {
         
-        public final String id;
+        public final ModuleId id;
         public final String packageName;    
         
-        public ModuleData(String id, String packageName) {
+        public ModuleData(ModuleId id, String packageName) {
             this.id = id;
             this.packageName = packageName;
         }
         
-        public ModuleData(String id) { this(id, null); }           
+        public ModuleData(ModuleId id) { this(id, null); }           
         
     } 
     
     @SuppressWarnings("serial")
-    public final class ModulesDataList extends HashMap<String, ModuleData> { }
+    public final class ModulesDataList extends HashMap<ModuleId, ModuleData> { }
     @SuppressWarnings("serial")
-    public final class CommandsDataList extends HashMap<String, CommandData> { }    
+    public final class CommandsDataList extends HashMap<CommandType, CommandData> { }    
 
     /**
      * Returns application name
@@ -410,7 +419,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
         return modulesToPrepare;
     }
     
-    public Set<String> getModulesToDisable() {
+    public Set<ModuleId> getModulesToDisable() {
         return modulesToDisable;
     }    
     

@@ -14,18 +14,17 @@ package org.sametimed.module;
  *
  */
 public class SametimedModule {
+        
+    private final ModuleId moduleId;
     
-    // FIXME: private final ModuleId moduleId;    
-    private final String moduleId;
-    
-    protected SametimedModule(final String id) {
+    protected SametimedModule(final ModuleId id) {
         moduleId = id;
     }
 
     /**
      * @return
      */
-    public String getId() {
+    public ModuleId getId() {
         return moduleId;
     }
 

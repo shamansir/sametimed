@@ -3,7 +3,12 @@
  */
 package name.shamansir.sametimed.modules.chat.commands;
 
+import org.sametimed.ClientId;
+import org.sametimed.document.DocumentId;
 import org.sametimed.message.Command;
+import org.sametimed.message.CommandAlias;
+import org.sametimed.message.CommandType;
+import org.sametimed.module.ModuleId;
 
 /**
  * Project: sametimed
@@ -17,9 +22,13 @@ import org.sametimed.message.Command;
  */
 public class SayCommand extends Command {
 
-    private SayCommand(String alias, String senderId, String targetModuleId,
-            String targetDocumentId) {
-        super(alias, senderId, targetModuleId, targetDocumentId);
-    }     
+    private SayCommand(CommandAlias alias, CommandType type,
+            ClientId senderId, ModuleId targetModuleId,
+            DocumentId targetDocumentId) {
+        super(alias, type, senderId, targetModuleId, targetDocumentId);
+        // TODO Auto-generated constructor stub
+    }
+
+ 
     
 }

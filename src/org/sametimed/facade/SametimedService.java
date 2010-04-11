@@ -13,9 +13,11 @@ import org.cometd.Client;
 import org.cometd.Message;
 import org.cometd.server.BayeuxService;
 import org.cometd.server.ext.TimesyncExtension;
+import org.sametimed.ClientId;
 import org.sametimed.message.CommandsFactory;
 import org.sametimed.message.Update;
 import org.sametimed.module.ModuleConfig;
+import org.sametimed.module.ModuleId;
 import org.sametimed.module.ModulesFactory;
 import org.sametimed.module.SametimedModule;
 import org.sametimed.wave.WaveServerProperties;
@@ -40,6 +42,8 @@ public class SametimedService extends BayeuxService {
     // TODO: set Eclipse to Warn about all missing JavaDoc comments/tags and
     //       fix these warnings
     
+    // TODO: ability to store user session between page reloads
+    
     private static final Logger log = LoggerFactory
             .getLogger(SametimedService.class);    
     
@@ -47,8 +51,11 @@ public class SametimedService extends BayeuxService {
     private final Channel updatesChannel;
     private final Channel mfactoryChannel;
     
-    private final Map<String, SametimedClient> clients 
-          = Collections.synchronizedMap(new HashMap<String, SametimedClient>());
+    private final Map<ClientId, SametimedClient> clients 
+          = Collections.synchronizedMap(new HashMap<ClientId, SametimedClient>());
+    
+    private final Map<ModuleId, ModuleConfig> modulesConfigs
+          = Collections.synchronizedMap(new HashMap<ModuleId, ModuleConfig>());
     
     private final WaveServerProperties waveServerProps;
     
@@ -91,7 +98,7 @@ public class SametimedService extends BayeuxService {
                                                  config.getModulesToDisable()) {
             
             @Override
-            protected void onModuleCreated(String moduleId, 
+            protected void onModuleCreated(ModuleId moduleId, 
                                            SametimedModule module, 
                                            ModuleConfig config) {
                 super.onModuleCreated(moduleId, module, config);
@@ -122,7 +129,7 @@ public class SametimedService extends BayeuxService {
                               "@" + waveServerProps.getDomain();
             log.info("registering new client as {}", username);
                 
-            clients.put(remote.getId(), 
+            clients.put(ClientId.valueOf(remote.getId()), 
                 new SametimedClient(username, modulesFactory.getEnabledModules()) {
 
                     @Override
@@ -169,9 +176,9 @@ public class SametimedService extends BayeuxService {
         confirmChannel.publish(remote, statusData, null);  
     }
     
-    protected void publishModuleData(String moduleId, ModuleConfig moduleConfig) {
+    protected void publishModuleData(ModuleId moduleId, ModuleConfig moduleConfig) {
         Map<String, String> moduleData = new HashMap<String, String>();
-        moduleData.put("moduleId", moduleId);
+        moduleData.put("moduleId", moduleId.toString());
         moduleData.put("treeStructured", String.valueOf(moduleConfig.treeStructured()));
         moduleData.put("prerendersUpdates", String.valueOf(moduleConfig.prerendersUpdates()));        
         mfactoryChannel.publish(null, moduleData, null);   

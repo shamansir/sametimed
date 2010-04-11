@@ -3,6 +3,7 @@
  */
 package org.sametimed.modules.info;
 
+import org.sametimed.module.ModuleId;
 import org.sametimed.module.SametimedModule;
 
 /**
@@ -17,6 +18,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class InfoModule extends SametimedModule {
 
-    protected InfoModule(final String id) { super(id); }    
+    protected InfoModule(final ModuleId id) { super(id); }    
     
 }

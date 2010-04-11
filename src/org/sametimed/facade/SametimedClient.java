@@ -3,6 +3,8 @@
  */
 package org.sametimed.facade;
 
+import org.waveprotocol.wave.model.wave.ParticipantId;
+
 import org.sametimed.message.Command;
 import org.sametimed.message.Update;
 import org.sametimed.module.ModulesList;
@@ -20,14 +22,14 @@ import org.sametimed.wave.WavesClient;
  */
 public abstract class SametimedClient {
     
-    private final String username;    
+    private final ParticipantId user;    
     
     private final WavesClient wavesClient; // connects to the server and stores 
                                            // waves    
     private final ModulesList modules;
     
     public SametimedClient(String username, ModulesList enabledModules) {
-        this.username = username;
+        this.user = new ParticipantId(username);
         this.modules = enabledModules;
         this.wavesClient = null; // FIXME: implement
     }
@@ -42,7 +44,7 @@ public abstract class SametimedClient {
     public abstract void sendUpdate(Update update);
     
     public String getUsername() {
-        return username;
+        return user.getAddress();
     }
 
 }

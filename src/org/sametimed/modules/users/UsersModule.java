@@ -3,6 +3,7 @@
  */
 package org.sametimed.modules.users;
 
+import org.sametimed.module.ModuleId;
 import org.sametimed.module.SametimedModule;
 
 /**
@@ -17,6 +18,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class UsersModule extends SametimedModule {
 
-    protected UsersModule(final String id) { super(id); }       
+    protected UsersModule(final ModuleId id) { super(id); }       
     
 }

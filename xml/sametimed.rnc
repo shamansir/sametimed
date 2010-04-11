@@ -36,7 +36,7 @@ element sametimed {
     element registered-commands? {
         element command+ {
             attribute alias { type-word }
-            attribute id { type-word }            
+            attribute type-id { type-word }            
             attribute class? { type-class }                  
         }
     }

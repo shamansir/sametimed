@@ -9,6 +9,7 @@ import java.io.InputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
+import org.sametimed.document.DocumentId;
 import org.sametimed.util.XmlConfigurationFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,12 @@ public class ModuleConfig extends XmlConfigurationFile {
     private static final Logger log = LoggerFactory
             .getLogger(ModuleConfig.class);
     
-    private final String moduleId;
+    private final ModuleId moduleId;
     private boolean treeStructured = false;
     private boolean prerendersUpdates = false;    
-    private String documentId = null;
+    private DocumentId documentId = null;
 
-    protected ModuleConfig(final String moduleId, InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
+    protected ModuleConfig(final ModuleId moduleId, InputStream source) throws XPathExpressionException, SAXException, ParserConfigurationException, IOException {
         this.moduleId = moduleId;        
         loadFrom(source);
         log.debug("module '{}' configuration is loaded from its configuration file", moduleId);           
@@ -46,7 +47,7 @@ public class ModuleConfig extends XmlConfigurationFile {
         prerendersUpdates = "true".equalsIgnoreCase(evaluate("/module/@prerenders-updates"));
         
         String documentIdStr = evaluate("/module/documet-id");
-        if (documentIdStr.length() > 0) documentId = documentIdStr;
+        if (documentIdStr.length() > 0) documentId = DocumentId.valueOf(documentIdStr);
         
         // TODO: 'declared-commands' and 'accepts-commands'
         
@@ -60,8 +61,8 @@ public class ModuleConfig extends XmlConfigurationFile {
         return prerendersUpdates;
     }    
     
-    public String getDocumentId() {
-        return (documentId != null) ? documentId : moduleId;
+    public DocumentId getDocumentId() {
+        return (documentId != null) ? documentId : DocumentId.valueOf(moduleId.toString());
     }
 
 }    

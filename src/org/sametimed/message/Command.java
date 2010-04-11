@@ -3,6 +3,10 @@
  */
 package org.sametimed.message;
 
+import org.sametimed.ClientId;
+import org.sametimed.document.DocumentId;
+import org.sametimed.module.ModuleId;
+
 /**
  * Project: sametimed
  * Package: org.sametimed.cmd
@@ -18,17 +22,19 @@ package org.sametimed.message;
  */
 public class Command {
     
-    private final String alias; 
-    private final String senderId;
+    private final CommandAlias alias;
+    private final CommandType type; 
+    private final ClientId senderId;
     //private final String hash;
     // FIXME: private final CommandType commandType;
-    private final String targetModuleId;
-    private final String targetDocumentId;
+    private final ModuleId targetModuleId;
+    private final DocumentId targetDocumentId;
     // private final String[] arguments;
     
-    protected Command(String alias, String senderId, 
-                      String targetModuleId, String targetDocumentId) {
+    protected Command(CommandAlias alias, CommandType type, ClientId senderId, 
+                      ModuleId targetModuleId, DocumentId targetDocumentId) {
         this.alias = alias;
+        this.type = type;
         this.senderId = senderId;
         this.targetModuleId = targetModuleId;
         this.targetDocumentId = targetDocumentId;
@@ -38,7 +44,7 @@ public class Command {
     
     // FIXME: implement getType()
     
-    public String getAlias() {
+    public CommandAlias getAlias() {
         return alias;
     }
     

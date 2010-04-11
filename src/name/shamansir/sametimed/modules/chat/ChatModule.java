@@ -3,6 +3,7 @@
  */
 package name.shamansir.sametimed.modules.chat;
 
+import org.sametimed.module.ModuleId;
 import org.sametimed.module.SametimedModule;
 
 /**
@@ -17,6 +18,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class ChatModule extends SametimedModule {
 
-    protected ChatModule(final String id) { super(id); }     
+    protected ChatModule(final ModuleId id) { super(id); }     
     
 }

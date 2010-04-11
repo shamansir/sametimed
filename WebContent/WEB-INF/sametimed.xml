@@ -35,12 +35,12 @@
 	</disabled-modules>
 	
 	<registered-commands>
-		<command alias="new" id="CMD_NEW" />
-        <command alias="open" id="CMD_OPEN" />
-        <command alias="add" id="CMD_ADD" />
-        <command alias="undo" id="CMD_UNDO" />
-        <command alias="remove" id="CMD_REMOVE" />
-        <command alias="swch" id="CMD_VIEW" />               		
+		<command alias="new"    type-id="CMD_NEW" />
+        <command alias="open"   type-id="CMD_OPEN" />
+        <command alias="add"    type-id="CMD_ADD" />
+        <command alias="undo"   type-id="CMD_UNDO" />
+        <command alias="remove" type-id="CMD_REMOVE" />
+        <command alias="swch"   type-id="CMD_VIEW" />               		
 	</registered-commands>
 	
 </sametimed>

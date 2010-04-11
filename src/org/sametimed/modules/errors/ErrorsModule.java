@@ -3,6 +3,7 @@
  */
 package org.sametimed.modules.errors;
 
+import org.sametimed.module.ModuleId;
 import org.sametimed.module.SametimedModule;
 
 /**
@@ -17,6 +18,6 @@ import org.sametimed.module.SametimedModule;
  */
 public class ErrorsModule extends SametimedModule {
 
-    protected ErrorsModule(final String id) { super(id); }    
+    protected ErrorsModule(final ModuleId id) { super(id); }    
     
 }
