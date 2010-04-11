@@ -98,11 +98,14 @@ public class SametimedService extends BayeuxService {
                                                  config.getModulesToDisable()) {
             
             @Override
-            protected void onModuleCreated(ModuleId moduleId, 
-                                           SametimedModule module, 
-                                           ModuleConfig config) {
-                super.onModuleCreated(moduleId, module, config);
-                publishModuleData(moduleId, config);
+            protected void onModuleReady(ModuleId moduleId, 
+                                         SametimedModule module, 
+                                         ModuleConfig config) {
+                super.onModuleReady(moduleId, module, config);
+                // for modules-to-prepare, this method is called right from
+                // the factory constructor so when user joins, these modules
+                // are ready (created) for sure
+                modulesConfigs.put(moduleId, config);
             }
             
         }; 
@@ -122,6 +125,7 @@ public class SametimedService extends BayeuxService {
         log.info("client {} tries to join as {}", remote.getId(),
                 data.get("username"));
         
+        // FIXME: use service client? 
         if (!clients.containsKey(remote.getId())) {
             
             // TODO: recheck username
@@ -129,25 +133,29 @@ public class SametimedService extends BayeuxService {
                               "@" + waveServerProps.getDomain();
             log.info("registering new client as {}", username);
                 
-            clients.put(ClientId.valueOf(remote.getId()), 
+            clients.put(ClientId.valueOf(remote.getId()),
                 new SametimedClient(username, modulesFactory.getEnabledModules()) {
 
                     @Override
                     public void sendUpdate(Update update) {
-                        publishUpdate(remote, update);
+                        publishUpdate(update);
                     }                                
                 
                 }); 
                
+            remote.startBatch();
             publishConfirmation(remote, data.get("username").toString(), true);
-                
+            publishModulesConfiguration(remote);
+            remote.endBatch();
+            
         } else {
             
-            publishConfirmation(remote, data.get("username").toString(), true);
+            publishConfirmation(remote, data.get("username").toString(), false);
             
         }
     }     
     
+
     /**
      * Fires when command is received
      * 
@@ -162,8 +170,8 @@ public class SametimedService extends BayeuxService {
         }
     }
     
-    protected void publishUpdate(final Client remote, Update update) {
-        updatesChannel.publish(remote, 
+    protected void publishUpdate(Update update) {
+        updatesChannel.publish(getClient(), 
                                update.extractData(), 
                                update.getHashcode());
         log.debug("published update to channel");        
@@ -173,15 +181,21 @@ public class SametimedService extends BayeuxService {
         Map<String, String> statusData = new HashMap<String, String>();
         statusData.put("username", username);
         statusData.put("status", registered ? "ok" : "passed");
-        confirmChannel.publish(remote, statusData, null);  
+        remote.deliver(getClient(), confirmChannel.getId(), statusData, null);
     }
     
-    protected void publishModuleData(ModuleId moduleId, ModuleConfig moduleConfig) {
+    protected void publishModuleData(final Client remote, ModuleId moduleId, ModuleConfig moduleConfig) {
         Map<String, String> moduleData = new HashMap<String, String>();
         moduleData.put("moduleId", moduleId.toString());
         moduleData.put("treeStructured", String.valueOf(moduleConfig.treeStructured()));
-        moduleData.put("prerendersUpdates", String.valueOf(moduleConfig.prerendersUpdates()));        
-        mfactoryChannel.publish(null, moduleData, null);   
+        moduleData.put("prerendersUpdates", String.valueOf(moduleConfig.prerendersUpdates()));
+        remote.deliver(getClient(), mfactoryChannel.getId(), moduleData, null);
     }
+    
+    protected void publishModulesConfiguration(Client remote) {
+        for (Map.Entry<ModuleId, ModuleConfig> entry: modulesConfigs.entrySet()) {
+            publishModuleData(remote, entry.getKey(), entry.getValue());
+        }        
+    }    
 
 }

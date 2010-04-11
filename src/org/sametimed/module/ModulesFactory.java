@@ -73,7 +73,7 @@ public class ModulesFactory {
     
     public SametimedModule createModule(ModuleId moduleId, String modulePackage) {
         if (!moduleDisabled(moduleId)) {
-            if (!moduleCreated(moduleId)) {
+            if (!moduleReady(moduleId)) {
                 
                 String moduleClassName = getModuleClassName(moduleId); 
                 
@@ -129,7 +129,7 @@ public class ModulesFactory {
                     return null;
                 }
                 
-            } else return getCreatedModule(moduleId); // if already created
+            } else return getReadyModule(moduleId); // if already created
             
         } else return null; //if module disabled        
     }   
@@ -138,15 +138,15 @@ public class ModulesFactory {
         return disabledModules.contains(moduleId);
     }
     
-    protected boolean moduleCreated(ModuleId moduleId) {
+    protected boolean moduleReady(ModuleId moduleId) {
         return modules.containsKey(moduleId);
     }    
     
-    protected SametimedModule getCreatedModule(ModuleId moduleId) {
+    protected SametimedModule getReadyModule(ModuleId moduleId) {
         return modules.get(moduleId);
     }
     
-    protected void onModuleCreated(ModuleId moduleId,
+    protected void onModuleReady(ModuleId moduleId,
             SametimedModule module, ModuleConfig config) { 
         modules.put(moduleId, module);        
     }    
@@ -156,13 +156,13 @@ public class ModulesFactory {
         
         try {
             
-            Constructor<?> ctor = moduleClass.getDeclaredConstructor(String.class);
+            Constructor<?> ctor = moduleClass.getDeclaredConstructor(ModuleId.class);
             ctor.setAccessible(true);
             Object module = ctor.newInstance(moduleId);
             if (module != null) {
                 if (module instanceof SametimedModule) { // TODO: check before instantiating, not after
                     log.debug("module '{}', class {} instance was successfully created", moduleId, moduleClassName);
-                    onModuleCreated(moduleId, (SametimedModule)module, config);
+                    onModuleReady(moduleId, (SametimedModule)module, config);
                     // MAIN SUCCESSFUL RETURN
                     return (SametimedModule)module;
                 } else {
@@ -175,15 +175,15 @@ public class ModulesFactory {
             return null;
             
         } catch (SecurityException e) {
-            log.error("Constructor(String) in class {} is inaccessible (private?) "
+            log.error("Constructor(ModuleId) in class {} is inaccessible (private?) "
                     + "at module '{}'", moduleClassName, moduleId);            
             return null;
         } catch (NoSuchMethodException e) {
-            log.error("No constructor(String) was found in class {} "
+            log.error("No constructor(ModuleId) was found in class {} "
                       + "for module '{}'", moduleClassName, moduleId);
             return null;
         } catch (Exception e) {
-            log.error("Failed to call constructor(String) of class {} "
+            log.error("Failed to call constructor(ModuleId) of class {} "
                       + "for module '{}'", moduleClassName, moduleId);
             log.error("Error was caused by: {} / {}", e.getClass().getName(), e.getMessage());
             return null;

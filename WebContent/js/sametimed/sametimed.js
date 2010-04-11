@@ -16,16 +16,16 @@ var SametimedClient = $.inherit({
 		this.connected = false;
 		this.modules = {};
 		this.username = username;
-		_log("client instance is created, username is '" + this.username + "'");
+		_log(this.username, "> client instance is created, username is '" + this.username + "'");
 	},
 	
 	handleConnect: function() {
-		_log("client '" + this.username + "' connected to service");
+		_log(this.username, "> client '" + this.username + "' connected to service");
 		this.connected = true;
 	},
 	
 	addModule: function(moduleId, module) {
-		_log('module added: ' + module);
+		_log(this.username, '> module added: ', module);
 		this.modules[moduleId] = module;
 	},
 
@@ -134,8 +134,11 @@ var Sametimed = $.inherit({
 	},
 	
 	_gotModule: function(cometObj) {
-		_log('module structure: ');
-		
+		_log('module structure: ', cometObj.data);
+		if (this.sclient) {
+			this.sclient.addModule(cometObj.data.moduleId,
+					               cometObj.data);
+		}
 	}
 	
 });
