@@ -13,13 +13,15 @@ import org.cometd.Client;
 import org.cometd.Message;
 import org.cometd.server.BayeuxService;
 import org.cometd.server.ext.TimesyncExtension;
-import org.sametimed.ClientId;
+import org.sametimed.client.ClientId;
+import org.sametimed.client.SametimedClient;
 import org.sametimed.message.CommandsFactory;
 import org.sametimed.message.Update;
 import org.sametimed.module.ModuleConfig;
 import org.sametimed.module.ModuleId;
 import org.sametimed.module.ModulesFactory;
 import org.sametimed.module.SametimedModule;
+import org.sametimed.wave.WaveServerConnectionException;
 import org.sametimed.wave.WaveServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,18 +124,17 @@ public class SametimedService extends BayeuxService {
      * @param data joining process information
      */
     public void tryJoin(final Client remote, Map<String, Object> data) {
-        log.info("client {} tries to join as {}", remote.getId(),
+        log.info("client {} tries to join as '{}'", remote.getId(),
                 data.get("username"));
-        
-        // FIXME: use service client? 
+         
         if (!clients.containsKey(remote.getId())) {
             
-            // TODO: recheck username
-            String username = (String)data.get("username") + 
-                              "@" + waveServerProps.getDomain();
-            log.info("registering new client as {}", username);
+            // FIXME: recheck username
+            String username = (String)data.get("username");
+            log.info("registering new client {} as '{}'", remote.getId(), username);
                 
-            clients.put(ClientId.valueOf(remote.getId()),
+            
+            SametimedClient newClient = 
                 new SametimedClient(username, modulesFactory.getEnabledModules()) {
 
                     @Override
@@ -141,12 +142,23 @@ public class SametimedService extends BayeuxService {
                         publishUpdate(update);
                     }                                
                 
-                }); 
-               
-            remote.startBatch();
-            publishConfirmation(remote, data.get("username").toString(), true);
-            publishModulesConfiguration(remote);
-            remote.endBatch();
+                };
+                
+            try {
+                newClient.connectToWave(waveServerProps);
+                
+                clients.put(ClientId.valueOf(remote.getId()), newClient); 
+                
+                remote.startBatch();
+                publishConfirmation(remote, data.get("username").toString(), true);
+                publishModulesConfiguration(remote);
+                remote.endBatch();
+                
+                log.info("connection process for client {} successfully finished", remote.getId());                
+            } catch (WaveServerConnectionException e) {
+                log.error("failed to connect to Wave Server, registration aborted for client {}",
+                          remote.getId());
+            }
             
         } else {
             

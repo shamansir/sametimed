@@ -3,7 +3,7 @@
  */
 package org.sametimed.message;
 
-import org.sametimed.ClientId;
+import org.sametimed.client.ClientId;
 import org.sametimed.document.DocumentId;
 import org.sametimed.module.ModuleId;
 

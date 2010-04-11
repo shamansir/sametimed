@@ -10,8 +10,8 @@ import org.sametimed.util.XmlConfigurationFile;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +54,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     private final ServiceData serviceData = new ServiceData();
     private final CommandsDataList registeredCommands = new CommandsDataList();
     private final ModulesDataList modulesToPrepare = new ModulesDataList();
-    private final Set<ModuleId> modulesToDisable = Collections.emptySet();    
+    private final Set<ModuleId> modulesToDisable = new HashSet<ModuleId>();    
 
     public final synchronized static SametimedConfig loadConfig(ServletContext fromContext) {
         if ((configFile == null) && !usedDefaults) { // not loaded for the moment
@@ -75,10 +75,10 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
             if (configFile != null) log.info("configuration loaded from: {}", CONFIG_FILE_PATH);
         } catch (FileNotFoundException fnfe) {
             loadDefaults();          
-            log.debug("no file passed or found at {}, loaded defaults", CONFIG_FILE_PATH);  
+            log.error("no file passed or found at {}, loaded defaults", CONFIG_FILE_PATH);  
         } catch (Exception e) {
             loadDefaults();            
-            log.debug("exception appeared while loading XML config: {} from {}", 
+            log.error("exception appeared while loading XML config: {} from {}", 
                     e.getClass() + " " + e.getMessage(),
                     CONFIG_FILE_PATH);            
             log.debug("ignored exception, loaded defaults");              
@@ -412,7 +412,7 @@ public class SametimedConfig extends XmlConfigurationFile implements JSON.Genera
     public String getFullTunnelPath() {
         return (serviceData.locationDefined 
                 ? (serviceData.protocol + "://" + serviceData.hostname + ":" + serviceData.port) 
-                : "") + "/" + serviceData.appName + "/" + serviceData.tunnelPath;
+                : "") + "/" + serviceData.appName + serviceData.tunnelPath;
     }
     
     public ModulesDataList getModulesToPrepare() {

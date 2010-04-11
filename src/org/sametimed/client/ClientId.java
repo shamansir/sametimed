@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.sametimed;
+package org.sametimed.client;
 
 /**
  * Project: sametimed
