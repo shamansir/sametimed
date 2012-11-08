@@ -1,0 +1,61 @@
+http://code.google.com/p/sametimed
+
+Web-page with modules, synchronized in Same Time, based on Google Wave Protocol [v0.8] /started from scratch/ {Java, JavaScript}
+
+
+== Sametimed ==
+
+=== Web-page with modules, synchronized in Same Time, based on Google Wave Protocol ===
+
+{ [http://shamansir.tumblr.com/post/2543669420/sametimed-google-wave-client A post in my blog with description of the project] }
+
+*Currently the project is frozen, WAR-file in downloads section represents first version, shown in the video, source code is in the stage of refactoring to use Cometd. May be I'll continue the development later, any participation is appreciated*
+
+_(written in Java, locally hosted)_
+
+Requires Web Application Server and uses FedOne Server to create waves (as client).
+
+ * See SametimedInstallationInstructions on running the 0.1.3 branch version of application.
+ * See DevelopingSametimed on participating in development (for the version 0.1.3, things will change soon possibly)
+ * See CorePackagesFormat on the format of the communication packages in 0.1.3 (will also be changed, possibly)
+ * See [TagsIDsGenerationSystem] on how tags IDs are generated
+
+ - *NB:* Please mention that terms used inside the project are differ with [http://wave-protocol.googlecode.com/hg/spec/conversation/convspec.html#anchor7 Google Wave Protocol terms] (that may be fixed in future): _wave_ in `sametimed` currently refers to _conversation_ in `google wave`. So, wavelet _contains waves_. Each _wave_ (conversation) knows its participants and have a fixed number of documents, one for every implemented/supported module. _Document_ always refers to module content, not to the _blip_ and its content is strictly refers to its type (module says type to document), so id is also linked to the module. _Blips_, _threads_ and _replies_ are not implemented and may be  will ever not implemented because of project idea. There is no _conversation manifests_ because there is no _blips_, but they possibly will be replaced with some XSD/RelaxNG schemes to describe allowed structure of the document.
+
+----
+
+=== Updates ===
+
+*Sat Mar 14 2010, 23:50:50* Created branch *0.1.39*, will start refactoring from the scratch, now if you want to run last working sources, please update to this branch, not *default*. 
+
+*Tue Mar 9 2010, 03:04:50* Added Sametimed2010FuturePresentationDraft page (beware of traffic, there are big images), it is planned to be created after the things described below will be implemented (or before, just like Google does :) )
+
+*Tue Mar 9 2010, 00:04:07* Created some schemes on planning to refactor/implement code as it was mentioned to work. May be it will be the hard part, but it is required to make project conform the (new) main idea. Here's [http://www.xmind.net/share/shamansir/sametimed/ inner structure scheme] and here's [http://www.xmind.net/share/shamansir/sametimed-interaction/ interaction scheme] (very possibly they will change a bit while refactoring and reading docs). Images can be found [http://code.google.com/p/sametimed/source/browse/doc here].
+
+*Fri Nov 26 2009, 20:15:26* Merged with subversion history, so full commit history is available from mercurial repository.
+
+*Fri Nov 6 2009, 10:28:59* Changed to mercurial repository, so no project previous commit history is available until site is switched back to subversion (I think there is really no need to)
+
+*Sun Nov 1 2009* Beta 0.1.3 released, still with ugly design, it is just a progress snapshot - several improvements in code and start to develop editor 
+
+*Mon Oct 12 2009* Beta 0.1 released with ugly design, but waves and chat support 
+
+----
+
+=== Video ===
+
+(b0.1.3 state)
+
+[http://vimeo.com/7036141 http://xmages.net/out.php/i544460_vimeosametimed.PNG]
+
+----
+
+=== Screenshots ===
+
+see [Screenshots] page
+
+----
+
+_status_: in progress.
+
+<wiki:gadget url="http://www.ohloh.net/p/451325/widgets/project_basic_stats.xml" height="220" border="0"/>

@@ -1,0 +1,3 @@
+#summary Federation One Server Description
+
+FedOne (Federation One) is a Google Wave server. For installation instructions [http://code.google.com/p/wave-protocol/wiki/Installation visit this page].

@@ -1,0 +1,8 @@
+#summary List of Bayeux protocol channels used in sametimed.
+#labels Phase-Design
+
+= Channels =
+
+  * `/sametimed/join` used to register new client or return the existing one
+  * `/sametimed/cmd` used to send commands from client to server (sends clientID)
+  * `/sametimed/upd` used by client to monitor updates sent from server (sent only for client who really needs them)

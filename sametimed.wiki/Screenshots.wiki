@@ -1,0 +1,16 @@
+#summary Screenshots of sametimed, different versions
+#labels Featured,Phase-Design
+
+== b0.1.3 ==
+_21 Nov 2009_
+----
+
+[http://img188.imageshack.us/img188/1360/sametimedtestscreen.png http://img188.imageshack.us/img188/1360/sametimedtestscreen.th.png]
+
+[http://img99.imageshack.us/img99/7782/sametimedwithxhtml.png http://img99.imageshack.us/img99/7782/sametimedwithxhtml.th.png]
+
+[http://xmages.net/out.php/i542856_Screenshotsametimedcolored.png http://xmages.net/out.php/t542856_Screenshotsametimedcolored.png]
+
+[http://img223.imageshack.us/img223/5277/sametimeddemo01.png http://img223.imageshack.us/img223/5277/sametimeddemo01.th.png]
+
+[http://img25.imageshack.us/img25/5166/sametimeddemo02.png http://img25.imageshack.us/img25/5166/sametimeddemo02.th.png]

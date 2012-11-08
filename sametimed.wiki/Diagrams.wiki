@@ -1,0 +1,12 @@
+#summary List of project diagrams
+#labels Phase-Design,Featured
+
+= Introduction =
+
+All diagrams are included in `doc.sametimed` repository and there is the most resent version of them
+
+= List =
+
+  * [http://www.xmind.net/share/shamansir/sametimed/ Main classes structure scheme]
+  * [http://www.xmind.net/share/shamansir/sametimed-interaction/ Client-Server interaction Scheme]
+  * [http://www.xmind.net/share/shamansir/file-structure/ Project files structure]

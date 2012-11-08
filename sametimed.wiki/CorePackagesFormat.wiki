@@ -1,0 +1,26 @@
+#summary Description of the client-to-server-and-back packages format
+#labels Deprecated
+
+= Packages Format =
+
+All packages are sent/received with `POST` request and since [http://code.google.com/p/sametimed/source/detail?r=7e60c886f9765c2ec8d3aa3537303df3cd345c78 r23] are sent in plain text as MIME. (Before was XML).
+
+== Commands ==
+
+Commands have this format:
+
+{{{<name>{<client-id>[ <document-alias>][ <arg1-name>("<arg1-value>") <arg2-name>("<arg2-value>"]))}}}
+
+So, a command like this is correct:
+
+{{{say(31 chat text("hello!") author("test@acmewave.com"))}}}
+
+== Messages ==
+
+Messages format differs a little bit depending of their type. Standard update messages format:
+
+{{{<type>{<client-id>[ <arg1-name>("<arg1-value>") <arg2-name>("<arg2-value>"]))}}}
+
+Model updates messages format:
+
+{{{upd{<client-id> <document-alias> value("<json-model-value>"))}}}

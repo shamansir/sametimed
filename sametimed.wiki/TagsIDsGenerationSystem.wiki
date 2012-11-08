@@ -1,0 +1,41 @@
+#summary About the Tags IDs Generation
+#labels Phase-Design
+
+IDs for all documents types' tags are now generated using the special system. It uses dots as separators for domains and a sequence of latin letters for domain values (lower, then upper - may be will be changed just to lower further)
+
+= Example =
+
+{{{
+   <tag id="a" />
+   <tag id="b" />
+   <tag id="c" />
+   <tag id="d" >
+   		<tag id="d.a">
+   			<tag id="d.a.a" />
+   			<tag id="d.a.b" />
+   			<tag id="d.a.c">
+   				<tag id="d.a.c.a" />
+   			</tag>
+   			<tag id="d.a.d" /> 
+   		</tag>
+   		<tag id="d.b" />
+   		<tag id="d.c">
+   			<tag id="d.c.a" />
+   		</tag>
+   </tag>
+   <tag id="e" />
+   <tag id="f" />
+   ...
+   <tag id="z" />
+   <tag id="A" />
+   ...
+   <tag id="Z" />
+   <tag id="aa" />
+   ...
+   <tag id="aZ" />
+   <tag id="ba" />
+   ...
+   <tag id="ZZ" />
+   <tag id="aaa" />
+   ... 
+}}}

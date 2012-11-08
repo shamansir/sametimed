@@ -1,0 +1,99 @@
+#summary Participating in sametimed development
+#labels Phase-Implementation
+
+<wiki:toc max_depth="3" />
+
+= Using/Creating Eclipse Project =
+
+The Eclipse project of sametimed is a simple _Dynamic Web Project_
+
+You have two ways to create a project in Eclipse:
+
+  * Clone from repository and then just use Eclipse project files from `.zip` file, taken from downloads section
+  * Create Eclipse project manually and then clone from repository.
+
+== Requirements ==
+
+  * [http://www.eclipse.org/downloads Eclipse Galileo] or higher with Java EE support ([http://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/galileo/SR1/eclipse-jee-galileo-SR1-linux-gtk.tar.gz direct link])
+  * Installed [http://code.google.com/p/wave-protocol wave-protocol server] ([http://code.google.com/p/wave-protocol/wiki/Installation installation instructions])
+  * Installed XMPP server ([http://code.google.com/p/wave-protocol/wiki/OpenFireInstallation wave+openfire], [http://www.process-one.net/en/blogs/article/using_google_wave_reference_implementation_with_ejabberd/ wave+ejabberd], [http://code.google.com/p/wave-protocol/wiki/ProsodyInstallation wave+prosody])
+  * [http://www.mozilla.com/en-US/firefox Firefox browser]
+  * [http://code.google.com/p/run-jetty-run/ RunJettyRun plugin] installation is described below
+
+== Creating using zip from downloads ==
+
+  # Create folder to checkout into: `mkdir ./sametimed` (better to make it into your future Eclipse Workspace folder)
+  # Move there: `cd ./sametimed`
+  # Clone there: `hg clone https://sametimed.googlecode.com/hg/ .` (if you plan to push in future, you can use your account for this, as described [http://code.google.com/p/sametimed/source/checkout here])
+  # Download the last version of project files, say `wget http://sametimed.googlecode.com/files/sametimed.b0.1.eclipse-files.zip`, exactly in this folder
+  # Extract them in this folder: `unzip ./sametimed.b0.1.eclipse-files.zip`
+  # Run _Eclipse_ and use _Import Existing Project_
+  # Follow instruction on using _!RunJettyRun_ to run project as Web Application below
+
+== Manually ==
+
+  (Screenshots of all the main dialogs in this process are shown [http://picasaweb.google.com/shaman.sir/Sametimed?feat=directlink in my related Picasa album])
+
+  From Eclipse:
+
+  # _File_ -> _New_ -> _Project..._ -> _Web_ -> _Dynamic Web Project_ -> _Next >_
+  # There: 
+    * *Project name*: `sametimed`
+    * *Targeted Runtime*: `<`None`>`
+    * *Configuration*: Minimal Configuration
+  # -> _Finish_
+  # sametimed, _Project_ -> _Close Project_
+
+  From Console:
+
+  # Go into new project directory: `cd <eclipse-workspace-dir>/sametimed`
+  # Remove source directory to make no conflicts with repository: `rm -R ./src`
+  # Remove web content directory to make no conflicts with repository: `rm -R ./WebContent` (all required files for Web Application are exists in repository) 
+  # Create some temporary directory inside: `mkdir ./hg-temp` (mercurial wants an empty directory to clone into)
+  # Clone there: `hg clone https://sametimed.googlecode.com/hg/ ./hg-temp` (if you plan to push in future, you can use your account for this, according to [http://code.google.com/p/sametimed/source/checkout instructions]).
+  # Move all (inluding `.hg`) repository files up: `mv ./hg-temp/{,.}* .`
+  # Remove `hg-temp`: `rm -Rf ./hg-temp`
+ 
+  Again from Eclipse:
+
+  # sametimed, _Project_ -> _Open Project_
+  # sametimed -> _Refresh_
+  # sametimed, _Project_ -> _Clean..._ -> _OK_
+  # sametimed -> _Properties_ ; in this window:
+    # _Resource_ -> Ensure _UTF-8_ encoding
+    # _Java Compiler_ -> Ensure _1.6_ version
+    # _Builders_ -> Uncheck `Faceted Validation Builder`, agree that you understand what you are doing
+    # _Java Build Path_: 
+      * *Default output folder*: `sametimed/WebContent/WEB-INF/classes` (create if required)
+      * _Libraries_ tab: select _EAR Libraries_, _Remove_
+      * _Order and Export_ tab: check _Web App Libraries_
+      * Apply
+    # _Javascript_ -> _Libraries_:
+      * _Source_ tab: click _Add Folder..._, select `WebContent` folder and click _OK_ in folder selection dialog; then expand `WebContent`, select _Excluded_, _Edit..._, (_Exclusion patterns_) -> _Add..._ -> `WEB-INF/`, _Add..._ -> `META-INF/` -> _OK_, _Finish_
+      * Apply
+    # _XDoclet_ -> Uncheck _Enable XDoclet Buider_
+  # sametimed -> _Close Project_
+  # sametimed -> _Open Project_ (to make it parse `web.xml` correctly, _Clean_ or _Build_ not always helps)
+  # sametimed -> _Build Project_
+  # (if project is marked with error still, but not in the sources or files, just project - go into sametimed -> _Properties_ again and check/uncheck _Builders_ -> `Faceted Validation Builder`, then _Build Project_ again, if required, it must disappear then)
+
+== Running Project (!RunJettyRun) ==
+
+  # Check `src/waveserver-properties.xml` file to have the same values as your wave-server is configured. Then run Wave server: `./run-server.sh`.
+  # Go to _Help_ -> _Install New Software..._ -> Type in *Work with:* `http://run-jetty-run.googlecode.com/svn/trunk/updatesite`, Install this plugin (_!RunJettyRun_)
+  # sametimed -> _Run As_ -> _Run Configurations..._ -> _Jetty Webapp_ -> _New_
+  # There: 
+    * *Name*: `sametimed (jetty)`
+    * *Project*: `sametimed`
+    * *HTTP*: any free one, for example `8080`
+    * *HTTPS*: empty
+    * *Context*: `/sametimed`
+    * *!WebApp dir*: `WebContent`
+  # And press _Run_
+  # Do not forget to run `wave-protocol` server and to correct `src\waveserver.properties` file before making fun
+  # If no other servers were running while here, there must be no problems
+  # Open your browser (its better to be Firefox for now) and enter: `http://localhost:8080/sametimed`
+
+  Later, you can run this project using created Run Configuration.
+
+  It is also useful to add wave-protocol sources to Eclipse as parallel project.
